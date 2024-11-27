@@ -75,8 +75,8 @@ const ThreeScene = () => {
         <Model />
         <OrbitControls
           ref={controlsRef}
-          minDistance={18}
-          maxDistance={28}
+          minDistance={10}
+          maxDistance={18}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
         />

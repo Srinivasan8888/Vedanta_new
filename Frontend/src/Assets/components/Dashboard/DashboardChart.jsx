@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Switcher13 from "../miscellaneous/Switcher13";
-import Chartline from "../miscellaneous/chartline.jsx";
+import Switcher13 from "./miscellaneous/Switcher13.jsx";
+import Chartline from "./miscellaneous/chartline.jsx";
 import { temp } from './data/data.js'
 const DashboardChart = () => {
   const [userData, setUserData] = useState({
@@ -25,19 +25,44 @@ const DashboardChart = () => {
       borderWidth: 4
     }],
   });
-
+  
   const options = {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false  // This will hide the legend/label completely
+        display: false  
       },
       tooltip: {
         callbacks: {
+          title: function(context) {
+            
+            const index = context[0].dataIndex;
+            const timestamp = temp[index].timestamp; 
+            return `Timestamp: ${timestamp}`;
+          },
           label: function(context) {
-            return `${context.parsed.y}°C`;
+           
+            return `Temperature: ${context.parsed.y}°C`;
+          },
+          afterLabel: function(context) {
+           
+            return 'Hover for details!';
           }
-        }
+        },
+        displayColors: false, 
+        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Custom background
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+          color: '#fff'
+        },
+        bodyFont: {
+          size: 12,
+          color: '#fff'
+        },
+        padding: 10, // Adjust padding
+        borderWidth: 1,
+        borderColor: '#00c8ff' // A matching border color
       }
     },
     scales: {
@@ -64,10 +89,52 @@ const DashboardChart = () => {
         ticks: {
           color: 'white'
         },
-
       }
     }
   };
+  
+  // const options = {
+  //   maintainAspectRatio: false,
+  //   plugins: {
+  //     legend: {
+  //       display: false  // This will hide the legend/label completely
+  //     },
+  //     tooltip: {
+  //       callbacks: {
+  //         label: function(context) {
+  //           return `${context.parsed.y}°C`;
+  //         }
+  //       }
+  //     }
+  //   },
+  //   scales: {
+  //     y: {
+  //       position: 'right',
+  //       title: {
+  //         display: true,
+  //         text: 'Temperature (°C)',
+  //         color: 'white'
+  //       },
+  //       ticks: {
+  //         color: 'white',
+  //         callback: function(value) {
+  //           return value + ' °C';
+  //         }
+  //       },
+  //     },
+  //     x: {
+  //       title: {
+  //         display: true,
+  //         text: 'Timestamp',
+  //         color: 'white'
+  //       },
+  //       ticks: {
+  //         color: 'white'
+  //       },
+
+  //     }
+  //   }
+  // };
 
   return (
     <div className="h-[460px] md:h-auto md:w-[50%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">

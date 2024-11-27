@@ -15,3 +15,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+  @font-face {
+    font-family: 'regular';
+    src: local("Poppins-Regular"),
+    url('./Assets/Fonts/Poppins-Regular.ttf') format("truetype");    
+  }
