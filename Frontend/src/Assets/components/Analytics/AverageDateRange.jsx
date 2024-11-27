@@ -25,7 +25,7 @@ const AverageDateRange = () => {
             type="date"
             id="startdate"
             name="startdate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.63)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
 
@@ -40,7 +40,7 @@ const AverageDateRange = () => {
             type="date"
             id="enddate"
             name="enddate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.63)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
       </div>

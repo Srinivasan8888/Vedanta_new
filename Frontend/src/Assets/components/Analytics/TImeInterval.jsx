@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const TImeInterval = () => {
+const TimeInterval = () => {
   const [selected, setSelected] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [content, setContent] = useState("default");
@@ -9,6 +9,7 @@ const TImeInterval = () => {
   const handleRadioChange = (event) => {
     setSelected(event.target.value);
   };
+  
   return (
     <>
       <div className="flex-1 text-xl font-bold">Select Time Interval</div>
@@ -24,7 +25,7 @@ const TImeInterval = () => {
             type="date"
             id="startdate"
             name="startdate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.63)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
 
@@ -39,7 +40,7 @@ const TImeInterval = () => {
             type="date"
             id="enddate"
             name="enddate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.63)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
       </div>
@@ -105,4 +106,4 @@ const TImeInterval = () => {
   );
 };
 
-export default TImeInterval;
+export default TimeInterval;
