@@ -33,7 +33,7 @@ const Analytics = () => {
             {selectedButton === "Count" && <CountData />}
           </div>
 
-          <div className="md:w-[40%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto">
+          <div className="md:w-[40%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto slimscroll-custom">
             <AnalyticsTable />
           </div>
         </div>
@@ -48,3 +48,4 @@ const Analytics = () => {
 };
 
 export default Analytics;
+  

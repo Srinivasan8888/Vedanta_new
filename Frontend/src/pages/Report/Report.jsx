@@ -1,18 +1,43 @@
-import React from 'react'
+import React, { useState } from "react";
+
 import bg from "../../Assets/images/bg.png";
-import Sidebar from '../../Assets/Sidebar/Sidebar';
+import Sidebar from "../../Assets/Sidebar/Sidebar";
+import reportimg from "../../Assets/images/reportimg.png";
+
+import ReportsButton from "../../Assets/components/Reports/ReportsButton";
+import AverageDateRange from "../../Assets/components/Reports/AverageDateRange";
+import TimeInterval from "../../Assets/components/Reports/TimeInterval";
+import RangeDate from "../../Assets/components/Reports/RangeDate";
+import CountData from "../../Assets/components/Reports/CountData";
+
 
 const Report = () => {
+  const [selectedButton, setSelectedButton] = useState("Average");
+
   return (
     <div
-    className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
-    style={{ backgroundImage: `url(${bg})` }}
->
-    <Sidebar />
+      className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
+      style={{ backgroundImage: `url(${bg})` }}
+    >
+      <Sidebar />
 
-    <div className='text-white'>Report</div>
-</div>
-  )
-}
+      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white">
+        <ReportsButton
+          selectedButton={selectedButton}
+          setSelectedButton={setSelectedButton}
+        />
+        <div className="bg-[rgb(9,9,11)] md:w-[85%] md:h-[92%] m-8 rounded-lg border border-white backdrop-blur-lg text-white flex">
+          <div className="md:w-[50%] md:flex items-center justify-center m-36 rounded-lg sm:hidden">
+            <img src={reportimg} className="w-full h-auto rounded-md" />
+          </div>
+          {selectedButton === "Average" && <AverageDateRange />}
+          {selectedButton === "Time" && <TimeInterval />} 
+          {selectedButton === "Range" && <RangeDate />}
+            {selectedButton === "Count" && <CountData />} 
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default Report
+export default Report;

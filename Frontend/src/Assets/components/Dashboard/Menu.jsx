@@ -21,9 +21,9 @@ export function Menus() {
                           ? 'bg-gray-100 text-gray-900'
                           : 'text-gray-700'
                           } block px-4 py-2 text-sm`}
-                        href="/account-settings"
+                        href="/Dashboard"
                       >
-                       Overview
+                       Home
                       </a>
                     )}
                   </MenuItem>
@@ -34,9 +34,9 @@ export function Menus() {
                           ? 'bg-gray-100 text-gray-900'
                           : 'text-gray-700'
                           } block px-4 py-2 text-sm`}
-                        href="/account-settings"
+                        href="/Report"
                       >
-                        Profile
+                        Report
                       </a>
                     )}
                   </MenuItem>
@@ -47,9 +47,35 @@ export function Menus() {
                           ? 'bg-gray-100 text-gray-900'
                           : 'text-gray-700'
                           } block px-4 py-2 text-sm`}
-                        href="/account-settings"
+                        href="/Analytics"
+                      >
+                        Analytics
+                      </a>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ isActive }) => (
+                      <a
+                        className={`${isActive
+                          ? 'bg-gray-100 text-gray-900'
+                          : 'text-gray-700'
+                          } block px-4 py-2 text-sm`}
+                        href="/Settings"
                       >
                         Settings
+                      </a>
+                    )}
+                  </MenuItem>
+                  <MenuItem>
+                    {({ isActive }) => (
+                      <a
+                        className={`${isActive
+                          ? 'bg-gray-100 text-gray-900'
+                          : 'text-gray-700'
+                          } block px-4 py-2 text-sm`}
+                        href="/Settings"
+                      >
+                        Logout
                       </a>
                     )}
                   </MenuItem>

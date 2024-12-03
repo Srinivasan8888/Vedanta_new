@@ -1,9 +1,10 @@
 import React from "react";
 
+
 const AnalyticsTable = () => {
   return (
     <>
-      <table className="text-lg font-normal text-white font-poppins">
+      <table className="text-lg font-normal text-white font-poppins ">
         <thead className="sticky top-0">
           <tr className="flex gap-7 py-4  justify-evenly bg-[rgb(16,16,16)] rounded-tr-xl rounded-tl-xl px-3">
             <th className="">S.No</th>
@@ -21,7 +22,7 @@ const AnalyticsTable = () => {
             <th className="whitespace-nowrap">Avg T12</th>
           </tr>
         </thead>
-        <tbody className="overflow-y-scroll">
+        <tbody className="overflow-y-scroll slimscroll-custom">
           <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly">
             <td className="">1</td>
             <td className="whitespace-nowrap">20</td>

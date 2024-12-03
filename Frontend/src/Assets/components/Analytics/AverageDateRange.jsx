@@ -3,6 +3,7 @@ import React, { useState } from "react";
 const AverageDateRange = () => {
   const [selected, setSelected] = useState("");
   const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [content, setContent] = useState("default");
   const [selectedButton, setSelectedButton] = useState(0);
 
@@ -13,7 +14,7 @@ const AverageDateRange = () => {
   return (
     <>
       <div className="flex-1 text-xl font-bold">Select Date Range</div>
-      <div className="flex flex-row items-center justify-center w-full mb-5 space-x-4">
+      <div className="flex flex-row items-center justify-center w-full gap-2 mb-5 space-x-4">
         <div className="flex items-center space-x-2">
           <label
             htmlFor="startdate"
@@ -46,7 +47,7 @@ const AverageDateRange = () => {
       </div>
 
       <div className="flex-1 mt-3 text-lg font-bold">Average By</div>
-      <div className="flex flex-1 space-x-20">
+      <div className="flex flex-1 space-x-14">
         <div className="flex items-center mb-4">
           <input
             id="radio-1"

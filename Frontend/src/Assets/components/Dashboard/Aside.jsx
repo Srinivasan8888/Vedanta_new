@@ -2,7 +2,7 @@ import React from 'react'
 import sort from "../../images/down-arrow.png";
 import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
-
+import '../miscellaneous/Scrollbar.css'
 const Aside = () => {
   return (
     <div className="h-[400px] md:w-[25%] md:h-auto  rounded-2xl border-[1.5px] border-white backdrop-blur-2xl bg-[rgba(16,16,16,0.7)] m-4 text-white font-poppins">
@@ -39,7 +39,7 @@ const Aside = () => {
     </div>
     <div className="h-[1px] mx-8 mt-3 bg-white"></div>
 
-    <div className="max-h-[70%] overflow-y-auto">
+    <div className="max-h-[70%] overflow-y-auto scrollbar-custom">
       <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">
         <p>CBTA1</p>
         <p className="ml-6">213.46</p>
