@@ -20,7 +20,7 @@ const Analytics = () => {
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Sidebar />
-      <div className="bg-[rgba(16,16,16,0.5)] md:h-[87%] m-8 rounded-lg border border-white">
+      <div className="bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white">
         <div className="md:h-[35%] md:flex m-4 gap-3">
           <AnalyticsButton
             selectedButton={selectedButton}

@@ -16,18 +16,19 @@ const Report = () => {
 
   return (
     <div
-      className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
+      className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1000px]"
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Sidebar />
 
-      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white">
+      {/* <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white sm:flex-cols sm:flex-row-none md:flex-row"> */}
+      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white flex-col md:flex-row">
         <ReportsButton
           selectedButton={selectedButton}
           setSelectedButton={setSelectedButton}
         />
         <div className="bg-[rgb(9,9,11)] md:w-[85%] md:h-[92%] m-8 rounded-lg border border-white backdrop-blur-lg text-white flex">
-          <div className="md:w-[50%] md:flex items-center justify-center m-36 rounded-lg sm:hidden">
+          <div className="md:w-[50%] md:flex items-center justify-center m-36 rounded-lg hidden sm:flex">
             <img src={reportimg} className="w-full h-auto rounded-md" />
           </div>
           {selectedButton === "Average" && <AverageDateRange />}
