@@ -26,19 +26,19 @@ const Analytics = () => {
             selectedButton={selectedButton}
             setSelectedButton={setSelectedButton}
           />
-          <div className="md:w-[35%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border flex flex-col border-white text-white backdrop-blur justify-center items-center py-4">
+          <div className="md:w-[35%] bg-[rgba(16,16,16,0.7)] md:h-[100%] rounded-xl mt-4 border flex flex-col border-white text-white backdrop-blur justify-center items-center py-4">
             {selectedButton === "Average" && <AverageDateRange />}
             {selectedButton === "Time" && <TimeInterval />}
             {selectedButton === "Range" && <RangeDate />}
             {selectedButton === "Count" && <CountData />}
           </div>
 
-          <div className="md:w-[40%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto slimscroll-custom">
+          <div className="md:w-[40%] md:h-[100%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto slimscroll-custom">
             <AnalyticsTable />
           </div>
         </div>
         <div className="md:h-[58%] md:flex">
-          <div className="md:w-full md:h-full m-4 bg-[rgba(16,16,16,0.6)] rounded-xl border border-white">
+          <div className="md:w-full md:h-full m-4 h-[700px] bg-[rgba(16,16,16,0.6)] rounded-xl border border-white">
             <AnalyticsChart/>
           </div>
         </div>

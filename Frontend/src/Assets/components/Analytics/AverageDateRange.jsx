@@ -12,9 +12,12 @@ const AverageDateRange = () => {
   };
 
   return (
-    <>
-      <div className="flex-1 text-xl font-bold">Select Date Range</div>
-      <div className="flex flex-row items-center justify-center w-full gap-2 mb-5 space-x-4">
+    <div className="md:h-[100%] h-[380px]">
+      <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
+        Select Date Range
+      </div>
+
+      <div className="flex md:flex-row flex-col gap-4 mt-2 md:mt-0 items-center justify-center w-full md:gap-2 md:h-[25%] md:space-x-10">
         <div className="flex items-center space-x-2">
           <label
             htmlFor="startdate"
@@ -26,7 +29,7 @@ const AverageDateRange = () => {
             type="date"
             id="startdate"
             name="startdate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
 
@@ -41,13 +44,16 @@ const AverageDateRange = () => {
             type="date"
             id="enddate"
             name="enddate"
-            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] bg-white border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+            className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
       </div>
 
-      <div className="flex-1 mt-3 text-lg font-bold">Average By</div>
-      <div className="flex flex-1 space-x-14">
+      <div className="flex-1 text-lg font-semibold md:h-[10%] mt-2">
+        Average By
+      </div>
+
+      <div className="flex flex-col md:flex-row items-center justify-center md:space-x-14 md:h[20%] mt-6">
         <div className="flex items-center mb-4">
           <input
             id="radio-1"
@@ -100,10 +106,11 @@ const AverageDateRange = () => {
           </label>
         </div>
       </div>
-      <div className="flex-1 bg-[rgba(16,16,16,1)] border-2 border-white md:h-16 md:w-36 rounded-xl flex items-center justify-center">
+
+      <div className="bg-[rgba(16,16,16,1)] border-2 border-white md:h-[20%] h-[15%] w-[60%] md:w-[30%] rounded-lg flex items-center justify-center md:mb-0 mx-auto">
         <button className="flex items-center justify-center">Plot Graph</button>
       </div>
-    </>
+    </div>
   );
 };
 

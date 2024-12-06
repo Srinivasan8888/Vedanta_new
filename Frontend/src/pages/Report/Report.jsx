@@ -16,13 +16,13 @@ const Report = () => {
 
   return (
     <div
-      className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1000px]"
+      className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1100px]"
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Sidebar />
 
       {/* <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white sm:flex-cols sm:flex-row-none md:flex-row"> */}
-      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white flex-col md:flex-row">
+      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white flex-col md:flex-row ">
         <ReportsButton
           selectedButton={selectedButton}
           setSelectedButton={setSelectedButton}
@@ -34,7 +34,7 @@ const Report = () => {
           {selectedButton === "Average" && <AverageDateRange />}
           {selectedButton === "Time" && <TimeInterval />} 
           {selectedButton === "Range" && <RangeDate />}
-            {selectedButton === "Count" && <CountData />} 
+          {selectedButton === "Count" && <CountData />} 
         </div>
       </div>
     </div>

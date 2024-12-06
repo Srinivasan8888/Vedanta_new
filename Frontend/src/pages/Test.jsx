@@ -1,108 +1,89 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import {
-  useGLTF,
-  Stage,
-  OrbitControls,
-  PresentationControls,
-} from "@react-three/drei";
+<>
+<div className="flex-1 text-xl font-bold">Select Date</div>
 
-const Model = ({ lastData, updatedLimitS1, updatedLimitS2 }) => {
-  const group = useRef();
+<div className="flex flex-col items-center justify-center w-full mb-5 space-x-4">
+  <div className="flex items-center gap-2 m-3 space-x-2 space-y-4">
+    <div className="flex flex-1 space-x-20">
+      <div className="flex items-center mb-4">
+        <input
+          id="radio-1"
+          type="radio"
+          value="option1"
+          name="radio-group"
+          checked={selected === "option1"}
+          onChange={handleRadioChange}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <label
+          htmlFor="radio-1"
+          className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+        >
+          Last 100 Data
+        </label>
+      </div>
+      <div className="flex items-center mb-4">
+        <input
+          id="radio-2"
+          type="radio"
+          value="option2"
+          name="radio-group"
+          checked={selected === "option2"}
+          onChange={handleRadioChange}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <label
+          htmlFor="radio-2"
+          className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+        >
+          Last 500 Data
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
-  const gltfPath = "./utmaps_curve.glb" ;
-  
-  const {scene} = useGLTF(gltfPath);
-  // const { scene } = useGLTF("./utmaps_curve.glb");
-  // const { scene } = useGLTF("./utmapsDemokit02.glb");
-  const [cylinder001Color, setCylinder001Color] = useState("white");
-  const [cylinder002Color, setCylinder002Color] = useState("white");
-  const [hoveredMesh, setHoveredMesh] = useState(null);
+<div className="flex flex-col items-center justify-center w-full mb-5 space-x-4">
+  <div className="flex items-center gap-2 m-3 space-x-2 space-y-4">
+    <div className="flex flex-1 space-x-20">
+      <div className="flex items-center mb-4">
+        <input
+          id="radio-3"
+          type="radio"
+          value="option3"
+          name="radio-group"
+          checked={selected === "option3"}
+          onChange={handleRadioChange}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <label
+          htmlFor="radio-3"
+          className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+        >
+          Last 1000 Data
+        </label>
+      </div>
+      <div className="flex items-center mb-4">
+        <input
+          id="radio-4"
+          type="radio"
+          value="option4"
+          name="radio-group"
+          checked={selected === "option4"}
+          onChange={handleRadioChange}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <label
+          htmlFor="radio-4"
+          className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+        >
+          Custom Data
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
-  // console.log("last data", lastData);
-
-  // console.log('last sensor1 data', lastData.Sensor1);
-
-  // console.log("updated limit in 3d file", updatedLimit);
-
-  useEffect(() => {
-    if (lastData && lastData.Sensor2 !== undefined) {
-      setCylinder001Color(lastData.Sensor2 >= updatedLimitS2 ? "red" : "white");
-    }
-    if (lastData && lastData.Sensor1 !== undefined) {
-      setCylinder002Color(lastData.Sensor1 >= updatedLimitS1 ? "red" : "white");
-    }
-  }, [lastData]);
-
-  useFrame(() => {
-    if (group.current) {
-      group.current.rotation.y += 0.01;
-      group.current.traverse((child) => {
-        if (child.isMesh) {
-          // if (child.name === "Cylinder001") {
-          //   child.material.color.set(
-          //     hoveredMesh === "Cylinder001" ? "red" : "white"
-          //   );
-          // } else if (child.name === "Cylinder002") {
-          //   child.material.color.set(
-          //     hoveredMesh === "Cylinder002" ? "blue" : "white"
-          //   );
-          // }
-          if (child.name === "Cylinder001") {
-            child.material.color.set(cylinder001Color);
-          } else if (child.name === "Cylinder002") {
-            child.material.color.set(cylinder002Color);
-          }
-        }
-      });
-    }
-  });
-
-  const handlePointerOver = (e) => {
-    e.stopPropagation();
-    setHoveredMesh(e.object.name);
-    console.log(`Hovered over: ${e.object.name}`);
-  };
-
-  const handlePointerOut = (e) => {
-    e.stopPropagation();
-    setHoveredMesh(null);
-  };
-
-  return (
-    <primitive
-      ref={group}
-      object={scene}
-      // srotation={[Math.PI, 0, 0]}
-      // {...props}
-      onPointerOver={handlePointerOver}
-      onPointerOut={handlePointerOut}
-    />
-  );
-};
-
-const ThreeDModelUtmaps = ({ lastData, updatedLimitS1, updatedLimitS2 }) => {
-  // console.log("data in three d file ", lastData);
-  return (
-    <Canvas dpr={[1, 2]} shadows camera={{ fov: 30 }}>
-      <ambientLight intensity={0.5} />
-
-      <PresentationControls
-        speed={1.5}
-        global
-        // polar={[-Math.PI / 4, Math.PI / 4]}
-      >
-        <Stage environment={"warehouse"}>
-          <Model
-            lastData={lastData}
-            updatedLimitS1={updatedLimitS1}
-            updatedLimitS2={updatedLimitS2}
-          />
-        </Stage>
-      </PresentationControls>
-      <OrbitControls />
-    </Canvas>
-  );
-};
-
-export default ThreeDModelUtmaps;
+<div className=" flex-1 bg-[rgba(16,16,16,1)] border-2 border-white md:h-13 md:w-36 rounded-xl flex items-center justify-center">
+  <button className="flex items-center justify-center">Plot Graph</button>
+</div>
+</>

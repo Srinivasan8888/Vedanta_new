@@ -2,21 +2,21 @@ import React, { useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const TimeInterval = () => {
-    const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState("");
 
-    const handleRadioChange = (event) => {
-      setSelected(event.target.value);
-    };
+  const handleRadioChange = (event) => {
+    setSelected(event.target.value);
+  };
   return (
     <>
-      <div className="md:w-[50%]">
-        <div className="md:h-[16%] flex justify-center items-end text-3xl font-semibold">
+      <div className="md:w-[50%] w-[100%] md:mb-0 ">
+        <div className="md:h-[16%] flex flex-row justify-center items-end md:text-3xl md:font-semibold md:mt-0 mt-4">
           Select Time Interval
         </div>
         <div className="flex flex-col md:h-[40%] gap-10 justify-center mx-16">
-          <div className="flex flex-row items-center justify-between mt-10">
+          <div className="flex flex-col items-center justify-between mt-10 md:flex-row">
             <div className="items-start text-xl font-normal">Configuration</div>
-            <div className="items-end justify-end ml-2">
+            <div className="items-end justify-end mt-4 ml-2 md:mt-0">
               <Menu as="div" className="relative inline-block text-left">
                 <div>
                   <MenuButton className="inline-flex w-64 justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 backdrop-blur-[8px] shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]">
@@ -83,33 +83,34 @@ const TimeInterval = () => {
             </div>
           </div>
 
-          <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-col items-center justify-between md:flex-row">
             <div className="text-xl font-normal text-start">From</div>
             <div>
               <input
                 type="date"
                 id="startdate"
                 name="startdate"
-                className="w-64 h-9 text-sm text-black bg-[rgb(232, 235, 236)] border border-gray-200 rounded-md p-1 custom-datepicker backdrop-blur-[8px] shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]"
+                className="w-64 h-9 text-sm text-black bg-[rgb(232, 235, 236)] border border-gray-200 rounded-md p-1 custom-datepicker backdrop-blur-[8px] md:mt-0 mt-4 shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]"
               />
             </div>
           </div>
-          <div className="flex flex-row items-center justify-between">
-            <div className="text-xl font-normal text-start">To</div>
+          <div className="flex flex-col items-center justify-between md:flex-row">
+            <div className="text-xl font-normal text-start">to</div>
             <div>
               <input
                 type="date"
                 id="enddate"
                 name="enddate"
-                className="w-64 h-9 text-sm text-black bg-[rgb(232, 235, 236)] border border-gray-200 rounded-md p-1 custom-datepicker backdrop-blur-[8px] shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]"
+                className="w-64 h-9 text-sm text-black bg-[rgb(232, 235, 236)] border border-gray-200 rounded-md p-1 custom-datepicker backdrop-blur-[8px] md:mt-0 mt-4 shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]"
+
               />
             </div>
           </div>
         </div>
         <div className="flex md:h-[10%] text-lg font-bold justify-center item-center pt-10">
-        Get 1 data for every-
+          Get 1 data for every-
         </div>
-        <div className="flex md:h-[10%] space-x-20 items-center justify-center">
+        <div className="flex md:h-[10%] space-x-20 items-center justify-center md:mt-0 mt-4">
           <div className="flex items-center mb-4">
             <input
               id="radio-2"
@@ -145,7 +146,7 @@ const TimeInterval = () => {
             </label>
           </div>
         </div>
-        <div className="flex md:h-[15%] text-lg font-bold justify-center item-center pt-8">
+        <div className="flex md:h-[15%] text-lg font-bold justify-center item-center md:pt-8 mb-4 md:mb-0">
           <div className="flex items-center justify-center w-56 h-16 bg-[rgba(232,235,236,1)] rounded-lg text-black">
             <button className="flex items-center">
               <svg

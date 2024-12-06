@@ -9,10 +9,10 @@ const CountData = () => {
   return (
     <>
       <div className="md:w-[50%]">
-        <div className="md:h-[16%] flex justify-center items-end text-3xl font-semibold">
+      <div className="md:h-[16%] flex flex-row justify-center items-end md:text-3xl md:font-semibold md:mt-0 mt-4">
           Select Count
         </div>
-        <div className="flex flex-col md:h-[60%] gap-10 justify-center mx-16">
+        <div className="flex flex-col md:h-[60%] gap-10 justify-center mx-16 mt-10 md:mt-0">
           <div className="flex flex-row items-center justify-center">
             <div className="items-end justify-end ml-2">
               <div className="flex items-center mb-4">
@@ -101,7 +101,7 @@ const CountData = () => {
           </div>
         </div>
 
-        <div className="flex md:h-[25%] text-lg font-bold justify-center item-center pt-8">
+        <div className="flex md:h-[25%] text-lg font-bold justify-center item-center ml-8 pt-8 mb-4 md:mb-0">
           <div className="flex items-center justify-center w-56 h-16 bg-[rgba(232,235,236,1)] rounded-lg text-black">
             <button className="flex items-center">
               <svg

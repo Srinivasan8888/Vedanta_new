@@ -12,7 +12,7 @@ export function Menus() {
               </div>
             </MenuButton>
             {open && (
-              <div className='absolute right-0 w-48 mt-2 bg-white shadow-lg z-1'>
+              <div className='absolute right-0 z-50 w-48 mt-2 bg-white shadow-lg'>
                 <MenuItems>
                   <MenuItem>
                     {({ isActive }) => (
