@@ -14,7 +14,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
         }`}
         onClick={() => setSelectedButton("Average")}
       >
-        <img src={Average} className="w-6 h-6 md:h-auto md:mt-0" />
+        <img src={Average} className="w-6 h-6 md:w-5 md:h-auto md:mt-0" />
         <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg">Average Data</div>
       </button>
       <button
@@ -23,7 +23,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
         }`}
         onClick={() => setSelectedButton("Time")}
       >
-        <img src={Interval} className="w-6 h-6 md:h-auto md:mt-0" />
+        <img src={Interval} className="w-6 h-6 md:w-8 md:h-auto md:mt-0" />
         <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg ">Interval Data</div>
       </button>
       <button
