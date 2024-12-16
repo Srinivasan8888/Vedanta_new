@@ -1,8 +1,8 @@
-const express = require("express")
-const router = express.Router()
-const createError = require("http-errors")
-const User = require("../Models/User.model")
-import jwt from "jsonwebtoken";
+const express = require("express");
+const router = express.Router();
+const createError = require("http-errors");
+const User = require("../Models/User.model");
+const jwt = require('jsonwebtoken');
 const { authSchema } = require("../../Helpers/validation_schema");
 const { signAccessToken } = require("../../Helpers/jwt_helper");
 
