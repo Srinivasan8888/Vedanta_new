@@ -6,7 +6,9 @@ module.exports = {
     return new Promise((resolve, reject) => {
       const secret = process.env.ACCESS_TOKEN_SECRET;
       if (!secret) {
-        return reject(createError.InternalServerError("Access token secret is not defined"));
+        return reject(
+          createError.InternalServerError("Access token secret is not defined")
+        );
       }
       const payload = {
         audience: userId,
@@ -27,15 +29,16 @@ module.exports = {
   },
 
   verifyAccessToken: (req, res, next) => {
-
     if (!req.headers["authorization"]) return next(createError.Unauthorized());
     const authHeader = req.headers["authorization"];
     const bearerToken = authHeader.split(" ");
     const token = bearerToken[1];
-    const secret = process.env.ACCESS_TOKEN_SECRETT;
-      if (!secret) {
-        return reject(createError.InternalServerError("Access token secret is not defined"));
-      }
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    if (!secret) {
+      return reject(
+        createError.InternalServerError("Access token secret is not defined")
+      );
+    }
     JWT.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
       if (err) {
         const message =
@@ -51,7 +54,9 @@ module.exports = {
     return new Promise((resolve, reject) => {
       const secret = process.env.REFERST_TOKEN_SECRET;
       if (!secret) {
-        return reject(createError.InternalServerError("Refresh token secret is not defined"));
+        return reject(
+          createError.InternalServerError("Refresh token secret is not defined")
+        );
       }
       const payload = {};
       const options = {
@@ -66,6 +71,20 @@ module.exports = {
         }
         resolve(token);
       });
+    });
+  },
+
+  verifyRefreshToken: (refreshToken) => {
+    return new Promise((resolve, reject) => {
+      JWT.verify(
+        refreshToken,
+        process.env.REFERST_TOKEN_SECRET,
+        (err, payload) => {
+          if (err) return reject(createError.Unauthorized());
+          const userId = payload.aud;
+          resolve(userId);
+        }
+      );
     });
   },
 };
