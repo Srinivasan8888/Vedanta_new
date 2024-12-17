@@ -1,7 +1,9 @@
 const JWT = require("jsonwebtoken");
 const createError = require("http-errors");
+const client = require('./init_redis')
 
 module.exports = {
+  
   signAccessToken: (userId) => {
     return new Promise((resolve, reject) => {
       const secret = process.env.ACCESS_TOKEN_SECRET;
@@ -69,7 +71,16 @@ module.exports = {
           console.log(err.message);
           reject(createError.InternalServerError());
         }
-        resolve(token);
+        console.log("Setting refresh token in Redis...");
+        client.SETEX(userId, 24 * 60 * 60, token)
+          .then(reply => {
+            console.log("Finished setting refresh token in Redis.");
+            resolve(token);
+          })
+          .catch(err => {
+            console.log("Error setting refresh token in Redis:", err.message);
+            reject(createError.InternalServerError());
+          });
       });
     });
   },
@@ -82,7 +93,15 @@ module.exports = {
         (err, payload) => {
           if (err) return reject(createError.Unauthorized());
           const userId = payload.aud;
-          resolve(userId);
+          client.GET(userId)
+            .then(result => {
+              if (refreshToken === result) return resolve(userId);
+              reject(createError.Unauthorized());
+            })
+            .catch(err => {
+              console.log(err.message);
+              reject(createError.InternalServerError());
+            });
         }
       );
     });
