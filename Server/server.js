@@ -6,6 +6,7 @@ const createError = require('http-errors');
 require('dotenv').config();
 const AuthRoute = require('./API/Router/Auth.route')
 require('./Helpers/init_mongodb');
+const { verifyAccessToken } = require('./Helpers/jwt_helper')
  
 const cors = require("cors");
 const app = express();
@@ -33,14 +34,12 @@ const connect = async () => {
 //     console.log('Mongodb disconnected...');
 // });
 
-app.use('/auth', AuthRoute);
-
-app.use(async (req, res, next) => {
-    // const error = new Error('Not Found')
-    // error.status = 404
-    // next(error)
-    next(createError.NotFound('This API Doesn\'t exist'))
+app.get('/', verifyAccessToken, async (req, res, next) => {
+    console.log(req.headers['authorization'])
+   res.send('backend is running')
 })
+
+app.use('/auth', AuthRoute);
 
 app.use(async (err, req, res, next) => {
     res.status(err.status || 500)
@@ -55,6 +54,14 @@ app.use(async (err, req, res, next) => {
 app.get('/', (req, res) => {
     res.json({ message: "Backend is running" });
 })
+
+// app.use(async (req, res, next) => {
+//     // const error = new Error('Not Found')
+//     // error.status = 404
+//     // next(error)
+//     next(createError.NotFound('This API Doesn\'t exist'))
+// })
+
 
 app.listen(port, () => {
     connect();
