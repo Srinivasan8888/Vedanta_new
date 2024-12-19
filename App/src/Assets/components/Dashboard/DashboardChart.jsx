@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import Switcher13 from "./miscellaneous/Switcher13.jsx";
 import Chartline from "./miscellaneous/chartline.jsx";
+import Chartbar from "./miscellaneous/chartbar.jsx";
 import { temp } from './data/data.js'
 const DashboardChart = () => {
-  const [userData, setUserData] = useState({
+  const [isBarChart, setIsBarChart] = useState(false);
+
+  const userData = {
     labels: temp.map((data) => data.month),
     datasets: [{
       data: temp.map((data) => data.temp),
@@ -24,7 +27,7 @@ const DashboardChart = () => {
       fill: true,
       borderWidth: 4
     }],
-  });
+  };
   
   const options = {
     maintainAspectRatio: false,
@@ -93,48 +96,9 @@ const DashboardChart = () => {
     }
   };
   
-  // const options = {
-  //   maintainAspectRatio: false,
-  //   plugins: {
-  //     legend: {
-  //       display: false  // This will hide the legend/label completely
-  //     },
-  //     tooltip: {
-  //       callbacks: {
-  //         label: function(context) {
-  //           return `${context.parsed.y}°C`;
-  //         }
-  //       }
-  //     }
-  //   },
-  //   scales: {
-  //     y: {
-  //       position: 'right',
-  //       title: {
-  //         display: true,
-  //         text: 'Temperature (°C)',
-  //         color: 'white'
-  //       },
-  //       ticks: {
-  //         color: 'white',
-  //         callback: function(value) {
-  //           return value + ' °C';
-  //         }
-  //       },
-  //     },
-  //     x: {
-  //       title: {
-  //         display: true,
-  //         text: 'Timestamp',
-  //         color: 'white'
-  //       },
-  //       ticks: {
-  //         color: 'white'
-  //       },
-
-  //     }
-  //   }
-  // };
+  const toggleChartType = () => {
+    setIsBarChart(!isBarChart);
+  };
 
   return (
     <div className="h-[460px] md:h-auto md:w-[50%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
@@ -154,7 +118,7 @@ const DashboardChart = () => {
         </div>
 
         <div className="flex items-center justify-center gap-2 mt-3 md:justify-start md:mt-0">
-          <Switcher13 />
+          <Switcher13 toggleChartType={toggleChartType} />
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
@@ -167,7 +131,11 @@ const DashboardChart = () => {
       <div className="h-[180px] md:h-[75%] w-[100%]">
         
         <div className="w-full h-full">
-          <Chartline chartData={userData} width={"100%"} options={options} />
+          {isBarChart ? (
+            <Chartbar chartData={userData} options={options} />
+          ) : (
+            <Chartline chartData={userData} width={"100%"} options={options} />
+          )}
 
         </div>
         

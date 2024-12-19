@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-const Switcher13 = () => {
+const Switcher13 = ({ toggleChartType }) => {
   const [isChecked, setIsChecked] = useState(false);
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
+    toggleChartType();
   };
 
   return (
