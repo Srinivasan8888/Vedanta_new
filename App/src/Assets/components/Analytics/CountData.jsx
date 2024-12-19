@@ -14,7 +14,7 @@ const CountData = () => {
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
         Select Count
       </div>
-      <div className="flex flex-col gap-4 mt-10 md:mt-0 items-center justify-center w-full md:gap-4 md:h-[58.4%] ">
+      <div className="flex flex-col gap-4 mt-10 md:mt-0 items-center justify-center w-full md:gap-4 md:h-[58.4%] mb-[1.6px]">
         <div className="flex flex-row mt-4 space-x-2 md:flex-1 md:space-x-20">
           <div className="flex items-center ">
             <input
@@ -51,7 +51,6 @@ const CountData = () => {
             </label>
           </div>
         </div>
-
         <div className="flex flex-1 mb-4 space-x-2 md:space-x-20">
           <div className="flex items-center">
             <input
@@ -89,7 +88,7 @@ const CountData = () => {
           </div>
         </div>
       </div>
-      <div className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[64.5%] md:h-[20%]  rounded-lg flex items-center justify-center mt-8 mb-1 md:mt-0 md:mb-0 mx-auto">
+      <div className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[37.5%] md:h-[21%]  rounded-lg flex items-center justify-center mt-8 mb-1 md:mt-0 md:mb-0 mx-auto">
         <button className="flex items-center justify-center">Plot Graph</button>
       </div>
     </div>

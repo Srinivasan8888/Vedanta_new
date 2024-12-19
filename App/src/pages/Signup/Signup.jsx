@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import loginbg from "../../Assets/images/loginbg.png";
 import xyma from "../../Assets/images/Xyma-Logo.png";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setconfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const token2 = localStorage.getItem('refreshToken');
+    
+    if (token && token2) {
+      navigate("/Dashboard"); 
+    }
+  }, [navigate]); 
 
   const registerUser = async (event) => {
     event.preventDefault();

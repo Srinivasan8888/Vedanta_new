@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import loginbg from "../../Assets/images/loginbg.png";
 import xyma from "../../Assets/images/Xyma-Logo.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const token2 = localStorage.getItem('refreshToken');
+    
+    if (token && token2) {
+      navigate("/Dashboard"); 
+    }else{
+        navigate("/"); 
+    }
+  }, [navigate]); 
 
   const Loginuser = async (event) => {
     event.preventDefault();
@@ -35,20 +48,17 @@ const Login = () => {
       const data = await response.json();
       console.log("Login Response:", data);
 
-      // Save tokens securely in localStorage
+
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
 
-      alert("Login Successful");
-
-      // Navigate to the Dashboard page
+      setSuccessMessage("Login Successful");
       navigate("/Dashboard");
     } catch (error) {
       console.error("Error during login:", error);
       setErrorMessage("An error occurred. Please try again.");
     }
   };
-
 
 
   return (
@@ -107,7 +117,7 @@ const Login = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">
-                  <div className="text-red-700 error-message">{errorMessage}</div>
+                  <div className="text-red-700 error-message">{errorMessage || successMessage}</div>
                     {/* <div className="flex items-center h-5">
                                             <input id="remember" aria-describedby="remember" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" />
                                         </div> 

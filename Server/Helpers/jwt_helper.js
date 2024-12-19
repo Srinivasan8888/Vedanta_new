@@ -54,7 +54,7 @@ module.exports = {
 
   signRefreshToken: (userId) => {
     return new Promise((resolve, reject) => {
-      const secret = process.env.REFERST_TOKEN_SECRET;
+      const secret = process.env.REFRESH_TOKEN_SECRET;
       if (!secret) {
         return reject(
           createError.InternalServerError("Refresh token secret is not defined")
@@ -89,7 +89,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       JWT.verify(
         refreshToken,
-        process.env.REFERST_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         (err, payload) => {
           if (err) return reject(createError.Unauthorized());
           const userId = payload.aud;

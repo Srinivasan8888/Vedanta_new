@@ -71,22 +71,17 @@ module.exports = {
   logout: async (req, res, next) => {
     try {
       const { refreshToken } = req.body;
-      if (!refreshToken) throw createError.BadRequest();
-      const userId = await verifyRefreshToken(refreshToken);
+      if (!refreshToken) throw createError.BadRequest("Refresh token is required");
+
+      const userId = await verifyRefreshToken(refreshToken).catch(err => {
+        throw createError.Unauthorized("Invalid refresh token");
+      });
 
       // Use Promises for DEL operation
-      await client
-        .del(userId)
-        .then((val) => {
-          console.log(val);
-        })
-        .catch((err) => {
-          console.log(err.message);
-          throw createError.InternalServerError();
-        });
-
+      await client.del(userId);
       res.sendStatus(204);
     } catch (error) {
+      console.error("Logout error:", error.message); // Log the error for debugging
       next(error);
     }
   },

@@ -6,6 +6,7 @@ import { Menus } from "../components/Dashboard/Menu";
 import { IoMdLogOut } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import { IoMdSettings } from "react-icons/io";
+import axios from 'axios';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -14,11 +15,19 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  const gotologin = () => goTo("/");
   const gotoDashboard = () => goTo("/Dashboard");
   const gotoAnalytics = () => goTo("/Analytics");
   const gotoReport = () => goTo("/Report");
   const gotoSettings = () => goTo("/Settings");
+
+  const handleLogout = async () => {
+    // const refreshToken = localStorage.getItem('refreshToken');
+    // await axios.post(`${process.env.REACT_APP_SERVER_URL}auth/logout`, { refreshToken });
+    localStorage.clear();
+    window.location.href = '/';
+};
+
+console.log("Server URL:", process.env.REACT_APP_SERVER_URL);
 
   return (
     <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3">
@@ -88,7 +97,7 @@ const Sidebar = () => {
       <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoSettings()}>
         <IoMdSettings />
       </button>
-      <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotologin()}>
+      <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => handleLogout()}>
         <IoMdLogOut />
       </button>
       <div className="hidden md:flex md:w-[8%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
