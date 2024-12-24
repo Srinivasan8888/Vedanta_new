@@ -5,6 +5,9 @@ const sensorSchema = new mongoose.Schema({
     id:{
         type:String,
     },
+    busbar:{
+        type:String,
+    },
     CBT1A1:{
         type:String
     },
@@ -52,4 +55,4 @@ const sensorSchema = new mongoose.Schema({
      }
 },{timestamps: true});
 
-export default mongoose.model('sensorModel1',sensorSchema);
+export default mongoose.model('SensorModel1',sensorSchema);

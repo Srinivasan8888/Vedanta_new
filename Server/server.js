@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const createError = require('http-errors');
 require('dotenv').config();
 const AuthRoute = require('./API/Router/Auth.route')
+const InsertRoute = require('./API/Router/Insert.route')
 require('./Helpers/init_mongodb')
 const { verifyAccessToken } = require('./Helpers/jwt_helper')
 // const client = require('./Helpers/init_redis')
@@ -49,6 +50,7 @@ app.get('/', verifyAccessToken, async (req, res, next) => {
 })
 
 app.use('/auth', AuthRoute);
+app.use('/api/v1', InsertRoute);
 
 app.use(async (err, req, res, next) => {
     res.status(err.status || 500)

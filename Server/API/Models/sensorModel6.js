@@ -4,6 +4,8 @@ const {Schema} = mongoose;
 const sensorSchema = new mongoose.Schema({
     id:{
         type:String,
+    }, busbar:{
+        type:String,
     },
     CBT20A1:{
         type:String

@@ -5,22 +5,29 @@ import { useNavigate, Outlet } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [token, setToken] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const token2 = localStorage.getItem('refreshToken');
-    
+    const token = localStorage.getItem("accessToken");
+    const token2 = localStorage.getItem("refreshToken");
+    // const token3 = document.cookie
+    //   .split("; ")
+    //   .find((row) => row.startsWith("accessToken="));
+    // const token4 = document.cookie
+    //   .split("; ")
+    //   .find((row) => row.startsWith("refreshToken="));
+    // if (token && token2 && token3 && token4) {
     if (token && token2) {
-      navigate("/Dashboard"); 
-    }else{
-        navigate("/"); 
+      navigate("/Dashboard");
+    } else {
+      navigate("/");
     }
-  }, [navigate]); 
+  }, [navigate]);
 
   const Loginuser = async (event) => {
     event.preventDefault();
@@ -39,6 +46,8 @@ const Login = () => {
         }
       );
 
+      setToken(response.data.accessToken);
+
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(`Failed to login: ${errorData.error.message}`);
@@ -48,18 +57,17 @@ const Login = () => {
       const data = await response.json();
       console.log("Login Response:", data);
 
-
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
 
       setSuccessMessage("Login Successful");
       navigate("/Dashboard");
     } catch (error) {
+      setToken(null);
       console.error("Error during login:", error);
       setErrorMessage("An error occurred. Please try again.");
     }
   };
-
 
   return (
     <div className="h-screen">
@@ -117,7 +125,9 @@ const Login = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">
-                  <div className="text-red-700 error-message">{errorMessage || successMessage}</div>
+                    <div className="text-red-700 error-message">
+                      {errorMessage || successMessage}
+                    </div>
                     {/* <div className="flex items-center h-5">
                                             <input id="remember" aria-describedby="remember" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" />
                                         </div> 
@@ -128,10 +138,9 @@ const Login = () => {
                   {/* <a href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a> */}
                 </div>
                 <button
-                 onClick={() => setErrorMessage("")}
+                  onClick={() => setErrorMessage("")}
                   type="submit"
                   className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                  
                 >
                   Sign in
                 </button>

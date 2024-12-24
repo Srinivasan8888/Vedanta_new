@@ -62,7 +62,7 @@ module.exports = {
       }
       const payload = {};
       const options = {
-        expiresIn: "1d",
+        expiresIn: "30d",
         issuer: "vedanta.xyma.live",
         audience: userId,
       };
