@@ -25,14 +25,14 @@ const Notifications = () => {
         <div className="flex justify-between w-full rounded-2xl">
           <button
             type="button"
-            className={`w-full h-full rounded-tl-2xl py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none hover:dark:bg-[rgba(16,16,16,0.9)] hover:text-blue-700 focus:z-10 ${activeTab === "alerts" ? "border-b-2" : "border-b-2 border-[rgba(16,16,16,0.9)]"} dark:focus:ring-gray-700 dark:bg-[rgba(16,16,16,0.5)] dark:text-white dark:border-white dark:hover:text-gray-400`}
+            className={`w-full h-full rounded-tl-2xl py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none hover:dark:bg-[rgba(16,16,16,0.9)] hover:text-blue-700 focus:z-10 ${activeTab === "alerts" ? "border-b-2" : "border-b-2 border-[rgba(16,16,16,0.9)]"} dark:focus:ring-gray-700 dark:bg-[rgba(16,16,16,0.5)] dark:text-white  dark:hover:text-gray-400`}
             onClick={() => setActiveTab("alerts")}
           >
             Alerts
           </button>
           <button
             type="button"
-            className={`w-full h-full rounded-tr-2xl py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none hover:dark:bg-[rgba(16,16,16,0.9)] hover:text-blue-700 focus:z-10 ${activeTab === "notifications" ? "border-b-2" : "border-b-2 border-[rgba(16,16,16,0.9)]"} dark:focus:ring-gray-700 dark:bg-[rgba(16,16,16,0.5)] dark:text-white dark:border-white dark:hover:text-gray-400`}
+            className={`w-full h-full rounded-tr-2xl py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none hover:dark:bg-[rgba(16,16,16,0.9)] hover:text-blue-700 focus:z-10 ${activeTab === "notifications" ? "border-b-2" : "border-b-2 border-[rgba(16,16,16,0.9)]"} dark:focus:ring-gray-700 dark:bg-[rgba(16,16,16,0.5)] dark:text-white  dark:hover:text-gray-400`}
             onClick={() => setActiveTab("notifications")}
           >
             Notifications

@@ -46,7 +46,7 @@ const Login = () => {
         }
       );
 
-      setToken(response.data.accessToken);
+      // setToken(response.data.accessToken);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -55,7 +55,8 @@ const Login = () => {
       }
 
       const data = await response.json();
-      console.log("Login Response:", data);
+      //console log for accessToken and refreshToken
+      // console.log("Login Response:", data);
 
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);

@@ -27,7 +27,7 @@ const Sidebar = () => {
     window.location.href = '/';
 };
 
-console.log("Server URL:", process.env.REACT_APP_SERVER_URL);
+// console.log("Server URL:", process.env.REACT_APP_SERVER_URL);
 
   return (
     <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3">
