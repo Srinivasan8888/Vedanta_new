@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import loginbg from "../../Assets/images/loginbg.png";
 import xyma from "../../Assets/images/Xyma-Logo.png";
 import { useNavigate, Outlet } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,31 +33,15 @@ const Login = () => {
   const Loginuser = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}auth/login`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          email,
+          password,
         }
       );
 
-      // setToken(response.data.accessToken);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMessage(`Failed to login: ${errorData.error.message}`);
-        return;
-      }
-
-      const data = await response.json();
-      //console log for accessToken and refreshToken
-      // console.log("Login Response:", data);
+      const data = response.data;
 
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
@@ -65,8 +50,9 @@ const Login = () => {
       navigate("/Dashboard");
     } catch (error) {
       setToken(null);
+      const errorMsg = error.response?.data?.message || "An error occurred. Please try again.";
+      setErrorMessage(errorMsg);
       console.error("Error during login:", error);
-      setErrorMessage("An error occurred. Please try again.");
     }
   };
 

@@ -27,6 +27,5 @@
   "description": "",
   "devDependencies": {
     "nodemon": "^3.1.7"
-  },
-  "type": "module"
+  }
 }

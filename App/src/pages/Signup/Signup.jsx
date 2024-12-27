@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import loginbg from "../../Assets/images/loginbg.png";
 import xyma from "../../Assets/images/Xyma-Logo.png";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -21,31 +22,23 @@ const Signup = () => {
   const registerUser = async (event) => {
     event.preventDefault();
     if (confirmpassword === password) {
-      const response = await fetch(`${process.env.REACT_APP_SERVER_URL}auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_SERVER_URL}auth/register`,
+          {
+            email,
+            password,
+          }
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMessage(`Failed to register: ${errorData.error.message}`);
-        return;
-      }
-
-      const data = await response.json();
-      console.log(data);
-
-      if (data.email) {
-        alert("user created successfully");
-        window.location.href = `${process.env.REACT_APP_URL}`;
-      } else {
-        alert("Unknown error has occurred");
+        if (response.data.email) {
+          alert("user created successfully");
+          window.location.href = `${process.env.REACT_APP_URL}`;
+        } else {
+          alert("Unknown error has occurred");
+        }
+      } catch (error) {
+        setErrorMessage(`Failed to register: ${error.response?.data?.error?.message || error.message}`);
       }
     } else {
       alert("Password is not matching");

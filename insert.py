@@ -18,7 +18,7 @@ def generate_sensor_data(sensor_id, start_sensor, end_sensor):
     data = {
         'id':'1604',
         'busbar': f'bb{sensor_id}',
-        'time': datetime.now(timezone.utc).isoformat() + 'Z'  # Current UTC time in ISO 8601 format
+        'time': datetime.now(timezone.ist).isoformat() + 'Z'  # Current UTC time in ISO 8601 format
     }
     # Dynamically add temperature data for sensors
     for i in range(start_sensor, end_sensor + 1):

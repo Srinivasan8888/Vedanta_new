@@ -7,11 +7,12 @@ require('dotenv').config();
 const AuthRoute = require('./API/Router/Auth.route')
 const InsertRoute = require('./API/Router/Insert.route')
 const ApiRoute = require('./API/Router/Api.route')
-require('./Helpers/init_mongodb')
+require('./Helpers/init_mongodb');
 const { verifyAccessToken } = require('./Helpers/jwt_helper')
-// const client = require('./Helpers/init_redis')
-require('./Helpers/init_redis')
+const client = require('./Helpers/init_redis')
+require('./Helpers/init_redis');
 require('./Helpers/init_websocket')
+require('./API/Websocket/apisocket');
 const cors = require("cors");
 
 
