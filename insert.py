@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime, timezone
+import random
 
 # Base URL for the API
 BASE_URL = 'http://localhost:4000/api/v1'  # Replace with your actual API URL
@@ -18,11 +19,11 @@ def generate_sensor_data(sensor_id, start_sensor, end_sensor):
     data = {
         'id':'1604',
         'busbar': f'bb{sensor_id}',
-        'time': datetime.now(timezone.ist).isoformat() + 'Z'  # Current UTC time in ISO 8601 format
+        'time': datetime.now().isoformat() + 'Z'  # Current IST time in ISO 8601 format
     }
     # Dynamically add temperature data for sensors
     for i in range(start_sensor, end_sensor + 1):
-        data[f'sensor{i}'] = f'{i * 1.5:.2f}'  # Example temperature value (can be customized)
+        data[f'sensor{i}'] = f'{random.uniform(230.0, 250.0):.2f}'  # Random temperature between 320-360
     return data
 
 # Insert data for each sensor

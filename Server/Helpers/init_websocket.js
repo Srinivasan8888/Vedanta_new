@@ -1,15 +1,30 @@
 import { WebSocketServer } from 'ws';
-import dotenv from 'dotenv';
-dotenv.config();
+import { createServer } from 'http';
 
-const port = process.env.WS_PORT || 4001;
-const wss = new WebSocketServer({ port }, () => {
-    console.log(`WebSocket server is running on port ${port}`);
+const server = createServer();
+
+// Create separate WebSocket servers for each endpoint
+const wssAside = new WebSocketServer({ noServer: true });
+const wssBside = new WebSocketServer({ noServer: true });
+
+// Handle upgrade requests
+server.on('upgrade', (request, socket, head) => {
+  const pathname = new URL(request.url, `http://${request.headers.host}`).pathname;
+
+  if (pathname === '/WS/Api/Aside') {
+    wssAside.handleUpgrade(request, socket, head, (ws) => {
+      wssAside.emit('connection', ws, request);
+    });
+  } else if (pathname === '/WS/Api/Bside') {
+    wssBside.handleUpgrade(request, socket, head, (ws) => {
+      wssBside.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
 });
 
-wss.on('error', (error) => {
-    console.error('WebSocket server error:', error);
-});
+server.listen(4001);
 
-export default wss;
+export { wssAside, wssBside };
 
