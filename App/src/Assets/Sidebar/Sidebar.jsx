@@ -19,6 +19,7 @@ const Sidebar = () => {
   const gotoAnalytics = () => goTo("/Analytics");
   const gotoReport = () => goTo("/Report");
   const gotoSettings = () => goTo("/Settings");
+  const gotoDataScience = () => goTo("/DataScience");
 
   const handleLogout = async () => {
     // const refreshToken = localStorage.getItem('refreshToken');
@@ -57,6 +58,9 @@ const Sidebar = () => {
       </button> 
       <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoAnalytics()}>
         Analytics
+      </button>
+      <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoDataScience()}>
+        Data Science
       </button>
       {/* <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center">
         Settings

@@ -1,11 +1,19 @@
 // require('dotenv').config();
 // const { WebSocketServer } = require('ws');
+import { emit } from 'nodemon';
 import wss from '../../Helpers/init_websocket.js';
 import SensorModel1 from '../Models/SensorModel1.js';
 
 wss.on('connection', async (ws) => {
   console.log('New client connected');
   let lastTimestamp = new Date();
+
+
+  wss.on('Aside', (message) => {
+    // Parse the incoming message and send sensor data
+    const data = JSON.parse(message);
+    sendSensorData(data);
+  });
   
   // Function to send sensor data
   const sendSensorData = async (data) => {

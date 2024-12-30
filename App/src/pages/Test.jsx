@@ -1,52 +1,28 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { io } from 'socket.io-client';
 
 const Test = () => {
-    const [sensorData, setSensorData] = useState(null);
-    const [error, setError] = useState(null);
-    const socketRef = useRef(null);
+  useEffect(() => {
+    // Connect to the Socket.IO server
+    const socket = io('ws://localhost:4001'); // Adjust the URL if needed
 
-    const fetchData = () => {
-        console.log('Fetching new data...');
-        socketRef.current.emit('fetchCollectionTwo');
+    // Listen for the 'sensorData' event
+    socket.on('sensorData', (data) => {
+      console.log('Received sensor data:', data);
+    });
+
+    // Clean up the socket connection on component unmount
+    return () => {
+      socket.disconnect();
     };
+  }, []);
 
-    useEffect(() => {
-        socketRef.current = io('http://localhost:4001');
-
-        socketRef.current.on('connect', () => {
-            console.log('Connected to WebSocket server');
-            socketRef.current.emit('fetchCollectionTwo');
-        });
-
-        socketRef.current.on('collectionTwoData', (data) => {
-            console.log('Data received from SensorModel2:', data);
-            setSensorData(data);
-        });
-
-        socketRef.current.on('error', (err) => {
-            console.error('Socket error:', err);
-            setError('Error connecting to the server');
-        });
-
-        // Cleanup on component unmount
-        return () => {
-            socketRef.current.disconnect();
-        };
-    }, []);
-
-    return (
-        <div>
-            <h1>Sensor Data</h1>
-            <button onClick={fetchData}>Fetch New Data</button>
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-            {sensorData ? (
-                <pre>{JSON.stringify(sensorData, null, 2)}</pre>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <h1>Sensor Data Test</h1>
+      <p>Check the console for received sensor data.</p>
+    </div>
+  );
 };
 
 export default Test;

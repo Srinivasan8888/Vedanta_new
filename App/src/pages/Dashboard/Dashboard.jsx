@@ -19,6 +19,7 @@ const Dashboard = () => {
       <div className="md:h-[45%] md:flex  ">
         {/* <div className="h-[500px]  bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl  m-4"> */}
           <ThreeScene />
+        
         {/* </div> */}
 
         <Notifications />

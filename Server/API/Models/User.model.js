@@ -1,7 +1,8 @@
-const { request } = require("express");
-const mongoose = require("mongoose");
+import { request } from "express";
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+
 const Schema = mongoose.Schema;
-const bcrypt = require("bcrypt");
 
 const UserSchema = new Schema({
   email: {
@@ -36,4 +37,4 @@ UserSchema.methods.isValidPassword = async function (password) {
 };
 
 const User = mongoose.model("user", UserSchema);
-module.exports = User;
+export default User;

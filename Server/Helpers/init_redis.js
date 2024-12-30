@@ -1,26 +1,28 @@
-const redis = require('redis')
+import { createClient } from 'redis';
+import dotenv from 'dotenv';
 
-const client = redis.createClient({
-  host: '127.0.0.1', 
-  port: 6379
+dotenv.config(); // Load environment variables from .env file
+
+const client = createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
 });
 
 console.log('Attempting to connect to Redis...')
 
 client.on('connect', () => {
-  console.log('Client connected to redis...')
+  console.log('Client connected to Redis...')
 })
 
 client.on('ready', () => {
-  console.log('Client connected to redis and ready to use...')
+  console.log('Client connected to Redis and ready to use...')
 })
 
 client.on('error', (err) => {
-  console.error('Error connecting to redis:', err.message)
+  console.error('Error connecting to Redis:', err.message)
 })
 
 client.on('end', () => {
-  console.log('Client disconnected from redis')
+  console.log('Client disconnected from Redis')
 })
 
 process.on('SIGINT', () => {
@@ -35,4 +37,4 @@ client.connect().catch(err => {
   console.error('Failed to connect to Redis:', err.message);
 });
 
-module.exports = client
+export { client };

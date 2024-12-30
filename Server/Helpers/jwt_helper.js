@@ -1,10 +1,8 @@
-const JWT = require("jsonwebtoken");
-const createError = require("http-errors");
-const client = require('./init_redis')
-
-module.exports = {
+import JWT from 'jsonwebtoken';
+import createError from "http-errors";
+import {client} from './init_redis.js'
   
-  signAccessToken: (userId) => {
+export const signAccessToken = (userId) => {
     return new Promise((resolve, reject) => {
       const secret = process.env.ACCESS_TOKEN_SECRET;
       if (!secret) {
@@ -28,9 +26,9 @@ module.exports = {
         resolve(token);
       });
     });
-  },
+  };
 
-  verifyAccessToken: (req, res, next) => {
+export const verifyAccessToken = (req, res, next) => {
     if (!req.headers["authorization"]) return next(createError.Unauthorized());
     const authHeader = req.headers["authorization"];
     const bearerToken = authHeader.split(" ");
@@ -50,9 +48,9 @@ module.exports = {
       req.payload = payload;
       next();
     });
-  },
+  };
 
-  signRefreshToken: (userId) => {
+export const signRefreshToken = (userId) => {
     return new Promise((resolve, reject) => {
       const secret = process.env.REFRESH_TOKEN_SECRET;
       if (!secret) {
@@ -83,9 +81,9 @@ module.exports = {
           });
       });
     });
-  },
+  };
 
-  verifyRefreshToken: (refreshToken) => {
+export const verifyRefreshToken = (refreshToken) => {
     return new Promise((resolve, reject) => {
       JWT.verify(
         refreshToken,
@@ -105,5 +103,5 @@ module.exports = {
         }
       );
     });
-  },
-};
+  };
+

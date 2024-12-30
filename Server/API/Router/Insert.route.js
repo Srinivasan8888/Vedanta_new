@@ -1,17 +1,17 @@
-const express = require('express')
+import express from 'express'
 const router = express.Router()
-const InsertController = require('../Controller/Insert.Controller')
+import { createSensor1, createSensor2, createSensor3, createSensor4, createSensor5, createSensor6, createSensor7, createSensor8, createSensor9, createSensor10 } from '../Controller/Insert.Controller.js'
 
-router.post('/createSensor1', InsertController.createSensor1)
-router.post('/createSensor2', InsertController.createSensor2)
-router.post('/createSensor3', InsertController.createSensor3)
-router.post('/createSensor4', InsertController.createSensor4)
-router.post('/createSensor5', InsertController.createSensor5)
-router.post('/createSensor6', InsertController.createSensor6)
-router.post('/createSensor7', InsertController.createSensor7)
-router.post('/createSensor8', InsertController.createSensor8)
-router.post('/createSensor9', InsertController.createSensor9)
-router.post('/createSensor10', InsertController.createSensor10)
+router.post('/createSensor1', createSensor1)
+router.post('/createSensor2', createSensor2)
+router.post('/createSensor3', createSensor3)
+router.post('/createSensor4', createSensor4)
+router.post('/createSensor5', createSensor5)
+router.post('/createSensor6', createSensor6)
+router.post('/createSensor7', createSensor7)
+router.post('/createSensor8', createSensor8)
+router.post('/createSensor9', createSensor9)
+router.post('/createSensor10', createSensor10)
 
 
-module.exports = router
+export default router;
