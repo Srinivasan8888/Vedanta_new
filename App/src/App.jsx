@@ -10,6 +10,7 @@ import NoPage from "./pages/Nopage/Nopage";
 import Report from "./pages/Report/Report";
 import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter";
+import Test from "./pages/Test";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/Analytics" element={<Analytics />} />
             <Route path="/Report" element={<Report />} />
             <Route path="/Settings" element={<Settings />} />
+            <Route path="/Test" element={<Test />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
