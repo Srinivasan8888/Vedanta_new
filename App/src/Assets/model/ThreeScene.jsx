@@ -164,7 +164,7 @@ const ThreeScene = () => {
   const controlsRef = useRef();
   return (
     <div className="h-[500px]  bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl  m-4">
-      <div className="absolute z-10 flex items-center justify-center w-full">
+      <div className="absolute z-10 flex items-center justify-center p-4">
         <div className="flex w-full gap-4">
           <button
             type="button"

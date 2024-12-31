@@ -12,6 +12,7 @@ import { verifyAccessToken } from './Helpers/jwt_helper.js';
 // import client from './Helpers/init_redis.js';
 import './Helpers/init_redis.js';
 import './Helpers/init_socketio.js';
+import './Helpers/init_websocket.js';
 
 import cors from "cors";
 

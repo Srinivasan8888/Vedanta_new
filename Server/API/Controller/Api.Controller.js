@@ -16,12 +16,12 @@ export const Aside = async (req, res) => {
   try {
     // Fetch all sensor data concurrently
     const [data, data1, data2, data3, data4, data5] = await Promise.all([
-      SensorModel1.find() .sort({ updatedAt: -1 }).limit(1),
-      SensorModel2.find() .sort({ updatedAt: -1 }).limit(1) ,
-      SensorModel3.find() .sort({ updatedAt: -1 }).limit(1),
-      SensorModel4.find() .sort({ updatedAt: -1 }).limit(1),
-      SensorModel5.find() .sort({ updatedAt: -1 }).limit(1),
-      SensorModel6.find() .sort({ updatedAt: -1 }).limit(1)
+      SensorModel1.find().sort({ updatedAt: -1 }).limit(1),
+      SensorModel2.find().sort({ updatedAt: -1 }).limit(1),
+      SensorModel3.find().sort({ updatedAt: -1 }).limit(1),
+      SensorModel4.find().sort({ updatedAt: -1 }).limit(1),
+      SensorModel5.find().sort({ updatedAt: -1 }).limit(1),
+      SensorModel6.find().sort({ updatedAt: -1 }).limit(1)
     ]);
 
     // Combine all sensor data into a single array
@@ -34,8 +34,9 @@ export const Aside = async (req, res) => {
       ...data5
     ];
 
+
     res.status(200).json({
-    //   message: "Data fetched successfully.",
+      //   message: "Data fetched successfully.",
       data: combinedData // Send combined data as a single response
     });
   } catch (error) {
