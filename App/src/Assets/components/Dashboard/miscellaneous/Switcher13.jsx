@@ -48,7 +48,7 @@ const Switcher13 = ({ toggleChartType }) => {
             viewBox="0 0 22.5881 14.8599"
             fill="none"
           >
-            <desc>Created with Pixso.</desc>
+          
             <defs>
               <clipPath id="clip169_277">
                 <rect

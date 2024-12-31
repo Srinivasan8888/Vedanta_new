@@ -10,7 +10,7 @@ import NoPage from "./pages/Nopage/Nopage";
 import Report from "./pages/Report/Report";
 import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter";
-import DataScience from "./Assets/components/DataScience/DataScience";
+import DataScience from "./pages/DataScience/DataScience";
 import Test from "./pages/Test";
 
 function App() {
