@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import bg from "../../Assets/images/bg.png";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import AnalyticsButton from "../../Assets/components/Analytics/AnalyticsButton";
-import "./Analytics.css";
 import AverageDateRange from "../../Assets/components/Analytics/AverageDateRange";
 import TimeInterval from "../../Assets/components/Analytics/TimeInterval";
 import RangeDate from "../../Assets/components/Analytics/RangeDate";
@@ -33,7 +32,7 @@ const Analytics = () => {
             {selectedButton === "Count" && <CountData />}
           </div>
 
-          <div className="md:w-[40%] md:h-[100%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto  backdrop-blur  slimscroll-custom">
+          <div className="md:w-[40%] md:h-[100%] bg-[rgba(16,16,16,0.7)] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto  backdrop-blur  scrollbar-custom">
             <AnalyticsTable />
           </div>
         </div>

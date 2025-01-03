@@ -3,7 +3,7 @@ import axios from 'axios';
 import sort from "../../images/down-arrow.png";
 import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
-import '../miscellaneous/Scrollbar.css';
+import '../Miscellaneous/Scrollbar.css';
 
 
 const Bside = () => {

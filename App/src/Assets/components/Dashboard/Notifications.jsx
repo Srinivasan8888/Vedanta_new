@@ -6,17 +6,17 @@ const Notifications = () => {
     <div className="h-[500px] font-poppins md:h-[94%] md:w-[25%] rounded-2xl border-[1.5px] border-white backdrop-blur-2xl bg-[rgba(16,16,16,0.5)] m-4">
       <div className="flex items-center justify-around gap-2 m-4 md:gap-2 h-[50px] md:h-[12%] ">
         <div className="grid w-full    rounded-lg bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-          <p className="mt-3">Pot 1</p>
-          <span className="pb-2 font-semibold">0</span>
+          <p className="mt-3">Total Pots</p>
+          <span className="pb-2 font-semibold">1</span>
         </div>
 
         <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-          <p className="mt-3">Pot 2</p>
-          <span className="pb-2 font-semibold">0</span>
+          <p className="mt-3">Active</p>
+          <span className="pb-2 font-semibold">1</span>
         </div>
 
         <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-          <p className="mt-3">Pot 3</p>
+          <p className="mt-3">Inactive</p>
           <span className="pb-2 font-semibold">0</span>
         </div>
       </div>

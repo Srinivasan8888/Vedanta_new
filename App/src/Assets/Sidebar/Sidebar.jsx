@@ -60,7 +60,7 @@ const Sidebar = () => {
         Analytics
       </button>
       <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoDataScience()}>
-        Data Science
+        Heatmap
       </button>
       {/* <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center">
         Settings

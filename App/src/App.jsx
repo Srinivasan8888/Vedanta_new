@@ -1,7 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import ThreeSceen from "./Assets/model/ThreeScene";
+// import ThreeScene from "./Assets/components/Model/ThreeScene";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
@@ -10,7 +9,7 @@ import NoPage from "./pages/Nopage/Nopage";
 import Report from "./pages/Report/Report";
 import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter";
-import DataScience from "./pages/DataScience/DataScience";
+import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 
 function App() {
@@ -22,11 +21,11 @@ function App() {
           <Route path="/admin_xyma_signup" element={<Signup />} />
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/Model3D" element={<ThreeSceen />} />
+            {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}
             <Route path="/Analytics" element={<Analytics />} />
             <Route path="/Report" element={<Report />} />
             <Route path="/Settings" element={<Settings />} />
-            <Route path="/DataScience" element={<DataScience />} />
+            <Route path="/Heatmap" element={<Heatmap />} />
             <Route path="/Test" element={<Test />} />
             <Route path="*" element={<NoPage />} />
           </Route>

@@ -1,6 +1,5 @@
 import React from "react";
-
-
+import "../Miscellaneous/Scrollbar.css";
 const AnalyticsTable = () => {
   return (
     <>
@@ -22,7 +21,7 @@ const AnalyticsTable = () => {
             <th className="whitespace-nowrap">Avg T12</th>
           </tr>
         </thead>
-        <tbody className="overflow-y-scroll slimscroll-custom">
+        <tbody className="overflow-y-scroll scrollbar-custom">
           <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly">
             <td className="">1</td>
             <td className="whitespace-nowrap">20</td>
