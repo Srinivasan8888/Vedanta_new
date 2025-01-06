@@ -1,29 +1,22 @@
 .popup {
     position: relative;
+    pointer-events: none;
 
-    .stick {
-        height: 100px;
-        width: 2px;
-        background: white;
-        border-top-left-radius: 10px;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
-        position: absolute;
-        top: 1px;
-    }
     .flag {
-        width: 175px;
-        height: 80px;
-        background-color: rgba(0, 0, 0, 0.747);
-        position: absolute;
-        top: 40px;
-        right: 1px;
+        background: rgba(0, 0, 0, 0.8);
         color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-        border-radius: 10px;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        white-space: nowrap;
+
+        .name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            color: #4B88C5;
+        }
     }
 }

@@ -3,6 +3,7 @@ import Switcher13 from "./miscellaneous/Switcher13.jsx";
 import Chartline from "./miscellaneous/chartline.jsx";
 import Chartbar from "./miscellaneous/chartbar.jsx";
 import { temp } from './data/data.js'
+
 const DashboardChart = () => {
   const [isBarChart, setIsBarChart] = useState(false);
 

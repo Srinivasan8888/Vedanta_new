@@ -132,7 +132,16 @@ const Model = () => {
     if (group.current) {
       group.current.traverse((child) => {
         if (child.isMesh) {
-          if (child.name == "s1") {
+          // Reset all meshes to default color
+          child.material.color.set("#ffffff");
+          
+          // Set color for hovered mesh
+          if (hoveredMesh && reverseNameMapping[child.name] === hoveredMesh) {
+            child.material.color.set("#00ff00");
+          }
+          
+          // Keep s1 green (your existing logic)
+          if (child.name === "s1") {
             child.material.color.set("green");
           }
         }
@@ -150,11 +159,26 @@ const Model = () => {
     }
   };
 
+  const handlePointerOver = (e) => {
+    e.stopPropagation();
+    const partName = reverseNameMapping[e.object.name];
+    if (partName) {
+      setHoveredMesh(partName);
+      console.log(`Hovered on: ${partName}`);
+    }
+  };
+
+  const handlePointerOut = () => {
+    setHoveredMesh(null);
+  };
+
   return (
     <primitive
       ref={group}
       object={scene}
       onClick={handleClick}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
       position={[0, -2, 0]}
     />
   );

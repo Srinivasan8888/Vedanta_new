@@ -2,6 +2,7 @@ import React from "react";
 
 import bg from "../../Assets/images/bg.png";
 // import ThreeScene from "../../Assets/components/Models/ThreeScene";
+import ThreeScene from "../../Assets/model/ThreeModel.jsx"
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import Notifications from "../../Assets/components/Dashboard/Notifications";
 import Aside from "../../Assets/components/Dashboard/Aside";
@@ -18,11 +19,11 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        {/* <>
-          <ThreeScene />
-        </> */}
+        <>
+          <ThreeScene />/
+        </>
 
-        <Dashboardmodel />
+        {/* <Dashboardmodel /> */}
 
         <Notifications />
       </div>

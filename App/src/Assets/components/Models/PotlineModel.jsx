@@ -3,7 +3,8 @@ import { useGLTF, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import debounce from 'lodash.debounce';
-import './potlinemodel.scss';
+// import '../src/potlinemodel.scss';
+import './potlinemodel.scss'
 
 const PotlineModel = () => {
   const { scene } = useGLTF('/potline.gltf');
@@ -43,27 +44,30 @@ const PotlineModel = () => {
     CBT24B2: 's101', CBT24B1: 's102', CBT25B2: 's103', CBT25B1: 's104',
     CBT26B2: 's105', CBT26B1: 's106', CBT27B2: 's107', CBT27B1: 's108',
   });
+  
 
   const handleMouseMove = debounce((event) => {
     mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
   }, 50);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch("https://vedanta.xyma.live/sensor/getmodel");
-  //       const infoVal = await response.json();
-  //       setInfo(infoVal);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   fetchData(); // Fetch initially
-  //   const interval = setInterval(fetchData, 10000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/v2/getallsensor");
+        const infoVal = await response.json();
+        setInfo(infoVal);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    // fetchData(); // Fetch initially
+    const interval = setInterval(fetchData, 10000); 
+    return () => clearInterval(interval);
+  }, []);
 
+  console.log('Nodes:', scene);
+  
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -72,26 +76,33 @@ const PotlineModel = () => {
   useFrame(({ camera }) => {
     raycaster.current.setFromCamera(mouse.current, camera);
     const intersects = raycaster.current.intersectObjects(scene.children, true);
+    console.log('intersects', intersects);
     
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
-      const apiName = Object.keys(nameMapping.current).find(key => nameMapping.current[key] === intersectedObject.name);
+      const apiName = nameMapping.current ? Object.keys(nameMapping.current).find(key => nameMapping.current[key] === intersectedObject.name) : undefined;
+      console.log('apiName', apiName);
       
       if (apiName) {
+        const temperature = info[apiName] !== undefined ? parseFloat(info[apiName]) : 11.11;
         setHoveredObject(intersectedObject);
         setHoveredInfo({
           name: apiName,
-          temperature: info[apiName] || 11.1,
+          temperature: temperature,
         });
       } else {
-        setHoveredObject(null);
-        setHoveredInfo(null);
+        setHoveredObject(intersectedObject);
+        setHoveredInfo({
+          name: intersectedObject.name,
+          temperature: 11.11,  // Default temperature value
+        });
       }
     } else {
       setHoveredObject(null);
       setHoveredInfo(null);
     }
   });
+  
 
   useEffect(() => {
     for (const [apiName, objectName] of Object.entries(nameMapping)) {
@@ -107,16 +118,16 @@ const PotlineModel = () => {
     }
   }, [scene, info]);
 
-  // useEffect(() => {
-  //   if (hoveredObject) {
-  //     hoveredObject.material.color.set(0x00ff00);
-  //   }
-  //   return () => {
-  //     if (hoveredObject) {
-  //       hoveredObject.material.color.set(0xff0000);
-  //     }
-  //   };
-  // }, [hoveredObject]);
+  useEffect(() => {
+    if (hoveredObject) {
+      hoveredObject.material.color.set(0x00ff00);
+    }
+    return () => {
+      if (hoveredObject) {
+        hoveredObject.material.color.set(0xff0000);
+      }
+    };
+  }, [hoveredObject]);
 
   useEffect(() => {
     return () => {
@@ -133,7 +144,6 @@ const PotlineModel = () => {
     };
   }, [scene]);  
 
-
   return (
     <>
       <primitive object={scene} scale={1} />
@@ -143,7 +153,7 @@ const PotlineModel = () => {
             <div className="stick"></div>
             <div className="flag">
               <div className="name">{hoveredInfo.name}</div>
-              <div className="value">Temperature: {hoveredInfo.temperature.toFixed(2)} ℃</div>
+              <div className="value">temperature: {hoveredInfo.temperature.toFixed(2)} ℃</div>
             </div>
           </div>
         </Html>

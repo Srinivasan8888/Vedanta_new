@@ -79,6 +79,34 @@ export const Bside = async (req, res) => {
   }
 };
 
-export const ApiController = { Aside, Bside };
+export const getallsensor = async (req, res) => {
+  const collectionModels = [
+    SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5, 
+    SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+  ];
+  const limitPerModel = 1;
+  const combinedData = {};
+
+  for (let i = 0; i < collectionModels.length; i++) {
+    try {
+      const documents = await collectionModels[i]
+        .find({})
+        .sort({ updatedAt: -1 })
+        .limit(limitPerModel)
+        .lean()
+        .select('-_id -id -TIME -createdAt -updatedAt -__v -busbar');
+
+      if (documents.length > 0) {
+        Object.assign(combinedData, documents[0]);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
+
+  res.status(200).json(combinedData);
+};
+
+export const ApiController = { Aside, Bside, getallsensor };
 
 
