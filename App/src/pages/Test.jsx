@@ -1,10 +1,10 @@
 import React from 'react'
-import potline from '../Assets/components/Model/PotlineModel'
+import ThreeScene from '../Assets/components/Models/ThreeScene.jsx'
 
 const Test = () => {
   return (
     <div>
-      <potline/>
+      <ThreeScene />
     </div>
   )
 }

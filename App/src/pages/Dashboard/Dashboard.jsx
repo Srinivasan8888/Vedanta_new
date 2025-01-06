@@ -1,12 +1,13 @@
 import React from "react";
 
 import bg from "../../Assets/images/bg.png";
-import ThreeScene from "../../Assets/components/Model/ThreeScene";
+// import ThreeScene from "../../Assets/components/Models/ThreeScene";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import Notifications from "../../Assets/components/Dashboard/Notifications";
 import Aside from "../../Assets/components/Dashboard/Aside";
 import Bside from "../../Assets/components/Dashboard/Bside";
 import DashboardChart from "../../Assets/components/Dashboard/DashboardChart";
+import Dashboardmodel from "../../Assets/components/Dashboard/Dashboardmodel";
 
 const Dashboard = () => {
   return (
@@ -17,9 +18,11 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        <>
+        {/* <>
           <ThreeScene />
-        </>
+        </> */}
+
+        <Dashboardmodel />
 
         <Notifications />
       </div>

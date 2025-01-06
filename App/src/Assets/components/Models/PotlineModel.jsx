@@ -3,8 +3,7 @@ import { useGLTF, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import debounce from 'lodash.debounce';
-import up from '../../images/green-arrow.png';
-import down from '../../images/red-arrow.png';
+import './potlinemodel.scss';
 
 const PotlineModel = () => {
   const { scene } = useGLTF('/potline.gltf');
@@ -15,7 +14,7 @@ const PotlineModel = () => {
   const [info, setInfo] = useState({});
   const materialCache = useRef({});
 
-  const nameMapping = {
+  const nameMapping = useRef({
     CBT1A2: 's1', CBT1A1: 's2', CBT2A2: 's3', CBT2A1: 's4',
     CBT3A2: 's5', CBT3A1: 's6', CBT4A2: 's7', CBT4A1: 's8',
     CBT5A2: 's9', CBT5A1: 's10', CBT6A2: 's11', CBT6A1: 's12',
@@ -43,7 +42,7 @@ const PotlineModel = () => {
     CBT22B2: 's97', CBT22B1: 's98', CBT23B2: 's99', CBT23B1: 's100',
     CBT24B2: 's101', CBT24B1: 's102', CBT25B2: 's103', CBT25B1: 's104',
     CBT26B2: 's105', CBT26B1: 's106', CBT27B2: 's107', CBT27B1: 's108',
-  };
+  });
 
   const handleMouseMove = debounce((event) => {
     mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -60,8 +59,8 @@ const PotlineModel = () => {
   //       console.error(error);
   //     }
   //   };
-  //   // fetchData(); // Fetch initially
-  //   const interval = setInterval(fetchData, 10000); 
+  //   fetchData(); // Fetch initially
+  //   const interval = setInterval(fetchData, 10000);
   //   return () => clearInterval(interval);
   // }, []);
 
@@ -70,20 +69,19 @@ const PotlineModel = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
-  // raycasting to get the hovered object
   useFrame(({ camera }) => {
     raycaster.current.setFromCamera(mouse.current, camera);
     const intersects = raycaster.current.intersectObjects(scene.children, true);
-
+    
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
-      const apiName = Object.keys(nameMapping).find(key => nameMapping[key] === intersectedObject.name);
+      const apiName = Object.keys(nameMapping.current).find(key => nameMapping.current[key] === intersectedObject.name);
       
-      if (apiName && info[apiName]) {
+      if (apiName) {
         setHoveredObject(intersectedObject);
         setHoveredInfo({
           name: apiName,
-          temperature: parseFloat(info[apiName]),
+          temperature: info[apiName] || 11.1,
         });
       } else {
         setHoveredObject(null);
@@ -95,7 +93,6 @@ const PotlineModel = () => {
     }
   });
 
-  // temeperature color change on the model according to the api data
   useEffect(() => {
     for (const [apiName, objectName] of Object.entries(nameMapping)) {
       const object = scene.getObjectByName(objectName);
@@ -110,19 +107,16 @@ const PotlineModel = () => {
     }
   }, [scene, info]);
 
-  // hover effect on the model 
-  useEffect(() => {
-    if (hoveredObject) {
-      hoveredObject.material.color.set(0x00ff00);
-    }
-    return () => {
-      if (hoveredObject) {
-        hoveredObject.material.color.set(0xff0000);
-      }
-    };
-  }, [hoveredObject]);
-
-  // dispose the model when the component unmounts
+  // useEffect(() => {
+  //   if (hoveredObject) {
+  //     hoveredObject.material.color.set(0x00ff00);
+  //   }
+  //   return () => {
+  //     if (hoveredObject) {
+  //       hoveredObject.material.color.set(0xff0000);
+  //     }
+  //   };
+  // }, [hoveredObject]);
 
   useEffect(() => {
     return () => {
@@ -139,35 +133,17 @@ const PotlineModel = () => {
     };
   }, [scene]);  
 
+
   return (
     <>
       <primitive object={scene} scale={1} />
-      {/* {hoveredObject && hoveredInfo && (
-        <Html position={[hoveredObject.position.x, hoveredObject.position.y, hoveredObject.position.z]}>
-          <div
-            className="w-[175.83px] h-[75.92px] absolute px-4 py-2 grid grid-cols-2 gap-2 shadow-md top-0 left-0 rounded-2xl border border-solid border-white [background:linear-gradient(180deg,rgba(16.28,16.28,16.28,0.8)_0%,rgba(0,115,255,0.64)_100%)] text-white"
-           
-          >
-            <div className="mt-1 text-xs font-semibold">{hoveredInfo.name}</div>
-            <div className="text-base font-bold">{hoveredInfo.temperature.toFixed(2)} °C</div>
-            <div className="flex items-center text-[10px] font-medium">
-              <img src={up} alt="down" className="w-4 h-4 mr-1" />
-              {hoveredInfo.temperature + 20} °C
-            </div>
-            <div className="flex items-center text-[10px] font-medium">
-              <img src={down} alt="up" className="w-4 h-4 mr-1" />
-              {hoveredInfo.temperature - 20} °C
-            </div>
-          </div>
-        </Html>
-      )} */}
       {hoveredObject && hoveredInfo && (
         <Html position={[hoveredObject.position.x, hoveredObject.position.y, hoveredObject.position.z]}>
           <div className="popup">
             <div className="stick"></div>
             <div className="flag">
               <div className="name">{hoveredInfo.name}</div>
-              <div className="value">temperature: {hoveredInfo.temperature.toFixed(2)} ℃</div>
+              <div className="value">Temperature: {hoveredInfo.temperature.toFixed(2)} ℃</div>
             </div>
           </div>
         </Html>
