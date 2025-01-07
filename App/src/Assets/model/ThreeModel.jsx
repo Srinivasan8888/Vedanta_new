@@ -6,13 +6,20 @@ import {
   OrbitControls,
   // PresentationControls,
   PerspectiveCamera,
+  Html,
 } from "@react-three/drei";
+import { Ray } from "three";
+import * as THREE from 'three';
 
 const Model = () => {
   const group = useRef();
-
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, show: false });
+  const mouse = useRef(new THREE.Vector2());
+  const raycaster = useRef(new THREE.Raycaster());
+  const lastUpdate = useRef(0);
+
   const nameMapping = {
     CBT1A2: "s1",
     CBT1A1: "s2",
@@ -128,27 +135,32 @@ const Model = () => {
     Object.entries(nameMapping).map(([key, value]) => [value, key])
   );
 
-  useFrame(() => {
-    if (group.current) {
-      group.current.traverse((child) => {
-        if (child.isMesh) {
-          // Reset all meshes to default color
-          child.material.color.set("#ffffff");
-          
-          // Set color for hovered mesh
-          if (hoveredMesh && reverseNameMapping[child.name] === hoveredMesh) {
-            child.material.color.set("#00ff00");
-          }
-          
-          // Keep s1 green (your existing logic)
-          if (child.name === "s1") {
-            child.material.color.set("green");
-          }
-        }
-      });
-    }
-  });
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      // Get the canvas element's bounding rect
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      
+      // Calculate mouse position relative to the canvas
+      mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      // Update popup position using screen coordinates
+      if (hoveredMesh) {
+        setPopupPosition({
+          x: event.clientX,
+          y: event.clientY,
+          show: true
+        });
+      }
+    };
 
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [hoveredMesh]);
+  
   const handleClick = (e) => {
     e.stopPropagation();
     const partName = reverseNameMapping[e.object.name];
@@ -158,33 +170,73 @@ const Model = () => {
       console.log(`Clicked on: ${partName}`);
     }
   };
+  
+  useFrame(({ camera, clock }) => {
+    if (!group.current) return;
 
-  const handlePointerOver = (e) => {
-    e.stopPropagation();
-    const partName = reverseNameMapping[e.object.name];
-    if (partName) {
-      setHoveredMesh(partName);
-      console.log(`Hovered on: ${partName}`);
+    // Add debouncing to prevent too frequent updates
+    const currentTime = clock.getElapsedTime();
+    if (currentTime - lastUpdate.current < 0.05) return; // 50ms debounce
+    lastUpdate.current = currentTime;
+
+    raycaster.current.setFromCamera(mouse.current, camera);
+    const intersects = raycaster.current.intersectObject(group.current, true);
+    
+    if (intersects.length > 0) {
+      const object = intersects[0].object;
+      const partName = reverseNameMapping[object.name];
+      
+      if (partName && partName !== hoveredMesh) {
+        setHoveredMesh(partName);
+        console.log('Hovering:', partName);
+      }
+    } else if (hoveredMesh) {
+      setHoveredMesh(null);
+      setPopupPosition(prev => ({ ...prev, show: false }));
     }
-  };
-
-  const handlePointerOut = () => {
-    setHoveredMesh(null);
-  };
+  });
 
   return (
-    <primitive
-      ref={group}
-      object={scene}
-      onClick={handleClick}
-      onPointerOver={handlePointerOver}
-      onPointerOut={handlePointerOut}
-      position={[0, -2, 0]}
-    />
+    <>
+      <primitive
+        ref={group}
+        object={scene}
+        onClick={handleClick}
+        
+        position={[0, -2, 0]}
+      />
+      {popupPosition.show && hoveredMesh && (
+        <Html
+          style={{
+            position: 'absolute',
+            left: popupPosition.x + 10,
+            top: popupPosition.y - 20,
+            pointerEvents: 'none',
+            transform: 'translate3d(0, 0, 0)',
+            zIndex: 1000
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontWeight: '500',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}
+          >
+            {hoveredMesh}
+          </div>
+        </Html>
+      )}
+    </>
   );
 };
 
-const ThreeScene = () => {
+const ThreeModel = () => {
   const controlsRef = useRef();
   return (
     <div className="h-[500px]  bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl  m-4">
@@ -234,7 +286,7 @@ const ThreeScene = () => {
 
       {/* <div className="z-30 items-center justify-center text-2xl font-medium text-white lex absolu">1908</div> */}
      
-      <Canvas>
+      <Canvas style={{ width: '100%', height: '90vh' }}>
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
@@ -251,4 +303,4 @@ const ThreeScene = () => {
   );
 };
 
-export default ThreeScene;
+export default ThreeModel;
