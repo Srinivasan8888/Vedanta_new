@@ -6,8 +6,7 @@ import SensorModel1 from '../Models/SensorModel1.js';
 
 wss.on('connection', async (ws) => {
   console.log('New client connected');
-  let lastTimestamp = new Date();
-
+  let changeStream;
 
   wss.on('Aside', (message) => {
     // Parse the incoming message and send sensor data
@@ -30,31 +29,28 @@ wss.on('connection', async (ws) => {
       .sort({ updatedAt: -1 })
       .limit(1);
     await sendSensorData(initialData);
-    lastTimestamp = initialData[0]?.updatedAt || new Date();
+    
+    // Set up change stream instead of polling
+    changeStream = SensorModel1.watch();
+    changeStream.on('change', async (change) => {
+      try {
+        // Get the full document for the change
+        const newData = await SensorModel1.findById(change.documentKey._id);
+        await sendSensorData([newData]);
+      } catch (error) {
+        console.error('Error handling change stream:', error);
+      }
+    });
   } catch (error) {
     console.error('Error fetching initial sensor data:', error);
   }
 
-  // Poll for new data
-  const pollInterval = setInterval(async () => {
-    try {
-      const newData = await SensorModel1.find({
-        updatedAt: { $gt: lastTimestamp }
-      }).sort({ updatedAt: 1 });
-
-      if (newData.length > 0) {
-        await sendSensorData(newData);
-        lastTimestamp = newData[newData.length - 1].updatedAt;
-      }
-    } catch (error) {
-      console.error('Error polling sensor data:', error);
-    }
-  }, 1000); // Poll every second
-
   // Clean up on client disconnect
   ws.on('close', () => {
     console.log('Client disconnected');
-    clearInterval(pollInterval);
+    if (changeStream) {
+      changeStream.close();
+    }
   });
 });
 
