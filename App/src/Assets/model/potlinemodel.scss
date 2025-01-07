@@ -1,0 +1,22 @@
+.popup {
+    position: relative;
+    pointer-events: none;
+
+    .flag {
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        white-space: nowrap;
+
+        .name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            color: #4B88C5;
+        }
+    }
+}

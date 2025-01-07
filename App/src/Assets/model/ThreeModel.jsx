@@ -10,11 +10,13 @@ import {
 } from "@react-three/drei";
 import { Ray } from "three";
 import * as THREE from 'three';
+import './potlinemodel.scss';
 
 const Model = () => {
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
+  const [hoveredInfo, setHoveredInfo] = useState(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, show: false });
   const mouse = useRef(new THREE.Vector2());
   const raycaster = useRef(new THREE.Raycaster());
@@ -187,7 +189,11 @@ const Model = () => {
       const partName = reverseNameMapping[object.name];
       
       if (partName && partName !== hoveredMesh) {
-        setHoveredMesh(partName);
+        // setHoveredMesh(partName);
+        setHoveredMesh(object);
+        setHoveredInfo({
+          name: partName,
+        });
         console.log('Hovering:', partName);
       }
     } else if (hoveredMesh) {
@@ -201,34 +207,17 @@ const Model = () => {
       <primitive
         ref={group}
         object={scene}
-        onClick={handleClick}
+        // onClick={handleClick}
         
         position={[0, -2, 0]}
+        scale={1}
       />
-      {popupPosition.show && hoveredMesh && (
-        <Html
-          style={{
-            position: 'absolute',
-            left: popupPosition.x + 10,
-            top: popupPosition.y - 20,
-            pointerEvents: 'none',
-            transform: 'translate3d(0, 0, 0)',
-            zIndex: 1000
-          }}
-        >
-          <div
-            style={{
-              background: 'rgba(0, 0, 0, 0.8)',
-              color: 'white',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              fontSize: '14px',
-              fontWeight: '500',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-            }}
-          >
-            {hoveredMesh}
+      {popupPosition.show && hoveredMesh && hoveredInfo && (
+        <Html position={[hoveredMesh.position.x, hoveredMesh.position.y, hoveredMesh.position.z]}>
+          <div className="relative pointer-events-none">
+            <div className="px-3 py-2 text-sm text-white rounded mt-36 bg-black/80 whitespace-nowrap">
+              {hoveredInfo.name}
+            </div>
           </div>
         </Html>
       )}
@@ -287,6 +276,7 @@ const ThreeModel = () => {
       {/* <div className="z-30 items-center justify-center text-2xl font-medium text-white lex absolu">1908</div> */}
      
       <Canvas style={{ width: '100%', height: '90vh' }}>
+      {/* <Canvas > */}
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />

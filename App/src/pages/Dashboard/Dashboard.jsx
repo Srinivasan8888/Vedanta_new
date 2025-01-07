@@ -19,9 +19,9 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        {/* <>
+        <>
           <ThreeScene />
-        </> */}
+        </>
 
         {/* <Dashboardmodel /> */}
 
