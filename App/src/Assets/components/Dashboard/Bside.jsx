@@ -1,61 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useRef } from 'react';
 import sort from "../../images/down-arrow.png";
 import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
 import '../Miscellaneous/Scrollbar.css';
 
-
-const Bside = () => {
+const Bside = ({ socketData }) => {
   const [data, setData] = useState([]);
-  const [previousData, setPreviousData] = useState({});
+  const previousDataRef = useRef({});
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/v2/getBside');
-        const newData = response.data.data;
+    // console.log("socketData received in Bside:", socketData);
+    if (socketData && socketData.length > 0) {
+      const newData = socketData.map((item, index) => {
+        const previousItem = previousDataRef.current[index] || {};
+        const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
+        
+        const updatedBusbarData = busbarData.map(([key, value]) => {
+          const prevValue = previousItem[key];
+          const parsedValue = parseFloat(value);
+          const parsedPrevValue = parseFloat(prevValue);
 
-        // Compare newData with previousData to determine arrows
-        const updatedPreviousData = {};
-        newData.forEach(item => {
-          Object.entries(item).forEach(([key, value]) => {
-            if (key.startsWith("CBT")) {
-              const previousValue = previousData[key] || null;
-              updatedPreviousData[key] = { current: value, previous: previousValue };
-            }
-          });
+          return {
+            key,
+            value,
+            arrow:
+              prevValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
+                ? up
+                : parsedValue > parsedPrevValue
+                ? up
+                : down,
+          };
         });
 
-        setPreviousData(updatedPreviousData);
-        setData(newData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+        previousDataRef.current[index] = {
+          ...Object.fromEntries(busbarData),
+        };
 
-    fetchData(); // Initial fetch
+        return {
+          id: index,
+          updatedBusbarData,
+        };
+      });
 
-    // Set up interval to fetch data every 500ms
-    const interval = setInterval(fetchData, 500);
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
-
-  // Helper to determine the arrow direction
-  const getArrow = (currentValue, previousValue) => {
-    if (previousValue === null) {
-      // Show green arrow for initial load
-      return up;
+      setData(newData);
     }
-
-    // Compare the current value with the previous value
-    if (parseFloat(currentValue) > parseFloat(previousValue)) {
-      return up;
-    }
-    return down;
-  };
+  }, [socketData]);
 
   return (
     <div className="h-[400px] md:w-[25%] md:h-auto rounded-2xl border-[1.5px] border-white backdrop-blur-2xl bg-[rgba(16,16,16,0.7)] m-4 text-white font-poppins">
@@ -93,32 +82,25 @@ const Bside = () => {
       <div className="h-[1px] mx-8 mt-3 bg-white"></div>
 
       <div className="max-h-[70%] overflow-y-auto scrollbar-custom">
-        {data.map((item) => {
-          const busbarData = Object.entries(item).filter(([key]) =>
-            key.startsWith("CBT")
-          );
-          return busbarData.map(([key, value]) => {
-            const currentValue = value;
-            const previousValue = previousData[key]?.previous || null;
-
-            return (
-              <React.Fragment key={`${item._id}-${key}`}>
+        {data.map((item) => (
+          <React.Fragment key={item.id}>
+            {item.updatedBusbarData.map(({ key, value, arrow }) => (
+              <React.Fragment key={key}>
                 <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">
                   <p>{key}</p>
-                  <p className="ml-6">{currentValue}</p>
+                  <p className="ml-6">{value}</p>
                   <p>
-                    <img src={getArrow(currentValue, previousValue)} alt="arrow" />
+                    <img src={arrow} alt="arrow" />
                   </p>
                 </div>
                 <div className="h-[1px] mx-8 mt-3 bg-white"></div>
               </React.Fragment>
-            );
-          });
-        })}
+            ))}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
 };
 
-
-export default Bside
+export default Bside;

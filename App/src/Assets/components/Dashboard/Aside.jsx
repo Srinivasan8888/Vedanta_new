@@ -1,65 +1,52 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import sort from "../../images/down-arrow.png";
 import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
 import '../Miscellaneous/Scrollbar.css';
 
-const Aside = () => {
+const Aside = ({ socketData }) => {
   const [data, setData] = useState([]);
-  const previousDataRef = useRef({}); // To store the previous values for comparison
+  const previousDataRef = useRef({});
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/v2/getAside');
-        const newData = response.data.data;
-    
-        // Compare with previous data and update arrows
-        const updatedData = newData.map((item) => {
-          const previousItem = previousDataRef.current[item._id] || {};
-          const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
-          const updatedBusbarData = busbarData.map(([key, value]) => {
-            const prevValue = previousItem[key];
-            const parsedValue = parseFloat(value);
-            const parsedPrevValue = parseFloat(prevValue);
-    
-            return {
-              key,
-              value,
-              arrow:
-                prevValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
-                  ? up // Default to green arrow for first fetch or invalid data
-                  : parsedValue > parsedPrevValue
-                  ? up // Green arrow for increase
-                  : down, // Red arrow for decrease
-            };
-          });
-    
-          // Save updated data for this item
-          previousDataRef.current[item._id] = {
-            ...Object.fromEntries(busbarData),
-          };
-    
+    // console.log("socketData received in Aside:", socketData);
+    // Update data when socketData changes
+    if (socketData && socketData.length > 0) {
+      const newData = socketData.map((item, index) => {
+        const previousItem = previousDataRef.current[index] || {};
+        const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
+        
+        const updatedBusbarData = busbarData.map(([key, value]) => {
+          const prevValue = previousItem[key];
+          const parsedValue = parseFloat(value);
+          const parsedPrevValue = parseFloat(prevValue);
+
           return {
-            ...item,
-            updatedBusbarData,
+            key,
+            value,
+            arrow:
+              prevValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
+                ? up
+                : parsedValue > parsedPrevValue
+                ? up
+                : down,
           };
         });
-    
-        setData(updatedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    
 
-    // Set up interval to fetch data every 500ms
-    const interval = setInterval(fetchData, 500);
+        previousDataRef.current[index] = {
+          ...Object.fromEntries(busbarData),
+        };
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
+        return {
+          id: index, // Using index as id since there's no _id field
+          updatedBusbarData,
+        };
+      });
+
+      // console.log("Processed newData:", newData);
+      setData(newData);
+    }
+  }, [socketData]);
 
   return (
     <div className="h-[400px] md:w-[25%] md:h-auto rounded-2xl border-[1.5px] border-white backdrop-blur-2xl bg-[rgba(16,16,16,0.7)] m-4 text-white font-poppins">
@@ -98,7 +85,7 @@ const Aside = () => {
 
       <div className="max-h-[70%] overflow-y-auto scrollbar-custom">
         {data.map((item) => (
-          <React.Fragment key={item._id}>
+          <React.Fragment key={item.id}>
             {item.updatedBusbarData.map(({ key, value, arrow }) => (
               <React.Fragment key={key}>
                 <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">

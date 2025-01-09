@@ -283,7 +283,7 @@ const ThreeModel = () => {
             </svg>
           </button>
           <p className="flex items-center justify-center text-2xl font-semibold text-white ">
-            1908
+            1604
           </p>
           <button
             type="button"

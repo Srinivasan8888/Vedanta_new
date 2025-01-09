@@ -8,6 +8,7 @@ import SensorModel7 from "../Models/SensorModel7.js";
 import SensorModel8 from "../Models/SensorModel8.js";
 import SensorModel9 from "../Models/SensorModel9.js";
 import SensorModel10 from "../Models/SensorModel10.js";
+import AverageModel from "../Models/AverageModel.js";
 
 export const createSensor1 = async (req, res) => {
   const {
@@ -564,6 +565,34 @@ export const createSensor10 = async (req, res) => {
       CBT26B2: String(sensor106),
       CBT27B1: String(sensor107),
       CBT27B2: String(sensor108),
+      TIME: String(time),
+    });
+    const savedSensor = await newSensor.save();
+
+    // Respond with the created document
+    res.status(201).json({
+      message: "Sensor data created successfully.",
+      data: savedSensor,
+    });
+  } catch (error) {
+    console.error("Error saving sensor data:", error);
+    res.status(500).json({
+      error: "An error occurred while saving sensor data.",
+    });
+  }
+};
+
+export const CreateAvg = async (req, res) => {
+  const {
+    id,
+    Avg,
+    time,
+  } = req.query;
+
+  try {
+    const newSensor = new AverageModel({
+      id: String(id),
+      Avg: String(Avg),
       TIME: String(time),
     });
     const savedSensor = await newSensor.save();

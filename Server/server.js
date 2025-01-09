@@ -12,7 +12,6 @@ import { verifyAccessToken } from './Helpers/jwt_helper.js';
 // import client from './Helpers/init_redis.js';
 import './Helpers/init_redis.js';
 import './Helpers/init_socketio.js';
-import './Helpers/init_websocket.js';
 
 import cors from "cors";
 
@@ -24,7 +23,7 @@ import cors from "cors";
 // })
 
 const app = express();
-const port = process.env.port;
+const ports = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
@@ -57,6 +56,7 @@ app.use('/auth', AuthRoute);
 app.use('/api/v1', InsertRoute);
 app.use('/api/v2', ApiRoute);
 
+
 app.use(async (err, req, res, next) => {
     res.status(err.status || 500)
     res.send({
@@ -71,16 +71,7 @@ app.get('/', (req, res) => {
     res.json({ message: "Backend is running" });
 })
 
-// app.use(async (req, res, next) => {
-//     // const error = new Error('Not Found')
-//     // error.status = 404
-//     // next(error)
-//     next(createError.NotFound('This API Doesn\'t exist'))
-// })
-
-
-app.listen(port, () => {
+app.listen(ports, () => {
     connect();
-    console.log("backend is running on port:", port)
+    console.log("backend is running on port:", ports)
 })
-
