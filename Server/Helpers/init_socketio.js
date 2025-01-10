@@ -2,7 +2,8 @@ import {Server} from 'socket.io'
 import http from 'http'
 import dotenv from 'dotenv'
 dotenv.config()
-import { watchsocketsidesdata, allsocketData} from '../API/Controller/Socket.Controller.js';
+// import { watchsocketsidesdata, allsocketData, SideData} from '../API/Controller/Socket.Controller.js';
+import { allsocketData, SideData} from '../API/Controller/Socket.Controller.js';
 
 const httpServer = http.createServer()
 const io = new Server(httpServer, {
@@ -21,8 +22,9 @@ io.on("connection", (socket) => {
   });
 });
 
-watchsocketsidesdata(io)
+// watchsocketsidesdata(io)
 allsocketData(io)
+SideData(io)
 
 httpServer.listen(process.env.WS_PORT, () => {
   console.log(`WS_Server is running on port ${process.env.WS_PORT}`);

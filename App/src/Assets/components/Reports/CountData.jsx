@@ -101,7 +101,7 @@ const CountData = () => {
           </div>
         </div>
 
-        <div className="flex md:h-[25%] text-lg font-bold justify-center item-center ml-8 pt-8 mb-4 md:mb-0">
+        <div className="flex md:h-[25%] text-lg font-bold justify-center item-center pt-8 mb-4 md:mb-0">
           <div className="flex items-center justify-center w-56 h-16 bg-[rgba(232,235,236,1)] rounded-lg text-black">
             <button className="flex items-center">
               <svg

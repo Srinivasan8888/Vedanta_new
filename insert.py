@@ -2,7 +2,7 @@ import requests
 from datetime import datetime, timezone
 import random
 
-# Base URL for the API
+# Base URL for the APIṇ
 # BASE_URL = 'http://localhost:4000/api/v1'  # Replace with your actual API URL
 BASE_URL = 'http://15.207.173.73:4000/api/v1'  # Replace with your actual API URL
 

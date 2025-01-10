@@ -17,6 +17,13 @@ const Dashboard = () => {
   const [ModelData, setModelData] = useState([]);
 
   useEffect(() => {
+    // Connect socket if not already connected
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+
+    // Setup event listeners
     socket.on("ASide", (data) => {
       setAsidedata(data);
     });
@@ -28,14 +35,17 @@ const Dashboard = () => {
     });
 
     socket.on("AllData", (data) => {
-      
-      console.log("Received All Model Data:", data);
+      if (Array.isArray(data)) {
+        setModelData(data);
+        console.log("Received All Model Data:", data);
+      }
     });
 
     return () => {
       socket.off("ASide");
       socket.off("BSide");
       socket.off("AllData");
+      socket.disconnect();
     };
   }, []);
   return (
@@ -46,7 +56,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        <ThreeScene />
+        <ThreeScene socketData={ModelData}/>
 
         <Notifications />
       </div>

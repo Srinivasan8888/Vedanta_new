@@ -8,12 +8,12 @@ import {
   PerspectiveCamera,
   Html,
 } from "@react-three/drei";
-import { Ray } from "three";
+// import { Ray } from "three";
 import * as THREE from "three";
 import down from "../../Assets/images/red-arrow.png";
 import up from "../../Assets/images/green-arrow.png";
 
-const Model = () => {
+const Model = ({ socketData }) => {
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
@@ -181,9 +181,8 @@ const Model = () => {
   useFrame(({ camera, clock }) => {
     if (!group.current) return;
 
-    // Add debouncing to prevent too frequent updates
     const currentTime = clock.getElapsedTime();
-    if (currentTime - lastUpdate.current < 0.05) return; // 50ms debounce
+    if (currentTime - lastUpdate.current < 0.05) return;
     lastUpdate.current = currentTime;
 
     raycaster.current.setFromCamera(mouse.current, camera);
@@ -194,13 +193,25 @@ const Model = () => {
       const partName = reverseNameMapping[object.name];
 
       if (partName && partName !== hoveredMesh) {
-        // setHoveredMesh(partName);
         setHoveredMesh(object);
+        
+        // Find the value in the socketData array
+        let value = 'N/A';
+        for (const dataObj of socketData || []) {
+          if (dataObj[partName]) {
+            value = dataObj[partName];
+            break;
+          }
+        }
+        
         setHoveredInfo({
           name: partName,
-          value: "320°C",
+          value: `${parseFloat(value).toFixed(2)}°C`,
+          // Since max/min temps aren't in the data, we can either remove them
+          // or set them to fixed values for now
+          maxTemp: '686°C',  // placeholder
+          minTemp: '146°C'   // placeholder
         });
-        console.log("Hovering:", partName);
       }
     } else if (hoveredMesh) {
       setHoveredMesh(null);
@@ -237,13 +248,13 @@ const Model = () => {
               <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
                 <img src={up} alt="up" className="w-[17px] h-[17px]" />
                 <div className="text-white text-[11px] font-medium">
-                  686°C
+                  {hoveredInfo.maxTemp}
                 </div>
               </div>
               <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
                 <img src={down} alt="up" className="w-[17px] h-[17px]" />
                 <div className="text-white text-[11px] font-medium">
-                  146°C
+                  {hoveredInfo.minTemp}
                 </div>
               </div>
             </div>
@@ -257,10 +268,15 @@ const Model = () => {
   );
 };
 
-const ThreeModel = () => {
+const ThreeModel = ({ socketData }) => {
   const controlsRef = useRef();
+  
+  useEffect(() => {
+    console.log("Socket data in ThreeModel:", socketData);
+  }, [socketData]);
+
   return (
-    <div className="h-[500px]  bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl  m-4">
+    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl m-4">
       <div className="absolute z-10 flex items-center justify-center p-4">
         <div className="flex w-full gap-4">
           <button
@@ -314,7 +330,7 @@ const ThreeModel = () => {
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
-        <Model />
+        <Model socketData={socketData} />
         <OrbitControls
           ref={controlsRef}
           minDistance={10}
