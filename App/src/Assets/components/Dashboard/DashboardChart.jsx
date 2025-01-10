@@ -17,27 +17,23 @@ const DashboardChart = ({ socketData = [] }) => {
       borderWidth: 4,
     }]
   });
-
+  
+  console.log('chartsocket', socketData);
+  
   useEffect(() => {    
-    if (!socketData?.length) {
+    if (!socketData?.data?.length) {
       console.log('No socket data available yet');
       return;
     }
-    console.log('chartsocket', socketData);
+    
     try {
-      // console.log('Processing socketData:', {
-      //   firstItem: socketData[0],
-      //   length: socketData.length,
-      //   keys: Object.keys(socketData[0])
-      // });
-
       const chartData = {
-        labels: socketData.map(item => {
+        labels: socketData.data.map(item => {
           const time = new Date(item.TIME).toLocaleTimeString();
           return time;
         }),
         datasets: [{
-          data: socketData.map(item => parseFloat(item.Avgtemp).toFixed(2)),
+          data: socketData.data.map(item => parseFloat(item.Avgtemp).toFixed(2)),
           borderColor: "rgb(0, 119, 228)",
           backgroundColor: (context) => {
             const chart = context.chart;
@@ -187,15 +183,15 @@ const DashboardChart = ({ socketData = [] }) => {
         <div className="flex flex-row justify-center gap-4 mt-1 md:flex-row md:gap-5 md:mx-10 md:space-y-0 ">
           <p className="text-sm md:text-base">
             Max Value:{" "}
-            <span className="font-bold text-[rgba(0,119,228)]"> 930°C</span>
+            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.maxAvgTemp}°C</span>
           </p>
           <p className="text-sm md:text-base">
             Min Value:{" "}
-            <span className="font-bold text-[rgba(0,119,228)]"> 930°C</span>
+            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.minAvgTemp}°C</span>
           </p>
           <p className="text-sm md:text-base">
             Avg Value:{" "}
-            <span className="font-bold text-[rgba(0,119,228)]"> 930°C</span>
+            <span className="font-bold text-[rgba(0,119,228)]"> {((socketData.minAvgTemp + socketData.maxAvgTemp) / 2).toFixed(2)}°C</span>
           </p>
         </div>
 

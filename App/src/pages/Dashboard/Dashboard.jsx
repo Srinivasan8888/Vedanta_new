@@ -45,14 +45,11 @@ const Dashboard = () => {
 
     socket.on("Avgtempdata", (data) => {
       console.log("data for avg temp", data);
-      
-      // if (data && data.data) {
-        if (data) {
-        // setAvgData(data.data, data.maxAvgTemp, data.minAvgTemp);
-        setAvgData(data.data);
+      if (data) {
+        // Update AvgData and also store max and min temperatures
+        setAvgData(data);
       }
     });
-    
 
     return () => {
       socket.off("ASide");
@@ -76,8 +73,7 @@ const Dashboard = () => {
       </div>
       <div className="md:h-[47%] md:flex">
         {/* <DashboardChart socketData={AvgData, MinData, MaxData}/> */}
-        <DashboardChart socketData={AvgData}/>
-
+        <DashboardChart socketData={AvgData} />
 
         <Aside socketData={AsideData} />
 
