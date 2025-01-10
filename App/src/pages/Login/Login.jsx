@@ -42,9 +42,10 @@ const Login = () => {
       );
 
       const data = response.data;
-
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
+      document.cookie = `accessToken=${data.accessToken}; path=/; secure`;
+      document.cookie = `refreshToken=${data.refreshToken}; path=/; secure`;
 
       setSuccessMessage("Login Successful");
       navigate("/Dashboard");

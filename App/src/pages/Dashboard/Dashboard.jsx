@@ -8,20 +8,22 @@ import Bside from "../../Assets/components/Dashboard/Bside";
 import DashboardChart from "../../Assets/components/Dashboard/DashboardChart";
 import io from "socket.io-client";
 
-// const socket = io(process.env.REACT_APP_WEBSOCKET_URL);
-const socket = io("http://15.207.173.73:5001");
+const socket = io(process.env.REACT_APP_WEBSOCKET_URL);
+// const socket = io("http://15.207.173.73:5001");
 
 const Dashboard = () => {
   const [AsideData, setAsidedata] = useState([]);
   const [BsideData, setBsidedata] = useState([]);
   const [ModelData, setModelData] = useState([]);
+  const [AvgData, setAvgData] = useState([]);
+  const [MinData, setMinData] = useState([]);
+  const [MaxData, setMaxData] = useState([]);
 
   useEffect(() => {
     // Connect socket if not already connected
     if (!socket.connected) {
       socket.connect();
     }
-
 
     // Setup event listeners
     socket.on("ASide", (data) => {
@@ -37,14 +39,26 @@ const Dashboard = () => {
     socket.on("AllData", (data) => {
       if (Array.isArray(data)) {
         setModelData(data);
-        console.log("Received All Model Data:", data);
+        // console.log("Received All Model Data:", data);
       }
     });
+
+    socket.on("Avgtempdata", (data) => {
+      console.log("data for avg temp", data);
+      
+      // if (data && data.data) {
+        if (data) {
+        // setAvgData(data.data, data.maxAvgTemp, data.minAvgTemp);
+        setAvgData(data.data);
+      }
+    });
+    
 
     return () => {
       socket.off("ASide");
       socket.off("BSide");
       socket.off("AllData");
+      socket.off("Avgtempdata");
       socket.disconnect();
     };
   }, []);
@@ -56,12 +70,14 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        <ThreeScene socketData={ModelData}/>
+        <ThreeScene socketData={ModelData} />
 
         <Notifications />
       </div>
       <div className="md:h-[47%] md:flex">
-        <DashboardChart />
+        {/* <DashboardChart socketData={AvgData, MinData, MaxData}/> */}
+        <DashboardChart socketData={AvgData}/>
+
 
         <Aside socketData={AsideData} />
 

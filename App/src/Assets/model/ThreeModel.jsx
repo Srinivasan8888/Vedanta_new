@@ -272,7 +272,7 @@ const ThreeModel = ({ socketData }) => {
   const controlsRef = useRef();
   
   useEffect(() => {
-    console.log("Socket data in ThreeModel:", socketData);
+    // console.log("Socket data in ThreeModel:", socketData);
   }, [socketData]);
 
   return (
