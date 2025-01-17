@@ -4,7 +4,7 @@ import Chartline from "./miscellaneous/chartline.jsx";
 import Chartbar from "./miscellaneous/chartbar.jsx";
 import { temp } from "./data/data.js";
 
-const DashboardChart = ({ socketData = [] }) => {
+const DashboardChart = ({ socketData = [], onChartClick }) => {
   const [isBarChart, setIsBarChart] = useState(false);
   const [chartData, setChartData] = useState({
     labels: [],
@@ -18,13 +18,13 @@ const DashboardChart = ({ socketData = [] }) => {
     }]
   });
   
-  console.log('chartsocket', socketData);
+  // console.log('chartsocket', socketData);
   
   useEffect(() => {    
-    if (!socketData?.data?.length) {
-      console.log('No socket data available yet');
-      return;
-    }
+    // if (!socketData?.data?.length) {
+    //   console.log('No socket data available yet');
+    //   return;
+    // }
     
     try {
       const chartData = {
@@ -58,11 +58,11 @@ const DashboardChart = ({ socketData = [] }) => {
         }]
       };
       
-      console.log('Processed chart data:', chartData);
+      // console.log('Processed chart data:', chartData);
       setChartData(chartData);
       
-      console.log('Min Avg Temp:', socketData.minAvgTemp);
-      console.log('Max Avg Temp:', socketData.maxAvgTemp);
+      // console.log('Min Avg Temp:', socketData.minAvgTemp);
+      // console.log('Max Avg Temp:', socketData.maxAvgTemp);
     } catch (error) {
       console.error('Error processing socket data:', error);
     }
@@ -70,7 +70,8 @@ const DashboardChart = ({ socketData = [] }) => {
 
   const handleClick = (event) => {
     const buttonId = event.target.id;
-    console.log("clicked button", buttonId);
+    // console.log("clicked button", buttonId);
+    onChartClick(buttonId);
   };
 
   // const userData = {
@@ -111,17 +112,13 @@ const DashboardChart = ({ socketData = [] }) => {
       },
       tooltip: {
         callbacks: {
-          title: function (context) {
-            const index = context[0].dataIndex;
-            const timestamp = socketData[index]?.TIME || "No timestamp available";
+          title: function (value) {
+            const timestamp = value[0].label || "No timestamp available";
             return `Timestamp: ${timestamp}`;
           },
           label: function (context) {
             return `Temperature: ${context.parsed.y.toFixed(2)}°C`;
           },
-          // afterLabel: function (context) {
-          //   return "Hover for details!";
-          // },
         },
         displayColors: false,
         backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
@@ -146,12 +143,12 @@ const DashboardChart = ({ socketData = [] }) => {
           display: true,
           text: "Temperature (°C)",
           color: "white",
-         
+          pointStyle: false,
         },
         ticks: {
           padding: 20,
           color: "white",
-          callback: function (value) {
+          callback: function(value) {
             return value.toFixed(2) + " °C";
           },
         },
@@ -183,11 +180,11 @@ const DashboardChart = ({ socketData = [] }) => {
         <div className="flex flex-row justify-center gap-4 mt-1 md:flex-row md:gap-5 md:mx-10 md:space-y-0 ">
           <p className="text-sm md:text-base">
             Max Value:{" "}
-            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.maxAvgTemp}°C</span>
+            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.maxAvgTemp ? `${socketData.maxAvgTemp}°C` : 'NaN'}</span>
           </p>
           <p className="text-sm md:text-base">
             Min Value:{" "}
-            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.minAvgTemp}°C</span>
+            <span className="font-bold text-[rgba(0,119,228)]"> {socketData.minAvgTemp ? `${socketData.minAvgTemp}°C` : 'NaN'}</span>
           </p>
           <p className="text-sm md:text-base">
             Avg Value:{" "}

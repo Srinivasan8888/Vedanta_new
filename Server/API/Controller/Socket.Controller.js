@@ -8,53 +8,7 @@ import SensorModel7 from "../Models/SensorModel7.js";
 import SensorModel8 from "../Models/SensorModel8.js";
 import SensorModel9 from "../Models/SensorModel9.js";
 import SensorModel10 from "../Models/SensorModel10.js";
-
-// export const watchsocketsidesdata = (io) => {
-
-//     const options = { fullDocument: "updateLookup" };
-//     io.on('connection', async (socket) => {
-//         console.log("Client connected, sending initial data");
-        
-//         try {
-//             for (let i = 1; i <= 6; i++) {
-//                 await emitLatestSensorData(io, "ASide", `SensorModel${i}`);
-//             }
-//             for (let i = 7; i <= 10; i++) {
-//                 await emitLatestSensorData(io, "BSide", `SensorModel${i}`);
-//             }
-//         } catch (error) {
-//             console.error("Error sending initial data:", error);
-//         }
-//     });
-
-//     for (let i = 1; i <= 6; i++) {
-//         const modelName = `SensorModel${i}`;
-//         eval(modelName).watch([], options).on("change", async (change) => {
-//             console.log(`[change detected in ${modelName}]`, change);
-//             const aSideData = await Promise.all(
-//                 Array.from({length: 6}, (_, index) => index + 1).map(num =>
-//                     getSensorData(`SensorModel${num}`)
-//                 )
-//             );
-//             io.emit("ASide", aSideData);
-//         });
-//     }
-
-//     for (let i = 7; i <= 10; i++) {
-//         const modelName = `SensorModel${i}`;
-//         eval(modelName).watch([], options).on("change", async (change) => {
-//             console.log(`[change detected in ${modelName}]`, change);
-//             const aSideData = await Promise.all(
-//                 Array.from({length: 6}, (_, index) => index + 1).map(num =>
-//                     getSensorData(`SensorModel${num}`)
-//                 )
-//             );
-//             io.emit("BSide", aSideData);
-//         });
-//     }
-// };
-
-
+import AverageModel from "../Models/AverageModel.js";
 export const allsocketData = (io) => {
     const options = { fullDocument: "updateLookup" };
     const modelMap = {
@@ -116,64 +70,6 @@ export const allsocketData = (io) => {
     }
 };
 
-
-// const emitLatestSensorData = async (io, endpoint, modelName) => {
-//     try {
-//       const modelMap = {
-//         SensorModel1,
-//         SensorModel2,
-//         SensorModel3,
-//         SensorModel4,
-//         SensorModel5,
-//         SensorModel6,
-//         SensorModel7,
-//         SensorModel8,
-//         SensorModel9,
-//         SensorModel10,
-//       };
-
-//       const model = modelMap[modelName];
-//       const latestCollection = await model.aggregate([
-//         { $sort: { createdAt: -1 } },
-//         { $limit: 1 },
-//         { $project: {
-//             _id: 0,
-//             id: 0,
-//             TIME: 0,
-//             createdAt: 0,
-//             updatedAt: 0,
-//             __v: 0,
-//             busbar: 0
-//         }}
-//       ]);
-
-//       console.log(`Emitting latest sensor data to ${endpoint}:`, latestCollection);
-//       io.emit(endpoint, latestCollection);
-//     } catch (e) {
-//       console.error(
-//         `Error emitting latest sensor data to ${endpoint}:`,
-//         e
-//       );
-//     }
-//   };
-
-// const getSensorData = async (modelName) => {
-//     const modelMap = {
-//         SensorModel1, SensorModel2, SensorModel3,
-//         SensorModel4, SensorModel5, SensorModel6,
-//         SensorModel7, SensorModel8, SensorModel9,
-//         SensorModel10,
-//     };
-    
-//     const latestCollection = await modelMap[modelName].aggregate([
-//         { $sort: { createdAt: -1 } },
-//         { $limit: 1 },
-//     ]);
-    
-//     return latestCollection[0] || null;
-// };
-
-
 export const SideData = (io) => {
     const options = { fullDocument: "updateLookup" };
     const modelMap = {
@@ -183,7 +79,7 @@ export const SideData = (io) => {
         SensorModel4,
         SensorModel5,
         SensorModel6,
-       
+
     };
 
     const modelMap2 = {
@@ -275,3 +171,68 @@ export const SideData = (io) => {
         });
     }
 };
+
+const getAvgTemp = async (changedtime) => {
+    try {
+        const data = await model.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(Date.now() - changedtime * 60 * 1000)
+                    }
+                }
+            },
+            {
+                $project: {
+                    Avgtemp: 1,
+                    TIME: 1,
+                    _id: 0
+                }
+            }
+        ]);
+
+        console.log("Filtered Data:", data);
+
+        if (data.length === 0) {
+            console.warn("No data found for the specified time range.");
+        }
+
+        const avgTemps = data.map(item => parseFloat(item.Avgtemp));
+        const minAvgTemp = Math.min(...avgTemps);
+        const maxAvgTemp = Math.max(...avgTemps);
+
+        return {
+            data,
+            minAvgTemp,
+            maxAvgTemp
+        };
+    } catch (error) {
+        console.error("Error fetching average temperature:", error);
+        return { data: [], minAvgTemp: null, maxAvgTemp: null };
+    }
+};
+
+io.on('connection', async (socket) => {
+    console.log("Client connected, sending initial average temperature data");
+    try {
+        const avgTempData = await getAvgTemp();
+        console.log("Emitting Avgtempdata:", avgTempData);
+        io.emit("Avgtempdata", avgTempData);
+    } catch (error) {
+        console.error("Error sending initial average temperature data:", error);
+    }
+
+    socket.on("ButtonClick", async (buttonId) => {
+        console.log("Button clicked with ID:", buttonId);
+        const avgTempData = await getAvgTemp();
+        console.log("Emitting Avgtempdata on button click:", avgTempData);
+        io.emit("Avgtempdata", avgTempData);
+    });
+});
+
+model.watch([], options).on("change", async (change) => {
+    console.log("[change detected in Average Temp]", change);
+    const avgTempData = await getAvgTemp();
+    console.log("Emitting Avgtempdata on change:", avgTempData);
+    io.emit("Avgtempdata", avgTempData);
+});

@@ -585,14 +585,14 @@ export const createSensor10 = async (req, res) => {
 export const CreateAvg = async (req, res) => {
   const {
     id,
-    Avg,
+    Avgtemp,
     time,
   } = req.query;
 
   try {
     const newSensor = new AverageModel({
       id: String(id),
-      Avg: String(Avg),
+      Avgtemp: String(Avgtemp),
       TIME: String(time),
     });
     const savedSensor = await newSensor.save();

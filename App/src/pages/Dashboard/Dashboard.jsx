@@ -9,15 +9,12 @@ import DashboardChart from "../../Assets/components/Dashboard/DashboardChart";
 import io from "socket.io-client";
 
 const socket = io(process.env.REACT_APP_WEBSOCKET_URL);
-// const socket = io("http://15.207.173.73:5001");
 
 const Dashboard = () => {
   const [AsideData, setAsidedata] = useState([]);
   const [BsideData, setBsidedata] = useState([]);
   const [ModelData, setModelData] = useState([]);
   const [AvgData, setAvgData] = useState([]);
-  const [MinData, setMinData] = useState([]);
-  const [MaxData, setMaxData] = useState([]);
 
   useEffect(() => {
     // Connect socket if not already connected
@@ -44,9 +41,8 @@ const Dashboard = () => {
     });
 
     socket.on("Avgtempdata", (data) => {
-      console.log("data for avg temp", data);
+      // console.log("data for avg temp", data);
       if (data) {
-        // Update AvgData and also store max and min temperatures
         setAvgData(data);
       }
     });
@@ -59,6 +55,12 @@ const Dashboard = () => {
       socket.disconnect();
     };
   }, []);
+
+  const handleChartClick = (buttonId) => {
+    console.log("Button clicked in DashboardChart:", buttonId);
+    socket.emit("ButtonClick", buttonId);
+  };
+
   return (
     <div
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
@@ -72,8 +74,7 @@ const Dashboard = () => {
         <Notifications />
       </div>
       <div className="md:h-[47%] md:flex">
-        {/* <DashboardChart socketData={AvgData, MinData, MaxData}/> */}
-        <DashboardChart socketData={AvgData} />
+        <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
 
         <Aside socketData={AsideData} />
 

@@ -5,7 +5,7 @@ const AvgTempSchema = new mongoose.Schema({
     id:{
         type:String,
     },
-    AvgTemp:{
+    Avgtemp:{
         type:String,
     },
      TIME: {
