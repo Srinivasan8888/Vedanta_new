@@ -172,67 +172,164 @@ export const SideData = (io) => {
     }
 };
 
-const getAvgTemp = async (changedtime) => {
-    try {
-        const data = await model.aggregate([
-            {
-                $match: {
-                    createdAt: {
-                        $gte: new Date(Date.now() - changedtime * 60 * 1000)
+// const getAvgTemp = async (changedtime) => {
+//     try {
+//         const data = await model.aggregate([
+//             {
+//                 $match: {
+//                     createdAt: {
+//                         $gte: new Date(Date.now() - changedtime * 60 * 1000)
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     Avgtemp: 1,
+//                     TIME: 1,
+//                     _id: 0
+//                 }
+//             }
+//         ]);
+
+//         console.log("Filtered Data:", data);
+
+//         if (data.length === 0) {
+//             console.warn("No data found for the specified time range.");
+//         }
+
+//         const avgTemps = data.map(item => parseFloat(item.Avgtemp));
+//         const minAvgTemp = Math.min(...avgTemps);
+//         const maxAvgTemp = Math.max(...avgTemps);
+
+//         return {
+//             data,
+//             minAvgTemp,
+//             maxAvgTemp
+//         };
+//     } catch (error) {
+//         console.error("Error fetching average temperature:", error);
+//         return { data: [], minAvgTemp: null, maxAvgTemp: null };
+//     }
+// };
+
+// io.on('connection', async (socket) => {
+//     console.log("Client connected, sending initial average temperature data");
+//     try {
+//         const avgTempData = await getAvgTemp();
+//         console.log("Emitting Avgtempdata:", avgTempData);
+//         io.emit("Avgtempdata", avgTempData);
+//     } catch (error) {
+//         console.error("Error sending initial average temperature data:", error);
+//     }
+
+//     socket.on("ButtonClick", async (buttonId) => {
+//         console.log("Button clicked with ID:", buttonId);
+//         const avgTempData = await getAvgTemp();
+//         console.log("Emitting Avgtempdata on button click:", avgTempData);
+//         io.emit("Avgtempdata", avgTempData);
+//     });
+// });
+
+// model.watch([], options).on("change", async (change) => {
+//     console.log("[change detected in Average Temp]", change);
+//     const avgTempData = await getAvgTemp();
+//     console.log("Emitting Avgtempdata on change:", avgTempData);
+//     io.emit("Avgtempdata", avgTempData);
+// });
+export const Avgchartdash = (io, time) => {
+    const options = { fullDocument: "updateLookup" };
+    const model = AverageModel;
+    let changedtime;
+    const currentDateTime = new Date();
+    
+    // Function to set changedtime based on the time parameter
+    const setChangedTime = (time) => {
+        if (time == "1D") {
+            return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
+        } else if (time == "3D") {
+            return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
+        } else if (time == "1W") {
+            return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
+        } else if (time == "1M") {
+            return new Date(currentDateTime.getTime() - (30 * 24 * 60 * 60 * 1000)); // 1 month ago
+        } else if (time == "6M") {
+            return new Date(currentDateTime.getTime() - (6 * 30 * 24 * 60 * 60 * 1000)); // 6 months ago
+        } else {
+            console.warn("Invalid time parameter:", time);
+            return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // Default to 1 day ago
+        }
+    };
+
+    // Set initial changedtime
+    changedtime = setChangedTime(time);
+
+    const getAvgTemp = async (changedtime) => {
+        try {
+            console.log("Querying data from:", changedtime); // Log the time range being queried
+            const data = await model.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: changedtime // Use changedtime directly
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        Avgtemp: 1,
+                        TIME: 1,
+                        _id: 0,
+                        createdAt: 1
                     }
                 }
-            },
-            {
-                $project: {
-                    Avgtemp: 1,
-                    TIME: 1,
-                    _id: 0
-                }
+            ]);
+    
+            console.log("Filtered Data:", data);
+    
+            if (data.length === 0) {
+                console.warn("No data found for the specified time range.");
+                return { data: [], minAvgTemp: null, maxAvgTemp: null }; // Return nulls instead of Infinity
             }
-        ]);
-
-        console.log("Filtered Data:", data);
-
-        if (data.length === 0) {
-            console.warn("No data found for the specified time range.");
+    
+            const avgTemps = data.map(item => parseFloat(item.Avgtemp));
+            const minAvgTemp = Math.min(...avgTemps);
+            const maxAvgTemp = Math.max(...avgTemps);
+    
+            return {
+                data,
+                minAvgTemp,
+                maxAvgTemp
+            };
+        } catch (error) {
+            console.error("Error fetching average temperature:", error);
+            return { data: [], minAvgTemp: null, maxAvgTemp: null };
         }
-
-        const avgTemps = data.map(item => parseFloat(item.Avgtemp));
-        const minAvgTemp = Math.min(...avgTemps);
-        const maxAvgTemp = Math.max(...avgTemps);
-
-        return {
-            data,
-            minAvgTemp,
-            maxAvgTemp
-        };
-    } catch (error) {
-        console.error("Error fetching average temperature:", error);
-        return { data: [], minAvgTemp: null, maxAvgTemp: null };
-    }
-};
-
-io.on('connection', async (socket) => {
-    console.log("Client connected, sending initial average temperature data");
-    try {
-        const avgTempData = await getAvgTemp();
-        console.log("Emitting Avgtempdata:", avgTempData);
-        io.emit("Avgtempdata", avgTempData);
-    } catch (error) {
-        console.error("Error sending initial average temperature data:", error);
-    }
-
-    socket.on("ButtonClick", async (buttonId) => {
-        console.log("Button clicked with ID:", buttonId);
-        const avgTempData = await getAvgTemp();
-        console.log("Emitting Avgtempdata on button click:", avgTempData);
+    };
+    
+    io.on('connection', async (socket) => {
+        console.log("Client connected, sending initial average temperature data");
+        try {
+            const avgTempData = await getAvgTemp(changedtime); // Pass changedtime
+            console.log("Emitting Avgtempdata:", avgTempData);
+            io.emit("Avgtempdata", avgTempData);
+        } catch (error) {
+            console.error("Error sending initial average temperature data:", error);
+        }
+    
+        socket.on("ButtonClick", async (buttonId) => {
+            console.log("Button clicked with ID:", buttonId);
+            // Update changedtime based on buttonId (you can customize this logic)
+            changedtime = setChangedTime(buttonId); // Assuming buttonId corresponds to time parameter
+            const avgTempData = await getAvgTemp(changedtime); // Pass updated changedtime
+            console.log("Emitting Avgtempdata on button click:", avgTempData);
+            io.emit("Avgtempdata", avgTempData);
+        });
+    });
+    
+    model.watch([], options).on("change", async (change) => {
+        console.log("[change detected in Average Temp]", change);
+        const avgTempData = await getAvgTemp(changedtime); // Pass changedtime
+        console.log("Emitting Avgtempdata on change:", avgTempData);
         io.emit("Avgtempdata", avgTempData);
     });
-});
-
-model.watch([], options).on("change", async (change) => {
-    console.log("[change detected in Average Temp]", change);
-    const avgTempData = await getAvgTemp();
-    console.log("Emitting Avgtempdata on change:", avgTempData);
-    io.emit("Avgtempdata", avgTempData);
-});
+};

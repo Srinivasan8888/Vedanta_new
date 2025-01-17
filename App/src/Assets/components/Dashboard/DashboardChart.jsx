@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo} from "react";
 import Switcher13 from "./miscellaneous/Switcher13.jsx";
 import Chartline from "./miscellaneous/chartline.jsx";
 import Chartbar from "./miscellaneous/chartbar.jsx";
 import { temp } from "./data/data.js";
+import 'chartjs-plugin-annotation';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
 const DashboardChart = ({ socketData = [], onChartClick }) => {
   const [isBarChart, setIsBarChart] = useState(false);
@@ -15,6 +17,7 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
       tension: 0,
       fill: true,
       borderWidth: 4,
+      pointStyle: false,
     }]
   });
   
@@ -104,67 +107,94 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
   //   ],
   // };
 
-  const options = {
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          title: function (value) {
-            const timestamp = value[0].label || "No timestamp available";
-            return `Timestamp: ${timestamp}`;
-          },
-          label: function (context) {
-            return `Temperature: ${context.parsed.y.toFixed(2)}°C`;
-          },
-        },
-        displayColors: false,
-        backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
-        titleFont: {
-          size: 14,
-          weight: "bold",
-          color: "#fff",
-        },
-        bodyFont: {
-          size: 12,
-          color: "#fff",
-        },
-        padding: 10, // Adjust padding
-        borderWidth: 1,
-        borderColor: "#00c8ff", // A matching border color
-      },
+const options = useMemo(() => ({
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
     },
-    scales: {
-      y: {
-        position: "right",
-        title: {
-          display: true,
-          text: "Temperature (°C)",
-          color: "white",
-          pointStyle: false,
+    tooltip: {
+      callbacks: {
+        title: function (value) {
+          const timestamp = value[0].label || "No timestamp available";
+          return `Timestamp: ${timestamp}`;
         },
-        ticks: {
-          padding: 20,
-          color: "white",
-          callback: function(value) {
-            return value.toFixed(2) + " °C";
-          },
+        label: function (context) {
+          return `Temperature: ${context.parsed.y.toFixed(2)}°C`;
         },
       },
-      x: {
-        title: {
-          display: true,
-          text: "Timestamp",
-          color: "white",
-        },
-        ticks: {
-          color: "white",
+      displayColors: false,
+      backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
+      titleFont: {
+        size: 14,
+        weight: "bold",
+        color: "#fff",
+      },
+      bodyFont: {
+        size: 12,
+        color: "#fff",
+      },
+      padding: 10, // Adjust padding
+      borderWidth: 1,
+      borderColor: "#00c8ff", // A matching border color
+    },
+    annotation: {
+      annotations: {
+        line1: {
+          type: 'line',
+          yMin: 240,
+          yMax: 240,
+          borderColor: 'red',
+          borderWidth: 2,
+          borderDash: [5, 5], // Dotted line
+          label: {
+            content: 'Threshold',
+            enabled: true,
+            position: 'end',
+            color: 'red',
+          },
         },
       },
     },
-  };
+  },
+  scales: {
+    y: {
+      position: "right",
+      title: {
+        display: true,
+        text: "Temperature (°C)",
+        color: "white",
+        pointStyle: false,
+      },
+      ticks: {
+        padding: 20,
+        color: "white",
+        callback: function(value) {
+          return value.toFixed(2) + " °C";
+        },
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: "Timestamp",
+        color: "white",
+      },
+      ticks: {
+        color: "white",
+      },
+    },
+  },
+  elements: {
+    point: {
+      radius: 5, // Default radius
+      hoverRadius: 7, // Radius on hover
+      pointStyle: 'circle', // Default point style
+      hoverPointStyle: 'circle', // Point style on hover
+    },
+  },
+}), []);
+
 
   const toggleChartType = () => {
     setIsBarChart(!isBarChart);
