@@ -10,7 +10,7 @@ import * as THREE from "three";
 import down from "../../Assets/images/red-arrow.png";
 import up from "../../Assets/images/green-arrow.png";
 
-const Model = ({ socketData }) => {
+const Model = ({ socketData, ModelTempData }) => {
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
@@ -134,7 +134,7 @@ const Model = ({ socketData }) => {
     CBT27B2: "s107",
     CBT27B1: "s108",
   };
-
+  
   const reverseNameMapping = Object.fromEntries(
     Object.entries(nameMapping).map(([key, value]) => [value, key])
   );
@@ -189,18 +189,32 @@ const Model = ({ socketData }) => {
         setHoveredMesh(object);
         
         let value = 'N/A';
-        for (const dataObj of socketData || []) {
+        let setmax = 'N/A';
+        let setmin = 'N/A';
+        
+        for (const dataObj of [...(socketData || []), ...(ModelTempData || [])]) {
           if (dataObj[partName]) {
             value = dataObj[partName];
-            break;
+          }
+          if (dataObj.parameter === partName) {
+            console.log("parameter", value);
+            setmax = dataObj.max;
+            setmin = dataObj.min;
+            setHoveredInfo((prev) => ({
+              ...prev,
+              maxTemp: dataObj.max,
+              minTemp: dataObj.min,
+            }));
           }
         }
         
         setHoveredInfo({
           name: partName,
           value: `${parseFloat(value).toFixed(2)}°C`,
-          maxTemp: '686°C',  // placeholder
-          minTemp: '146°C'   // placeholder
+          // maxTemp: '686°C',  // placeholder
+          // minTemp: '146°C'   // placeholder
+          maxTemp: `${parseFloat(setmax).toFixed(2)}°C`,  // placeholder
+          minTemp: `${parseFloat(setmin).toFixed(2)}°C`,   // placeholder
         });
       }
     } else if (hoveredMesh) {
@@ -256,13 +270,15 @@ const Model = ({ socketData }) => {
   );
 };
 
-const ThreeModel = ({ socketData, lastButtonClicked }) => {
+const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   const controlsRef = useRef();
   
   useEffect(() => {
     // Log the socket data if needed
-    // console.log("Socket data in ThreeModel:", socketData);
-  }, [socketData]);
+    console.log("Socket data in ThreeModel:", socketData);
+    // console.log("ModelTempData data in ThreeModel:", ModelTempData);
+    
+  }, [ModelTempData]);
 
   useEffect(() => {
     if (lastButtonClicked) {
@@ -325,7 +341,7 @@ const ThreeModel = ({ socketData, lastButtonClicked }) => {
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
-        <Model socketData={socketData} />
+        <Model socketData={socketData} ModelTempData={ModelTempData} />
         <OrbitControls
           ref={controlsRef}
           minDistance={10}

@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [BsideData, setBsidedata] = useState([]);
   const [ModelData, setModelData] = useState([]);
   const [AvgData, setAvgData] = useState([]);
+  const [ModelTempData, setModelTempData] = useState([]);
   const [lastButtonClicked, setLastButtonClicked] = useState(null);
 
   useEffect(() => {
@@ -48,6 +49,13 @@ const Dashboard = () => {
       }
     });
 
+    socket.on("AvgModeltemp", (data) => {
+      console.log("AvgModeltemp", data);
+      if (data) {
+        setModelTempData(data);
+      }
+    });
+
     return () => {
       socket.off("ASide");
       socket.off("BSide");
@@ -71,7 +79,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        <ThreeScene socketData={ModelData} lastButtonClicked={lastButtonClicked} />
+        <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} />
 
         <Notifications />
       </div>

@@ -9,6 +9,7 @@ import SensorModel8 from "../Models/SensorModel8.js";
 import SensorModel9 from "../Models/SensorModel9.js";
 import SensorModel10 from "../Models/SensorModel10.js";
 import AverageModel from "../Models/AverageModel.js";
+
 export const allsocketData = (io) => {
     const options = { fullDocument: "updateLookup" };
     const modelMap = {
@@ -281,7 +282,10 @@ export const AvgtempModel = (io, time) => {
     ];
     const nameMapping = [
         "CBT1A2", "CBT1A1", "CBT2A2", "CBT2A1", "CBT3A2", "CBT3A1", "CBT4A2", "CBT4A1", "CBT5A2", "CBT5A1",
-        "CBT6A2", "CBT6A1", "CBT7A2", "CBT7A1", "CBT8A2", "CBT8A1", "CBT9A2", "CBT9A1", "CBT10A2", "CBT10A1",
+        "CBT6A2", "CBT6A1", "CBT7A2", "CBT7A1",
+
+        "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2", "CBT10A1", "CBT10A2",
+
         "CBT11A2", "CBT11A1", "CBT12A2", "CBT12A1", "CBT13A2", "CBT13A1", "CBT14A2", "CBT14A1", "CBT15A2", "CBT15A1",
         "CBT16A2", "CBT16A1", "CBT17A2", "CBT17A1", "CBT18A2", "CBT18A1", "CBT19A2", "CBT19A1", "CBT20A2", "CBT20A1",
         "CBT21A2", "CBT21A1", "CBT22A2", "CBT22A1", "CBT23A2", "CBT23A1", "CBT24A2", "CBT24A1", "CBT25A2", "CBT25A1",
@@ -320,17 +324,18 @@ export const AvgtempModel = (io, time) => {
         try {
             console.log("current time", currentDateTime);
             console.log("Querying data from:", changedtime); // Log the time range being queried
-            
+
             const maxMinValues = [];
 
             // Loop through all sensor models
             for (let i = 0; i < models.length; i++) {
                 const model = models[i];
+                console.log("models", model)
 
                 // Loop through each parameter in nameMapping
                 for (let j = 0; j < nameMapping.length; j++) {
                     const parameter = nameMapping[j];
-
+                    console.log("parameter", parameter)
                     const data = await model.aggregate([
                         {
                             $match: {
@@ -352,9 +357,9 @@ export const AvgtempModel = (io, time) => {
                         }
                     ]);
 
-                    if (data[0]) {
+                    if (data[0] && (data[0].max !== null || data[0].min !== null)) {
                         maxMinValues.push({
-                            sensor: parameter,
+                            parameter: parameter,
                             max: data[0].max || null,
                             min: data[0].min || null
                         });
