@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [BsideData, setBsidedata] = useState([]);
   const [ModelData, setModelData] = useState([]);
   const [AvgData, setAvgData] = useState([]);
+  const [lastButtonClicked, setLastButtonClicked] = useState(null);
 
   useEffect(() => {
     // Connect socket if not already connected
@@ -57,8 +58,9 @@ const Dashboard = () => {
   }, []);
 
   const handleChartClick = (buttonId) => {
-    console.log("Button clicked in DashboardChart:", buttonId);
+    // console.log("Button clicked in DashboardChart:", buttonId);
     socket.emit("ButtonClick", buttonId);
+    setLastButtonClicked(buttonId);
   };
 
   return (
@@ -69,7 +71,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex  ">
-        <ThreeScene socketData={ModelData} />
+        <ThreeScene socketData={ModelData} lastButtonClicked={lastButtonClicked} />
 
         <Notifications />
       </div>

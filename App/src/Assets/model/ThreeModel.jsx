@@ -2,13 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   useGLTF,
-  // Stage,
   OrbitControls,
-  // PresentationControls,
   PerspectiveCamera,
   Html,
 } from "@react-three/drei";
-// import { Ray } from "three";
 import * as THREE from "three";
 import down from "../../Assets/images/red-arrow.png";
 import up from "../../Assets/images/green-arrow.png";
@@ -144,17 +141,13 @@ const Model = ({ socketData }) => {
 
   useEffect(() => {
     const handleMouseMove = (event) => {
-      // Get the canvas element's bounding rect
       const canvas = document.querySelector("canvas");
       if (!canvas) return;
 
       const rect = canvas.getBoundingClientRect();
-
-      // Calculate mouse position relative to the canvas
       mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-      // Update popup position using screen coordinates
       if (hoveredMesh) {
         setPopupPosition({
           x: event.clientX,
@@ -195,7 +188,6 @@ const Model = ({ socketData }) => {
       if (partName && partName !== hoveredMesh) {
         setHoveredMesh(object);
         
-        // Find the value in the socketData array
         let value = 'N/A';
         for (const dataObj of socketData || []) {
           if (dataObj[partName]) {
@@ -207,8 +199,6 @@ const Model = ({ socketData }) => {
         setHoveredInfo({
           name: partName,
           value: `${parseFloat(value).toFixed(2)}°C`,
-          // Since max/min temps aren't in the data, we can either remove them
-          // or set them to fixed values for now
           maxTemp: '686°C',  // placeholder
           minTemp: '146°C'   // placeholder
         });
@@ -224,8 +214,6 @@ const Model = ({ socketData }) => {
       <primitive
         ref={group}
         object={scene}
-        // onClick={handleClick}
-
         position={[0, -2, 0]}
         scale={1}
       />
@@ -268,12 +256,19 @@ const Model = ({ socketData }) => {
   );
 };
 
-const ThreeModel = ({ socketData }) => {
+const ThreeModel = ({ socketData, lastButtonClicked }) => {
   const controlsRef = useRef();
   
   useEffect(() => {
+    // Log the socket data if needed
     // console.log("Socket data in ThreeModel:", socketData);
   }, [socketData]);
+
+  useEffect(() => {
+    if (lastButtonClicked) {
+      console.log("Last button clicked in ThreeModel:", lastButtonClicked);
+    }
+  }, [lastButtonClicked]);
 
   return (
     <div className="h-[500px] bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl m-4">
@@ -281,7 +276,7 @@ const ThreeModel = ({ socketData }) => {
         <div className="flex w-full gap-4">
           <button
             type="button"
-            class="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+            className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -303,7 +298,7 @@ const ThreeModel = ({ socketData }) => {
           </p>
           <button
             type="button"
-            class="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+            className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
