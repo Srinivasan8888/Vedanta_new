@@ -50,7 +50,7 @@ const Dashboard = () => {
     });
 
     socket.on("AvgModeltemp", (data) => {
-      console.log("AvgModeltemp", data);
+      // console.log("AvgModeltemp", data);
       if (data) {
         setModelTempData(data);
       }

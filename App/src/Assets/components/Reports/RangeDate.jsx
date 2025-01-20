@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import Dropdown from "./Dropdown";
 
 const RangeDate = () => {
     const [selected, setSelected] = useState("");
@@ -16,71 +17,7 @@ const RangeDate = () => {
         <div className="flex flex-col md:h-[60%] gap-10 justify-center mx-16">
         <div className="flex flex-col items-center justify-between mt-10 md:flex-row">
             <div className="items-start text-xl font-normal">Configuration</div>
-            <div className="items-end justify-end mt-4 ml-2 md:mt-0">
-              <Menu as="div" className="relative inline-block text-left">
-                <div>
-                  <MenuButton className="inline-flex w-64 justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 backdrop-blur-[8px] shadow-[inset_4px_4px_4px_0_rgba(0,0,0,0.25)]">
-                    Select Configuration
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                      />
-                    </svg>
-                  </MenuButton>
-                </div>
-
-                <MenuItems
-                  transition
-                  className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                >
-                  <div className="py-1">
-                    <MenuItem>
-                      <a
-                        href="#"
-                        className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                      >
-                        option 1
-                      </a>
-                    </MenuItem>
-                    <MenuItem>
-                      <a
-                        href="#"
-                        className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                      >
-                        option 2
-                      </a>
-                    </MenuItem>
-                    <MenuItem>
-                      <a
-                        href="#"
-                        className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                      >
-                        option 3
-                      </a>
-                    </MenuItem>
-                    <form action="#" method="POST">
-                      <MenuItem>
-                        <button
-                          type="submit"
-                          className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                        >
-                          option 4
-                        </button>
-                      </MenuItem>
-                    </form>
-                  </div>
-                </MenuItems>
-              </Menu>
-            </div>
+           <Dropdown/>
           </div>
 
           <div className="flex flex-col items-center justify-between md:flex-row">

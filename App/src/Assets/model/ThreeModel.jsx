@@ -167,7 +167,7 @@ const Model = ({ socketData, ModelTempData }) => {
 
     if (partName) {
       setHoveredMesh(partName);
-      console.log(`Clicked on: ${partName}`);
+      // console.log(`Clicked on: ${partName}`);
     }
   };
 
@@ -273,18 +273,18 @@ const Model = ({ socketData, ModelTempData }) => {
 const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   const controlsRef = useRef();
   
-  useEffect(() => {
-    // Log the socket data if needed
-    console.log("Socket data in ThreeModel:", socketData);
-    // console.log("ModelTempData data in ThreeModel:", ModelTempData);
+  // useEffect(() => {
+  //   Log the socket data if needed
+  //   console.log("Socket data in ThreeModel:", socketData);
+  //   console.log("ModelTempData data in ThreeModel:", ModelTempData);
     
-  }, [ModelTempData]);
+  // }, [ModelTempData]);
 
-  useEffect(() => {
-    if (lastButtonClicked) {
-      console.log("Last button clicked in ThreeModel:", lastButtonClicked);
-    }
-  }, [lastButtonClicked]);
+  // useEffect(() => {
+  //   if (lastButtonClicked) {
+  //      console.log("Last button clicked in ThreeModel:", lastButtonClicked);
+  //   }
+  // }, [lastButtonClicked]);
 
   return (
     <div className="h-[500px] bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl m-4">

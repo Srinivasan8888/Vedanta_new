@@ -17,7 +17,7 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
       tension: 0,
       fill: true,
       borderWidth: 4,
-      pointStyle: false,
+      // pointStyle: false,
     }]
   });
   
