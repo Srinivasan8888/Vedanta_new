@@ -148,7 +148,7 @@ export const fetchSensorDataByKey = async (req, res) => {
     model9: SensorModel9,
     model10: SensorModel10,
   };
-  
+
   const models = {
     model1: [
       "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
@@ -201,8 +201,6 @@ export const fetchSensorDataByKey = async (req, res) => {
     ]
   };
 
-  console.log("average", average);
-
   const findModelByKey = (key) => {
     for (const [name, keys] of Object.entries(models)) {
       if (keys.includes(key)) return modelMap[name];
@@ -214,6 +212,8 @@ export const fetchSensorDataByKey = async (req, res) => {
     const date1 = new Date(startDate);
     const date2 = new Date(endDate);
 
+
+    // Handle case for All-Data key (average for all keys)
     if (key === "All-Data") {
       const allData = await Promise.all(
         Object.values(modelMap).map((model) =>
@@ -226,9 +226,1109 @@ export const fetchSensorDataByKey = async (req, res) => {
         return res.status(404).json({ error: "No data found for the given date range" });
       }
 
-      return res.status(200).json(combinedData);
+      if (average === "Hour") {
+        const allGroupedData = await Promise.all([
+          SensorModel1.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%dT%H:00:00Z",
+                    date: "$createdAt"
+                  }
+                },
+                avgCBT1A1: { $avg: { $toDouble: "$CBT1A1" } },
+                avgCBT1A2: { $avg: { $toDouble: "$CBT1A2" } },
+                avgCBT2A1: { $avg: { $toDouble: "$CBT2A1" } },
+                avgCBT2A2: { $avg: { $toDouble: "$CBT2A2" } },
+                avgCBT3A1: { $avg: { $toDouble: "$CBT3A1" } },
+                avgCBT3A2: { $avg: { $toDouble: "$CBT3A2" } },
+                avgCBT4A1: { $avg: { $toDouble: "$CBT4A1" } },
+                avgCBT4A2: { $avg: { $toDouble: "$CBT4A2" } },
+                avgCBT5A1: { $avg: { $toDouble: "$CBT5A1" } },
+                avgCBT5A2: { $avg: { $toDouble: "$CBT5A2" } },
+                avgCBT6A1: { $avg: { $toDouble: "$CBT6A1" } },
+                avgCBT6A2: { $avg: { $toDouble: "$CBT6A2" } },
+                avgCBT7A1: { $avg: { $toDouble: "$CBT7A1" } },
+                avgCBT7A2: { $avg: { $toDouble: "$CBT7A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT1A1: 1,
+                avgCBT1A2: 1,
+                avgCBT2A1: 1,
+                avgCBT2A2: 1,
+                avgCBT3A1: 1,
+                avgCBT3A2: 1,
+                avgCBT4A1: 1,
+                avgCBT4A2: 1,
+                avgCBT5A1: 1,
+                avgCBT5A2: 1,
+                avgCBT6A1: 1,
+                avgCBT6A2: 1,
+                avgCBT7A1: 1,
+                avgCBT7A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "_id": 1 } }
+          ]),
+          SensorModel2.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT8A1: { $avg: { $toDouble: "$CBT8A1" } },
+                avgCBT8A2: { $avg: { $toDouble: "$CBT8A2" } },
+                avgCBT9A1: { $avg: { $toDouble: "$CBT9A1" } },
+                avgCBT9A2: { $avg: { $toDouble: "$CBT9A2" } },
+                avgCBT10A1: { $avg: { $toDouble: "$CBT10A1" } },
+                avgCBT10A2: { $avg: { $toDouble: "$CBT10A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT8A1: 1,
+                avgCBT8A2: 1,
+                avgCBT9A1: 1,
+                avgCBT9A2: 1,
+                avgCBT10A1: 1,
+                avgCBT10A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel3.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT11A1: { $avg: { $toDouble: "$CBT11A1" } },
+                avgCBT11A2: { $avg: { $toDouble: "$CBT11A2" } },
+                avgCBT12A1: { $avg: { $toDouble: "$CBT12A1" } },
+                avgCBT12A2: { $avg: { $toDouble: "$CBT12A2" } },
+                avgCBT13A1: { $avg: { $toDouble: "$CBT13A1" } },
+                avgCBT13A2: { $avg: { $toDouble: "$CBT13A2" } },
+                avgCBT14A1: { $avg: { $toDouble: "$CBT14A1" } },
+                avgCBT14A2: { $avg: { $toDouble: "$CBT14A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT11A1: 1,
+                avgCBT11A2: 1,
+                avgCBT12A1: 1,
+                avgCBT12A2: 1,
+                avgCBT13A1: 1,
+                avgCBT13A2: 1,
+                avgCBT14A1: 1,
+                avgCBT14A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel4.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT15A1: { $avg: { $toDouble: "$CBT15A1" } },
+                avgCBT15A2: { $avg: { $toDouble: "$CBT15A2" } },
+                avgCBT16A1: { $avg: { $toDouble: "$CBT16A1" } },
+                avgCBT16A2: { $avg: { $toDouble: "$CBT16A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT15A1: 1,
+                avgCBT15A2: 1,
+                avgCBT16A1: 1,
+                avgCBT16A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel5.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT17A1: { $avg: { $toDouble: "$CBT17A1" } },
+                avgCBT17A2: { $avg: { $toDouble: "$CBT17A2" } },
+                avgCBT18A1: { $avg: { $toDouble: "$CBT18A1" } },
+                avgCBT18A2: { $avg: { $toDouble: "$CBT18A2" } },
+                avgCBT19A1: { $avg: { $toDouble: "$CBT19A1" } },
+                avgCBT19A2: { $avg: { $toDouble: "$CBT19A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT17A1: 1,
+                avgCBT17A2: 1,
+                avgCBT18A1: 1,
+                avgCBT18A2: 1,
+                avgCBT19A1: 1,
+                avgCBT19A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel6.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT20A1: { $avg: { $toDouble: "$CBT20A1" } },
+                avgCBT20A2: { $avg: { $toDouble: "$CBT20A2" } },
+                avgCBT21A1: { $avg: { $toDouble: "$CBT21A1" } },
+                avgCBT21A2: { $avg: { $toDouble: "$CBT21A2" } },
+                avgCBT22A1: { $avg: { $toDouble: "$CBT22A1" } },
+                avgCBT22A2: { $avg: { $toDouble: "$CBT22A2" } },
+                avgCBT23A1: { $avg: { $toDouble: "$CBT23A1" } },
+                avgCBT23A2: { $avg: { $toDouble: "$CBT23A2" } },
+                avgCBT24A1: { $avg: { $toDouble: "$CBT24A1" } },
+                avgCBT24A2: { $avg: { $toDouble: "$CBT24A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT20A1: 1,
+                avgCBT20A2: 1,
+                avgCBT21A1: 1,
+                avgCBT21A2: 1,
+                avgCBT22A1: 1,
+                avgCBT22A2: 1,
+                avgCBT23A1: 1,
+                avgCBT23A2: 1,
+                avgCBT24A1: 1,
+                avgCBT24A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel7.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT1B1: { $avg: { $toDouble: "$CBT1B1" } },
+                avgCBT1B2: { $avg: { $toDouble: "$CBT1B2" } },
+                avgCBT2B1: { $avg: { $toDouble: "$CBT2B1" } },
+                avgCBT2B2: { $avg: { $toDouble: "$CBT2B2" } },
+                avgCBT3B1: { $avg: { $toDouble: "$CBT3B1" } },
+                avgCBT3B2: { $avg: { $toDouble: "$CBT3B2" } },
+                avgCBT4B1: { $avg: { $toDouble: "$CBT4B1" } },
+                avgCBT4B2: { $avg: { $toDouble: "$CBT4B2" } },
+                avgCBT5B1: { $avg: { $toDouble: "$CBT5B1" } },
+                avgCBT5B2: { $avg: { $toDouble: "$CBT5B2" } },
+                avgCBT6B1: { $avg: { $toDouble: "$CBT6B1" } },
+                avgCBT6B2: { $avg: { $toDouble: "$CBT6B2" } },
+                avgCBT7B1: { $avg: { $toDouble: "$CBT7B1" } },
+                avgCBT7B2: { $avg: { $toDouble: "$CBT7B2" } },
+                avgCBT8B1: { $avg: { $toDouble: "$CBT8B1" } },
+                avgCBT8B2: { $avg: { $toDouble: "$CBT8B2" } },
+                avgCBT9B1: { $avg: { $toDouble: "$CBT9B1" } },
+                avgCBT9B2: { $avg: { $toDouble: "$CBT9B2" } },
+                avgCBT10B1: { $avg: { $toDouble: "$CBT10B1" } },
+                avgCBT10B2: { $avg: { $toDouble: "$CBT10B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT1B1: 1,
+                avgCBT1B2: 1,
+                avgCBT2B1: 1,
+                avgCBT2B2: 1,
+                avgCBT3B1: 1,
+                avgCBT3B2: 1,
+                avgCBT4B1: 1,
+                avgCBT4B2: 1,
+                avgCBT5B1: 1,
+                avgCBT5B2: 1,
+                avgCBT6B1: 1,
+                avgCBT6B2: 1,
+                avgCBT7B1: 1,
+                avgCBT7B2: 1,
+                avgCBT8B1: 1,
+                avgCBT8B2: 1,
+                avgCBT9B1: 1,
+                avgCBT9B2: 1,
+                avgCBT10B1: 1,
+                avgCBT10B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel8.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT11B1: { $avg: { $toDouble: "$CBT11B1" } },
+                avgCBT11B2: { $avg: { $toDouble: "$CBT11B2" } },
+                avgCBT12B1: { $avg: { $toDouble: "$CBT12B1" } },
+                avgCBT12B2: { $avg: { $toDouble: "$CBT12B2" } },
+                avgCBT13B1: { $avg: { $toDouble: "$CBT13B1" } },
+                avgCBT13B2: { $avg: { $toDouble: "$CBT13B2" } },
+                avgCBT14B1: { $avg: { $toDouble: "$CBT14B1" } },
+                avgCBT14B2: { $avg: { $toDouble: "$CBT14B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT11B1: 1,
+                avgCBT11B2: 1,
+                avgCBT12B1: 1,
+                avgCBT12B2: 1,
+                avgCBT13B1: 1,
+                avgCBT13B2: 1,
+                avgCBT14B1: 1,
+                avgCBT14B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel9.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT15B1: { $avg: { $toDouble: "$CBT15B1" } },
+                avgCBT15B2: { $avg: { $toDouble: "$CBT15B2" } },
+                avgCBT16B1: { $avg: { $toDouble: "$CBT16B1" } },
+                avgCBT16B2: { $avg: { $toDouble: "$CBT16B2" } },
+                avgCBT17B1: { $avg: { $toDouble: "$CBT17B1" } },
+                avgCBT17B2: { $avg: { $toDouble: "$CBT17B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT15B1: 1,
+                avgCBT15B2: 1,
+                avgCBT16B1: 1,
+                avgCBT16B2: 1,
+                avgCBT17B1: 1,
+                avgCBT17B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel10.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT19B1: { $avg: { $toDouble: "$CBT19B1" } },
+                avgCBT19B2: { $avg: { $toDouble: "$CBT19B2" } },
+                avgCBT20B1: { $avg: { $toDouble: "$CBT20B1" } },
+                avgCBT20B2: { $avg: { $toDouble: "$CBT20B2" } },
+                avgCBT21B1: { $avg: { $toDouble: "$CBT21B1" } },
+                avgCBT21B2: { $avg: { $toDouble: "$CBT21B2" } },
+                avgCBT22B1: { $avg: { $toDouble: "$CBT22B1" } },
+                avgCBT22B2: { $avg: { $toDouble: "$CBT22B2" } },
+                avgCBT23B1: { $avg: { $toDouble: "$CBT23B1" } },
+                avgCBT23B2: { $avg: { $toDouble: "$CBT23B2" } },
+                avgCBT24B1: { $avg: { $toDouble: "$CBT24B1" } },
+                avgCBT24B2: { $avg: { $toDouble: "$CBT24B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT19B1: 1,
+                avgCBT19B2: 1,
+                avgCBT20B1: 1,
+                avgCBT20B2: 1,
+                avgCBT21B1: 1,
+                avgCBT21B2: 1,
+                avgCBT22B1: 1,
+                avgCBT22B2: 1,
+                avgCBT23B1: 1,
+                avgCBT23B2: 1,
+                avgCBT24B1: 1,
+                avgCBT24B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ])
+        ]);
+  
+        const combinedGroupedData = allGroupedData.flat();
+  
+        if (combinedGroupedData.length === 0) {
+          return res.status(404).json({ error: "No data found for the given date range" });
+        }
+  
+        return res.status(200).json(combinedGroupedData);
+      } 
+       else if (average === "Day") {
+         const allGroupedData = await Promise.all([
+          SensorModel1.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%dT%H:00:00Z",
+                    date: "$createdAt"
+                  }
+                },
+                avgCBT1A1: { $avg: { $toDouble: "$CBT1A1" } },
+                avgCBT1A2: { $avg: { $toDouble: "$CBT1A2" } },
+                avgCBT2A1: { $avg: { $toDouble: "$CBT2A1" } },
+                avgCBT2A2: { $avg: { $toDouble: "$CBT2A2" } },
+                avgCBT3A1: { $avg: { $toDouble: "$CBT3A1" } },
+                avgCBT3A2: { $avg: { $toDouble: "$CBT3A2" } },
+                avgCBT4A1: { $avg: { $toDouble: "$CBT4A1" } },
+                avgCBT4A2: { $avg: { $toDouble: "$CBT4A2" } },
+                avgCBT5A1: { $avg: { $toDouble: "$CBT5A1" } },
+                avgCBT5A2: { $avg: { $toDouble: "$CBT5A2" } },
+                avgCBT6A1: { $avg: { $toDouble: "$CBT6A1" } },
+                avgCBT6A2: { $avg: { $toDouble: "$CBT6A2" } },
+                avgCBT7A1: { $avg: { $toDouble: "$CBT7A1" } },
+                avgCBT7A2: { $avg: { $toDouble: "$CBT7A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT1A1: 1,
+                avgCBT1A2: 1,
+                avgCBT2A1: 1,
+                avgCBT2A2: 1,
+                avgCBT3A1: 1,
+                avgCBT3A2: 1,
+                avgCBT4A1: 1,
+                avgCBT4A2: 1,
+                avgCBT5A1: 1,
+                avgCBT5A2: 1,
+                avgCBT6A1: 1,
+                avgCBT6A2: 1,
+                avgCBT7A1: 1,
+                avgCBT7A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "_id": 1 } }
+          ]),
+          SensorModel2.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT8A1: { $avg: { $toDouble: "$CBT8A1" } },
+                avgCBT8A2: { $avg: { $toDouble: "$CBT8A2" } },
+                avgCBT9A1: { $avg: { $toDouble: "$CBT9A1" } },
+                avgCBT9A2: { $avg: { $toDouble: "$CBT9A2" } },
+                avgCBT10A1: { $avg: { $toDouble: "$CBT10A1" } },
+                avgCBT10A2: { $avg: { $toDouble: "$CBT10A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT8A1: 1,
+                avgCBT8A2: 1,
+                avgCBT9A1: 1,
+                avgCBT9A2: 1,
+                avgCBT10A1: 1,
+                avgCBT10A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel3.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT11A1: { $avg: { $toDouble: "$CBT11A1" } },
+                avgCBT11A2: { $avg: { $toDouble: "$CBT11A2" } },
+                avgCBT12A1: { $avg: { $toDouble: "$CBT12A1" } },
+                avgCBT12A2: { $avg: { $toDouble: "$CBT12A2" } },
+                avgCBT13A1: { $avg: { $toDouble: "$CBT13A1" } },
+                avgCBT13A2: { $avg: { $toDouble: "$CBT13A2" } },
+                avgCBT14A1: { $avg: { $toDouble: "$CBT14A1" } },
+                avgCBT14A2: { $avg: { $toDouble: "$CBT14A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT11A1: 1,
+                avgCBT11A2: 1,
+                avgCBT12A1: 1,
+                avgCBT12A2: 1,
+                avgCBT13A1: 1,
+                avgCBT13A2: 1,
+                avgCBT14A1: 1,
+                avgCBT14A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel4.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT15A1: { $avg: { $toDouble: "$CBT15A1" } },
+                avgCBT15A2: { $avg: { $toDouble: "$CBT15A2" } },
+                avgCBT16A1: { $avg: { $toDouble: "$CBT16A1" } },
+                avgCBT16A2: { $avg: { $toDouble: "$CBT16A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT15A1: 1,
+                avgCBT15A2: 1,
+                avgCBT16A1: 1,
+                avgCBT16A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel5.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT17A1: { $avg: { $toDouble: "$CBT17A1" } },
+                avgCBT17A2: { $avg: { $toDouble: "$CBT17A2" } },
+                avgCBT18A1: { $avg: { $toDouble: "$CBT18A1" } },
+                avgCBT18A2: { $avg: { $toDouble: "$CBT18A2" } },
+                avgCBT19A1: { $avg: { $toDouble: "$CBT19A1" } },
+                avgCBT19A2: { $avg: { $toDouble: "$CBT19A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT17A1: 1,
+                avgCBT17A2: 1,
+                avgCBT18A1: 1,
+                avgCBT18A2: 1,
+                avgCBT19A1: 1,
+                avgCBT19A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel6.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT20A1: { $avg: { $toDouble: "$CBT20A1" } },
+                avgCBT20A2: { $avg: { $toDouble: "$CBT20A2" } },
+                avgCBT21A1: { $avg: { $toDouble: "$CBT21A1" } },
+                avgCBT21A2: { $avg: { $toDouble: "$CBT21A2" } },
+                avgCBT22A1: { $avg: { $toDouble: "$CBT22A1" } },
+                avgCBT22A2: { $avg: { $toDouble: "$CBT22A2" } },
+                avgCBT23A1: { $avg: { $toDouble: "$CBT23A1" } },
+                avgCBT23A2: { $avg: { $toDouble: "$CBT23A2" } },
+                avgCBT24A1: { $avg: { $toDouble: "$CBT24A1" } },
+                avgCBT24A2: { $avg: { $toDouble: "$CBT24A2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT20A1: 1,
+                avgCBT20A2: 1,
+                avgCBT21A1: 1,
+                avgCBT21A2: 1,
+                avgCBT22A1: 1,
+                avgCBT22A2: 1,
+                avgCBT23A1: 1,
+                avgCBT23A2: 1,
+                avgCBT24A1: 1,
+                avgCBT24A2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel7.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT1B1: { $avg: { $toDouble: "$CBT1B1" } },
+                avgCBT1B2: { $avg: { $toDouble: "$CBT1B2" } },
+                avgCBT2B1: { $avg: { $toDouble: "$CBT2B1" } },
+                avgCBT2B2: { $avg: { $toDouble: "$CBT2B2" } },
+                avgCBT3B1: { $avg: { $toDouble: "$CBT3B1" } },
+                avgCBT3B2: { $avg: { $toDouble: "$CBT3B2" } },
+                avgCBT4B1: { $avg: { $toDouble: "$CBT4B1" } },
+                avgCBT4B2: { $avg: { $toDouble: "$CBT4B2" } },
+                avgCBT5B1: { $avg: { $toDouble: "$CBT5B1" } },
+                avgCBT5B2: { $avg: { $toDouble: "$CBT5B2" } },
+                avgCBT6B1: { $avg: { $toDouble: "$CBT6B1" } },
+                avgCBT6B2: { $avg: { $toDouble: "$CBT6B2" } },
+                avgCBT7B1: { $avg: { $toDouble: "$CBT7B1" } },
+                avgCBT7B2: { $avg: { $toDouble: "$CBT7B2" } },
+                avgCBT8B1: { $avg: { $toDouble: "$CBT8B1" } },
+                avgCBT8B2: { $avg: { $toDouble: "$CBT8B2" } },
+                avgCBT9B1: { $avg: { $toDouble: "$CBT9B1" } },
+                avgCBT9B2: { $avg: { $toDouble: "$CBT9B2" } },
+                avgCBT10B1: { $avg: { $toDouble: "$CBT10B1" } },
+                avgCBT10B2: { $avg: { $toDouble: "$CBT10B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT1B1: 1,
+                avgCBT1B2: 1,
+                avgCBT2B1: 1,
+                avgCBT2B2: 1,
+                avgCBT3B1: 1,
+                avgCBT3B2: 1,
+                avgCBT4B1: 1,
+                avgCBT4B2: 1,
+                avgCBT5B1: 1,
+                avgCBT5B2: 1,
+                avgCBT6B1: 1,
+                avgCBT6B2: 1,
+                avgCBT7B1: 1,
+                avgCBT7B2: 1,
+                avgCBT8B1: 1,
+                avgCBT8B2: 1,
+                avgCBT9B1: 1,
+                avgCBT9B2: 1,
+                avgCBT10B1: 1,
+                avgCBT10B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel8.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT11B1: { $avg: { $toDouble: "$CBT11B1" } },
+                avgCBT11B2: { $avg: { $toDouble: "$CBT11B2" } },
+                avgCBT12B1: { $avg: { $toDouble: "$CBT12B1" } },
+                avgCBT12B2: { $avg: { $toDouble: "$CBT12B2" } },
+                avgCBT13B1: { $avg: { $toDouble: "$CBT13B1" } },
+                avgCBT13B2: { $avg: { $toDouble: "$CBT13B2" } },
+                avgCBT14B1: { $avg: { $toDouble: "$CBT14B1" } },
+                avgCBT14B2: { $avg: { $toDouble: "$CBT14B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT11B1: 1,
+                avgCBT11B2: 1,
+                avgCBT12B1: 1,
+                avgCBT12B2: 1,
+                avgCBT13B1: 1,
+                avgCBT13B2: 1,
+                avgCBT14B1: 1,
+                avgCBT14B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel9.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT15B1: { $avg: { $toDouble: "$CBT15B1" } },
+                avgCBT15B2: { $avg: { $toDouble: "$CBT15B2" } },
+                avgCBT16B1: { $avg: { $toDouble: "$CBT16B1" } },
+                avgCBT16B2: { $avg: { $toDouble: "$CBT16B2" } },
+                avgCBT17B1: { $avg: { $toDouble: "$CBT17B1" } },
+                avgCBT17B2: { $avg: { $toDouble: "$CBT17B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT15B1: 1,
+                avgCBT15B2: 1,
+                avgCBT16B1: 1,
+                avgCBT16B2: 1,
+                avgCBT17B1: 1,
+                avgCBT17B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ]),
+          SensorModel10.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: date1, $lt: date2 },
+              },
+            },
+            {
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
+                },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT19B1: { $avg: { $toDouble: "$CBT19B1" } },
+                avgCBT19B2: { $avg: { $toDouble: "$CBT19B2" } },
+                avgCBT20B1: { $avg: { $toDouble: "$CBT20B1" } },
+                avgCBT20B2: { $avg: { $toDouble: "$CBT20B2" } },
+                avgCBT21B1: { $avg: { $toDouble: "$CBT21B1" } },
+                avgCBT21B2: { $avg: { $toDouble: "$CBT21B2" } },
+                avgCBT22B1: { $avg: { $toDouble: "$CBT22B1" } },
+                avgCBT22B2: { $avg: { $toDouble: "$CBT22B2" } },
+                avgCBT23B1: { $avg: { $toDouble: "$CBT23B1" } },
+                avgCBT23B2: { $avg: { $toDouble: "$CBT23B2" } },
+                avgCBT24B1: { $avg: { $toDouble: "$CBT24B1" } },
+                avgCBT24B2: { $avg: { $toDouble: "$CBT24B2" } },
+                TIME: { $first: "$TIME" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                avgCBT19B1: 1,
+                avgCBT19B2: 1,
+                avgCBT20B1: 1,
+                avgCBT20B2: 1,
+                avgCBT21B1: 1,
+                avgCBT21B2: 1,
+                avgCBT22B1: 1,
+                avgCBT22B2: 1,
+                avgCBT23B1: 1,
+                avgCBT23B2: 1,
+                avgCBT24B1: 1,
+                avgCBT24B2: 1,
+                TIME: 1
+              }
+            },
+            { $sort: { "date": 1, "hour": 1 } }
+          ])
+        ]);
+  
+        const combinedGroupedData = allGroupedData.flat();
+  
+  
+        if (combinedGroupedData.length === 0) {
+          return res.status(404).json({ error: "No data found for the given date range" });
+        }
+  
+        return res.status(200).json(combinedGroupedData);
+      }
+  
     }
 
+    // Handle case for a specific key
     const model = findModelByKey(key);
     if (!model) {
       return res.status(404).json({ error: "Key not found in any model" });
@@ -243,62 +1343,11 @@ export const fetchSensorDataByKey = async (req, res) => {
       return res.status(404).json({ error: "No data found for the given key" });
     }
 
-    if (average === "Hour") {
+    if (average === "Day") {
       const groupedData = await model.aggregate([
         {
           $match: {
             createdAt: { $gte: date1, $lt: date2 },
-            [key]: { $exists: true },
-          },
-        },
-        {
-          $addFields: {
-            date: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$createdAt"
-              }
-            },
-            hour: {
-              $dateToString: {
-                format: "%H",
-                date: "$createdAt"
-              }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: { date: "$date", hour: "$hour" },
-            [key]: { $avg: { $toDouble: `$${key}` } },
-            TIME: { $first: "$TIME" }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            // date: "$_id.date",
-            // hour: "$_id.hour",
-            [key]: 1,
-            TIME: 1
-          }
-        },
-        {
-          $sort: { date: 1, hour: 1 }
-        }
-      ]);
-    
-      if (groupedData.length === 0) {
-        return res.status(404).json({ error: "No data found for the given date range" });
-      }
-    
-      return res.status(200).json(groupedData);
-    } else if (average === "Day") {
-      const groupedData = await model.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: date1, $lt: date2 },
-            [key]: { $exists: true },
           },
         },
         {
@@ -324,13 +1373,42 @@ export const fetchSensorDataByKey = async (req, res) => {
           $sort: { _id: 1 }
         }
       ]);
-
-      if (groupedData.length === 0) {
-        return res.status(404).json({ error: "No data found for the given date range" });
-      }
-
       return res.status(200).json(groupedData);
-    }    
+    } else if (average === "Hour") {
+      const groupedData = await model.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: date1, $lt: date2 },
+          },
+        },
+        {
+          $project: {
+            hour: { $hour: "$createdAt" },
+            TIME: 1,
+            [key]: 1,
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            [key]: {
+              $avg: { $toDouble: `$${key}` }
+            },
+            TIME: { $first: "$TIME" }
+          }
+        },
+        {
+          $project: {
+            // hour: "$_id",
+            [key]: 1,
+            TIME: 1,
+          _id: 0
+          }
+        }
+      ]);
+      return res.status(200).json(groupedData);
+    }
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
