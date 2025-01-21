@@ -4,14 +4,21 @@ import Dropdown from "./Dropdown";
 
 const AverageDateRange = () => {
     const [selected, setSelected] = useState("");
-    const [options, setOptions] = useState([]);
+    const [average, setAverage] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const apiUrl = process.env.REACT_APP_SERVER_URL;
 
     const handleRadioChange = (event) => {
       setSelected(event.target.value);
     };
 
+    const averageradio = (event) => {
+      setAverage(event.target.value);
+      console.log("Selected Radio Value:", event.target.value); // Log the selected value
+    };
+
+  
 
     const handleDateChange = (event) => {
       const { name, value } = event.target;
@@ -27,16 +34,16 @@ const AverageDateRange = () => {
     const downloadexcel = () => {
       if (!startDate || !endDate) {
         alert("Please select both start and end dates.");
+      } else if (selected === null) {
+        alert("Please select a configuration.");
       } else {
         const apidate = async () => {
           if (selected !== null) {
             try {
-              const response = await fetch(
-               "http://15.207.173.73:4000/api/v2/getcbname"
-              );
+              const response = await axios.get(`http://15.207.173.73:4000/api/v2/getexcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
               console.log(response);
               const data = await response.json();
-              console.log(response);
+              console.log(data);
   
               if (data == null || data.length === 0 ) {
                 alert("No data found.");
@@ -117,27 +124,27 @@ const AverageDateRange = () => {
             <input
               id="radio-2"
               type="radio"
-              value="option2"
+              value="Hour"
               name="radio-group"
-              checked={selected === "option2"}
-              onChange={handleRadioChange}
+              checked={average === "Hour"}
+              onChange={averageradio}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
               htmlFor="radio-2"
               className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
             >
-              hour
+              Hour
             </label>
           </div>
           <div className="flex items-center mb-4">
             <input
               id="radio-3"
               type="radio"
-              value="option3"
+              value="Day"
               name="radio-group"
-              checked={selected === "option3"}
-              onChange={handleRadioChange}
+              checked={average === "Day"}
+              onChange={averageradio}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
@@ -151,7 +158,7 @@ const AverageDateRange = () => {
         <div className="flex md:h-[15%] text-lg font-bold justify-center item-center md:pt-8 mb-4 md:mb-0">
           <div className="flex items-center justify-center w-56 h-16 bg-[rgba(232,235,236,1)] rounded-lg text-black">
             <button className="flex items-center" 
-            // onClick={()=> downloadexcel}
+            onClick={ downloadexcel}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

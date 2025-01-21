@@ -197,7 +197,7 @@ const Model = ({ socketData, ModelTempData }) => {
             value = dataObj[partName];
           }
           if (dataObj.parameter === partName) {
-            console.log("parameter", value);
+            // console.log("parameter", value);
             setmax = dataObj.max;
             setmin = dataObj.min;
             setHoveredInfo((prev) => ({

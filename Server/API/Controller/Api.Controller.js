@@ -134,7 +134,8 @@ export const cbname = async (req, res) => {
 };
 
 export const fetchSensorDataByKey = async (req, res) => {
-  const { key } = req.query;
+  const { key, startDate, endDate, average } = req.query;
+
   const modelMap = {
     model1: SensorModel1,
     model2: SensorModel2,
@@ -147,7 +148,7 @@ export const fetchSensorDataByKey = async (req, res) => {
     model9: SensorModel9,
     model10: SensorModel10,
   };
-
+  
   const models = {
     model1: [
       "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
@@ -200,36 +201,139 @@ export const fetchSensorDataByKey = async (req, res) => {
     ]
   };
 
-  let modelName = null;
-  for (const [name, keys] of Object.entries(models)) {
-    if (keys.includes(key)) {
-      modelName = name;
-      break;
-    }
-  }
+  console.log("average", average);
 
-  if (modelName) {
-    const sensorModel = modelMap[modelName];
-    try {
-      const data = await sensorModel.find({ [key]: { $exists: true } }).lean();
-      if (data.length > 0) {
-        const keyValues = data.map(doc => ({
-          id: doc.id,
-          busbar: doc.busbar,
-          TIME: doc.TIME,
-          [key]: doc[key]
-        }));
-        res.status(200).json(keyValues);
-      } else {
-        res.status(404).json({ error: "Data not found for the given key" });
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+  const findModelByKey = (key) => {
+    for (const [name, keys] of Object.entries(models)) {
+      if (keys.includes(key)) return modelMap[name];
     }
-  } else {
-    res.status(404).json({ error: "Key not found in any model" });
+    return null;
+  };
+
+  try {
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+
+    if (key === "All-Data") {
+      const allData = await Promise.all(
+        Object.values(modelMap).map((model) =>
+          model.find({ createdAt: { $gte: date1, $lte: date2 } }).lean()
+        )
+      );
+      const combinedData = allData.flat();
+
+      if (combinedData.length === 0) {
+        return res.status(404).json({ error: "No data found for the given date range" });
+      }
+
+      return res.status(200).json(combinedData);
+    }
+
+    const model = findModelByKey(key);
+    if (!model) {
+      return res.status(404).json({ error: "Key not found in any model" });
+    }
+
+    const data = await model.find({
+      createdAt: { $gte: date1, $lte: date2 },
+      [key]: { $exists: true },
+    }).lean();
+
+    if (data.length === 0) {
+      return res.status(404).json({ error: "No data found for the given key" });
+    }
+
+    if (average === "Hour") {
+      const groupedData = await model.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: date1, $lt: date2 },
+            [key]: { $exists: true },
+          },
+        },
+        {
+          $addFields: {
+            date: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$createdAt"
+              }
+            },
+            hour: {
+              $dateToString: {
+                format: "%H",
+                date: "$createdAt"
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { date: "$date", hour: "$hour" },
+            [key]: { $avg: { $toDouble: `$${key}` } },
+            TIME: { $first: "$TIME" }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            // date: "$_id.date",
+            // hour: "$_id.hour",
+            [key]: 1,
+            TIME: 1
+          }
+        },
+        {
+          $sort: { date: 1, hour: 1 }
+        }
+      ]);
+    
+      if (groupedData.length === 0) {
+        return res.status(404).json({ error: "No data found for the given date range" });
+      }
+    
+      return res.status(200).json(groupedData);
+    } else if (average === "Day") {
+      const groupedData = await model.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: date1, $lt: date2 },
+            [key]: { $exists: true },
+          },
+        },
+        {
+          $project: {
+            [key]: { $toDouble: `$${key}` },
+            TIME: 1,
+            date: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$createdAt"
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            [key]: { $avg: `$${key}` },
+            TIME: { $first: "$TIME" }
+          }
+        },
+        {
+          $sort: { _id: 1 }
+        }
+      ]);
+
+      if (groupedData.length === 0) {
+        return res.status(404).json({ error: "No data found for the given date range" });
+      }
+
+      return res.status(200).json(groupedData);
+    }    
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByKey };
