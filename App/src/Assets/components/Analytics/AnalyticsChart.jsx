@@ -22,6 +22,7 @@ ChartJS.register(
 );
 
 const AnalyticsChart = ({ data }) => {
+  // console.log("Fetched Data:", data);
   // Check if data is an object with labels and datasets
   if (!data || typeof data !== 'object' || !Array.isArray(data.labels) || !Array.isArray(data.datasets)) {
     console.error("Expected data to be an object with labels and datasets, but received:", data);
@@ -37,6 +38,7 @@ const AnalyticsChart = ({ data }) => {
     datasets: data.datasets, // Use the datasets directly from the data
   };
 
+  // console.log("chartDate", chartData);
   // Chart options
   const options = {
     responsive: true,
@@ -92,7 +94,7 @@ const AnalyticsChart = ({ data }) => {
   return (
     <div className="bg-[rgba(16,16,16,0.7)] rounded-xl relative h-full">
       {/* Display the number of data points in the top-right corner */}
-      <div className="absolute px-2 py-1 text-sm text-white bg-black bg-opacity-50 rounded top-1 right-24">
+      <div className="absolute top-0 left-0 px-2 py-1 text-sm text-white bg-black bg-opacity-50 rounded rounded-tl-xl">
         Data Points: {dataPointsCount}
       </div>
       <Line data={chartData} options={options} style={{ height: "100%" }} />

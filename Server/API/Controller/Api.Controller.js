@@ -2920,7 +2920,7 @@ export const fetchSensorDataByDate = async (req, res) => {
     } else {
       console.log("Key is not 'All-Date', checking for specific key.");
 
-      if(key !== "All-Data") {
+      if (key !== "All-Data") {
 
         const model = findModelByKey(key);
         if (!model) {
@@ -2962,7 +2962,7 @@ export const fetchSensorDataByDate = async (req, res) => {
 
 export const fetchSensorDataBylimit = async (req, res) => {
   const { key, limit } = req.query;
-  
+
   const modelMap = {
     model1: SensorModel1,
     model2: SensorModel2,
@@ -3061,7 +3061,7 @@ export const fetchSensorDataBylimit = async (req, res) => {
             '$sort': {
               'createdAt': -1
             }
-          }, 
+          },
           {
             '$limit': limitNumber // Use the parsed limit directly
           },
@@ -3332,7 +3332,7 @@ export const fetchSensorDataBylimit = async (req, res) => {
     } else {
       console.log("Key is not 'All-Date', checking for specific key.");
 
-      if(key !== "All-Data") {
+      if (key !== "All-Data") {
 
         const model = findModelByKey(key);
         if (!model) {
@@ -3594,4 +3594,317 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
   }
 };
 
-export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph };
+export const fetchSensorDataByintervalgraph = async (req, res) => {
+  const { key, startDate, endDate, average } = req.query;
+
+  // Map keys to their respective models
+  const modelMap = {
+    sensormodel1: SensorModel1,
+    sensormodel2: SensorModel2,
+    sensormodel3: SensorModel3,
+    sensormodel4: SensorModel4,
+    sensormodel5: SensorModel5,
+    sensormodel6: SensorModel6,
+    sensormodel7: SensorModel7,
+    sensormodel8: SensorModel8,
+    sensormodel9: SensorModel9,
+    sensormodel10: SensorModel10,
+  };
+
+  try {
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+
+    // Log dates for debugging
+    console.log("Start Date:", date1);
+    console.log("End Date:", date2);
+
+    // Get the model based on the key
+    const model = modelMap[key];
+    if (!model) {
+      return res.status(404).json({ error: "Invalid key. Key must be between sensormodel1 and sensormodel10." });
+    }
+
+    // Log the model being used
+    console.log("Using model:", key);
+
+    // Fetch data based on the average type (Hour, Day, or Minute)
+    let groupedData;
+    const matchStage = {
+      createdAt: { $gte: date1, $lte: date2 },
+    };
+
+    // Log the match stage
+    console.log("Match Stage:", matchStage);
+
+    const groupStage = {
+      _id: {
+        $dateToString: {
+          format: average === "Minute" ? "%Y-%m-%dT%H:%M:00" : average === "Hour" ? "%Y-%m-%dT%H:00:00" : "%Y-%m-%d",
+          date: "$createdAt",
+        },
+      },
+      ...Object.keys(model.schema.paths).reduce((acc, field) => {
+        if (field !== "_id" && field !== "createdAt" && field !== "TIME" && field !== "busbar" && field !== "id" && field !== "__v" && field !== "updatedAt") {
+          acc[field] = {
+            $avg: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $ne: [`$${field}`, null] }, // Skip null values
+                    { $ne: [`$${field}`, ""] }, // Skip empty strings
+                    { $regexMatch: { input: `$${field}`, regex: /^-?\d+(\.\d+)?$/ } }, // Check if the value is a valid number string
+                  ],
+                },
+                then: { $toDouble: `$${field}` }, // Convert to double if valid
+                else: null, // Skip invalid values
+              },
+            },
+          };
+        }
+        return acc;
+      }, {}),
+    };
+
+    // Log the group stage
+    console.log("Group Stage:", groupStage);
+
+    const projectStage = {
+      _id: 0,
+      timestamp: "$_id",
+      ...Object.keys(model.schema.paths).reduce((acc, field) => {
+        if (field !== "_id" && field !== "createdAt" && field !== "TIME" && field !== "busbar" && field !== "id" && field !== "__v" && field !== "updatedAt") {
+          acc[field] = 1;
+        }
+        return acc;
+      }, {}),
+    };
+
+    // Log the project stage
+    console.log("Project Stage:", projectStage);
+
+    groupedData = await model.aggregate([
+      { $match: matchStage },
+      { $group: groupStage },
+      { $project: projectStage },
+      { $sort: { timestamp: 1 } },
+    ]);
+
+    // Log the grouped data for debugging
+    console.log("Grouped Data:", groupedData);
+
+    if (groupedData.length === 0) {
+      return res.status(404).json({ error: "No data found for the given date range." });
+    }
+
+    // Format data for charting
+    const chartData = {
+      labels: groupedData.map((entry) => entry.timestamp), // x-axis labels (timestamps)
+      datasets: Object.keys(groupedData[0])
+        .filter((key) => key !== "timestamp") // Exclude the timestamp field
+        .map((field) => ({
+          label: field, // Sensor field name (e.g., CBT1A1, CBT1A2)
+          data: groupedData.map((entry) => entry[field]), // y-axis data
+        })),
+    };
+
+    return res.status(200).json(chartData);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const fetchSensorDataByDategraph = async (req, res) => {
+  const { key, startDate, endDate } = req.query;
+
+  // Map keys to their respective models
+  const modelMap = {
+    sensormodel1: SensorModel1,
+    sensormodel2: SensorModel2,
+    sensormodel3: SensorModel3,
+    sensormodel4: SensorModel4,
+    sensormodel5: SensorModel5,
+    sensormodel6: SensorModel6,
+    sensormodel7: SensorModel7,
+    sensormodel8: SensorModel8,
+    sensormodel9: SensorModel9,
+    sensormodel10: SensorModel10,
+  };
+
+  try {
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+
+    // Log dates for debugging
+    console.log("Start Date:", date1);
+    console.log("End Date:", date2);
+
+    // Get the model based on the key
+    const model = modelMap[key];
+    if (!model) {
+      return res.status(404).json({ error: "Invalid key. Key must be between sensormodel1 and sensormodel10." });
+    }
+
+    // Log the model being used
+    console.log("Using model:", key);
+
+    // Fetch all raw data within the date range
+    const rawData = await model.find({
+      createdAt: { $gte: date1, $lte: date2 }, // Filter data between startDate and endDate
+    }).sort({ createdAt: 1 }); // Sort by createdAt in ascending order
+
+    // Log the raw data for debugging
+    console.log("Raw Data:", rawData);
+
+    if (rawData.length === 0) {
+      return res.status(404).json({ error: "No data found for the given date range." });
+    }
+
+    // Extract unique timestamps for labels
+    const labels = rawData.map((entry) => entry.createdAt.toISOString());
+
+    // Initialize datasets
+    const datasets = Object.keys(model.schema.paths)
+      .filter((field) => field.startsWith("CBT")) // Only include CBT fields
+      .map((field) => ({
+        label: field,
+        data: rawData.map((entry) => parseFloat(entry[field])), // Extract and parse sensor values
+      }));
+
+    // Format data for charting
+    const chartData = {
+      labels,
+      datasets,
+    };
+
+    return res.status(200).json(chartData);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const fetchSensorDataBylimitgraph = async (req, res) => {
+  const { key, limit } = req.query;
+
+  const modelMap = {
+    sensormodel1: SensorModel1,
+    sensormodel2: SensorModel2,
+    sensormodel3: SensorModel3,
+    sensormodel4: SensorModel4,
+    sensormodel5: SensorModel5,
+    sensormodel6: SensorModel6,
+    sensormodel7: SensorModel7,
+    sensormodel8: SensorModel8,
+    sensormodel9: SensorModel9,
+    sensormodel10: SensorModel10,
+  };
+
+  try {
+    const limitNumber = parseInt(limit, 10) || 10;
+    if (isNaN(limitNumber) || limitNumber <= 0) {
+      return res.status(400).json({ error: "Invalid limit value" });
+    }
+
+    // Check if the key is a single model or a range
+    if (key.startsWith("sensormodel")) {
+      // Handle single model or range
+      const modelKeys = key.split("-"); // Split if it's a range (e.g., "sensormodel1-sensormodel4")
+      const startModel = modelKeys[0];
+      const endModel = modelKeys[1] || startModel; // If no range, use the same model
+
+      // Extract model numbers from keys (e.g., "sensormodel1" -> 1)
+      const startIndex = parseInt(startModel.replace("sensormodel", ""), 10);
+      const endIndex = parseInt(endModel.replace("sensormodel", ""), 10);
+
+      if (isNaN(startIndex) || isNaN(endIndex) || startIndex > endIndex || startIndex < 1 || endIndex > 10) {
+        return res.status(400).json({ error: "Invalid model range" });
+      }
+
+      // Fetch data for the specified range of models
+      const modelsToFetch = [];
+      for (let i = startIndex; i <= endIndex; i++) {
+        const modelKey = `sensormodel${i}`;
+        if (modelMap[modelKey]) {
+          modelsToFetch.push(modelMap[modelKey]);
+        }
+      }
+
+      if (modelsToFetch.length === 0) {
+        return res.status(404).json({ error: "No valid models found for the given range" });
+      }
+
+      // Fetch and format data for each model
+      const allChartData = await Promise.all(
+        modelsToFetch.map(async (model) => {
+          // Define the aggregation pipeline
+          const projectStage = {
+            _id: 0,
+            timestamp: "$TIME", // Use the TIME field as the timestamp
+            ...Object.keys(model.schema.paths).reduce((acc, field) => {
+              if (
+                field !== "_id" &&
+                field !== "createdAt" &&
+                field !== "TIME" &&
+                field !== "busbar" &&
+                field !== "id" &&
+                field !== "__v" &&
+                field !== "updatedAt"
+              ) {
+                acc[field] = 1; // Include all other fields in the projection
+              }
+              return acc;
+            }, {}),
+          };
+
+          const groupedData = await model.aggregate([
+            { $sort: { TIME: -1 } }, // Sort by TIME in descending order
+            { $limit: limitNumber }, // Apply limit
+            { $project: projectStage }, // Project only required fields
+            { $sort: { timestamp: 1 } }, // Sort by timestamp in ascending order for charting
+          ]);
+
+          if (groupedData.length === 0) {
+            return null; // No data found for this model
+          }
+
+          // Format data for charting
+          const chartData = {
+            labels: groupedData.map((entry) => entry.timestamp), // x-axis labels (timestamps)
+            datasets: Object.keys(groupedData[0])
+              .filter((key) => key !== "timestamp") // Exclude the timestamp field
+              .map((field) => ({
+                label: field, // Sensor field name (e.g., CBT1A1, CBT1A2)
+                data: groupedData.map((entry) => parseFloat(entry[field])), // Convert data to numbers
+              })),
+          };
+
+          return chartData;
+        })
+      );
+
+      // Filter out null results (models with no data)
+      const filteredChartData = allChartData.filter((data) => data !== null);
+
+      if (filteredChartData.length === 0) {
+        return res.status(404).json({ error: "No data found for the given models" });
+      }
+
+      // Combine all data into a single object
+      const combinedData = {
+        labels: filteredChartData[0].labels, // Use labels from the first model (assuming all models have the same timestamps)
+        datasets: filteredChartData.flatMap((data) => data.datasets), // Combine datasets from all models
+      };
+
+      return res.status(200).json(combinedData); // Return a single object
+    } else {
+      return res.status(400).json({ error: "Invalid key format. Expected 'sensormodelX' or 'sensormodelX-sensormodelY'" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph };

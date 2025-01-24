@@ -12,7 +12,9 @@ router.get('/getIntervalExcel', ApiController.fetchSensorDataByinterval)
 router.get('/getDateExcel', ApiController.fetchSensorDataByDate)
 router.get('/getLimit', ApiController.fetchSensorDataBylimit)
 router.get('/getAverageChart', ApiController.fetchSensorDataByaveragegraph)
-
+router.get('/getIntervalChart', ApiController.fetchSensorDataByintervalgraph)
+router.get('/getDateChart', ApiController.fetchSensorDataByDategraph)
+router.get('/getLimitChart', ApiController.fetchSensorDataBylimitgraph)
 
 
 export default router;

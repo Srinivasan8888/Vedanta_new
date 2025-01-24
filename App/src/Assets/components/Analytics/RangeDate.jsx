@@ -1,18 +1,52 @@
 import React, { useState } from "react";
+import axios from "axios";
+import "./CSS/AnalyticsDateRange.css";
 
-const RangeDate = () => {
-  const [selected, setSelected] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [content, setContent] = useState("default");
-  const [selectedButton, setSelectedButton] = useState(0);
+const RangeDate = ({ selectedBusBar, setFetchedData }) => {
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
-  const handleRadioChange = (event) => {
-    setSelected(event.target.value);
+  // useEffect(()=>{
+  //   const busBarVariable = `BusBar${selectedBusBar}`;
+  //   console.log("selectedBusBar", busBarVariable);
+  // },[selectedBusBar]);
+
+  const handleDateChange = (event) => {
+    const { name, value } = event.target;
+    if (name === "startdate") {
+      setStartDate(value);
+      // console.log("Start Date:", value);
+    } else if (name === "enddate") {
+      setEndDate(value);
+      // console.log("End Date:", value);
+    }
+  };
+
+  const fetchdatagraph = () => {
+    console.log("Fetching data..."); // Debug log
+    if (!startDate || !endDate) {
+      alert("Please select both start and end dates.");
+    } else {
+      console.log("Start Date:", startDate, "End Date:", endDate); // Debug log
+      const busBarVariable = `sensormodel${selectedBusBar}`;
+      const apidate = async () => {
+        try {
+          const response = await axios.get(
+            `http://15.207.173.73:4000/api/v2/getDateChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}`
+          );
+          const data = response.data;
+          setFetchedData(data);
+          console.log(data); // Debug log
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      apidate();
+    }
   };
 
   return (
     <div className="h-[280px]">
-   
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
         Select Date
       </div>
@@ -28,6 +62,8 @@ const RangeDate = () => {
             type="date"
             id="startdate"
             name="startdate"
+            value={startDate}
+            onChange={handleDateChange}
             className="w-full text-sm h-11 text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
@@ -43,11 +79,16 @@ const RangeDate = () => {
             type="date"
             id="enddate"
             name="enddate"
+            value={endDate}
+            onChange={handleDateChange}
             className="w-full text-sm h-11 text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />
         </div>
       </div>
-      <div className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[64.5%] md:h-[20%]  rounded-lg flex items-center justify-center mt-10 mb-2 md:mt-[0.5px] md:mb-0 mx-auto">
+      <div
+        className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[64.5%] md:h-[20%]  rounded-lg flex items-center justify-center mt-10 mb-2 md:mt-[0.5px] md:mb-0 mx-auto"
+        onClick={fetchdatagraph}
+      >
         <button className="flex items-center justify-center">Plot Graph</button>
       </div>
     </div>

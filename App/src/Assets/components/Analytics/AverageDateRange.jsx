@@ -3,22 +3,15 @@ import axios from "axios";
 import "./CSS/AnalyticsDateRange.css";
 
 const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
-  // const [selected, setSelected] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [average, setAverage] = useState(null);
-  const [selectedButton, setSelectedButton] = useState(0);
+  
 
   const handleRadioChange = (event) => {
     setAverage(event.target.value);
     console.log("selected radio", event.target.value);
   };
-
-  // useEffect(()=>{
-  //   const busBarVariable = `BusBar${selectedBusBar}`;
-  //   console.log("selectedBusBar", busBarVariable);
-
-  // },[selectedBusBar]);
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -50,10 +43,10 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
           console.error("Error fetching data:", error);
         }
       };
-
       apidate();
     }
   };
+  
   return (
     <div className="md:h-[100%] h-[380px]">
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
@@ -122,6 +115,7 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
             type="date"
             id="enddate"
             name="enddate"
+            value={endDate}
             onChange={handleDateChange}
             className="w-full text-sm text-white bg-[rgba(0,0,0,0.6)] border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
           />

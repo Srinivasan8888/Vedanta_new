@@ -1,14 +1,46 @@
 import React, { useState } from "react";
+import axios from "axios";
+import "./CSS/AnalyticsDateRange.css";
 
-const CountData = () => {
-  const [selected, setSelected] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [content, setContent] = useState("default");
-  const [selectedButton, setSelectedButton] = useState(0);
+const CountData = ({ selectedBusBar, setFetchedData }) => {
+  const [selectedDrop, setSelecteddrop] = useState("");
+  const [showTextBox, setShowTextBox] = useState(false);
+  const [customLimit, setCustomLimit] = useState("");
 
-  const handleRadioChange = (event) => {
-    setSelected(event.target.value);
+  const handleradiocustom = (event) => {
+    const value = event.target.value;
+    setSelecteddrop(value);
+    setShowTextBox(value === "custom");
+    console.log("Selected value:", value);
   };
+
+  const fetchdatagraph = () => {
+    if (!selectedDrop) {
+      alert("Please select a limit.");
+      return;
+    }
+    try {
+      let limit = selectedDrop === "custom" ? customLimit : selectedDrop;
+      const busBarVariable = `sensormodel${selectedBusBar}`;
+      const apidate = async () => {
+        try {
+          const response = await axios.get(
+            `http://15.207.173.73:4000/api/v2/getLimitChart?key=${busBarVariable}&&limit=${limit}`
+          );
+          const data = response.data;
+          setFetchedData(data);
+          // console.log(data);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      apidate();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("An error occurred while fetching data. Please try again.");
+    }
+  };
+
   return (
     <div className="h-[280px]">
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
@@ -18,12 +50,12 @@ const CountData = () => {
         <div className="flex flex-row mt-4 space-x-2 md:flex-1 md:space-x-20">
           <div className="flex items-center ">
             <input
-              id="radio-1"
+              id="radio-100"
               type="radio"
-              value="option1"
+              value="100"
               name="radio-group"
-              checked={selected === "option1"}
-              onChange={handleRadioChange}
+              checked={selectedDrop === "100"}
+              onChange={handleradiocustom}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
@@ -35,12 +67,12 @@ const CountData = () => {
           </div>
           <div className="flex items-center ">
             <input
-              id="radio-2"
+              id="radio-500"
               type="radio"
-              value="option2"
+              value="500"
               name="radio-group"
-              checked={selected === "option2"}
-              onChange={handleRadioChange}
+              checked={selectedDrop === "500"}
+              onChange={handleradiocustom}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
@@ -54,12 +86,12 @@ const CountData = () => {
         <div className="flex flex-1 mb-4 space-x-2 md:space-x-20">
           <div className="flex items-center">
             <input
-              id="radio-3"
+              id="radio-1000"
               type="radio"
-              value="option3"
+              value="1000"
               name="radio-group"
-              checked={selected === "option3"}
-              onChange={handleRadioChange}
+              checked={selectedDrop === "1000"}
+              onChange={handleradiocustom}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
@@ -71,12 +103,12 @@ const CountData = () => {
           </div>
           <div className="flex items-center ">
             <input
-              id="radio-4"
+              id="radio-custom"
               type="radio"
-              value="option4"
+              value="custom"
               name="radio-group"
-              checked={selected === "option4"}
-              onChange={handleRadioChange}
+              checked={selectedDrop === "custom"}
+              onChange={handleradiocustom}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label
@@ -86,9 +118,22 @@ const CountData = () => {
               Custom Data
             </label>
           </div>
+          {showTextBox && (
+            <div className="flex flex-row items-center justify-center">
+              <input
+                type="number"
+                placeholder="Enter custom data"
+                className="p-2 text-black border rounded-md"
+                onChange={(e) => setCustomLimit(e.target.value)}
+              />
+            </div>
+          )}
         </div>
       </div>
-      <div className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[37.5%] md:h-[21%]  rounded-lg flex items-center justify-center mt-8 mb-1 md:mt-0 md:mb-0 mx-auto">
+      <div
+        className="bg-[rgba(16,16,16,1)] border-2 border-white h-[60px] w-[100px] md:w-[37.5%] md:h-[21%] rounded-lg flex items-center justify-center mt-8 mb-1 md:mt-0 md:mb-0 mx-auto"
+        onClick={fetchdatagraph}
+      >
         <button className="flex items-center justify-center">Plot Graph</button>
       </div>
     </div>
