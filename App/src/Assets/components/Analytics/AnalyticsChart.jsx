@@ -21,117 +21,30 @@ ChartJS.register(
   Legend
 );
 
-const AnalyticsChart = () => {
+const AnalyticsChart = ({ data }) => {
+  // Check if data is an object with labels and datasets
+  if (!data || typeof data !== 'object' || !Array.isArray(data.labels) || !Array.isArray(data.datasets)) {
+    console.error("Expected data to be an object with labels and datasets, but received:", data);
+    return <div>No data available to display.</div>; // Handle non-array data
+  }
 
-  const data = {
-    labels: [
-      "14:00 - 15:00",
-      "15:00 - 16:00",
-      "16:00 - 17:00",
-      "17:00 - 18:00",
-      "18:00 - 19:00",
-      "19:00 - 20:00",
-      "20:00 - 21:00",
-      "21:00 - 22:00",
-      "22:00 - 23:00",
-      "23:00 - 24:00",
-    ],
-    datasets: [
-      {
-        label: "Avg T1",
-        data: [0, 580, 570, 550, 530, 510, 500, 480, 470, 460, 450, 440, 430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320, 310, 300, 290, 280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60],
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T2",
-        data: [900, 870, 850, 820, 800, 780, 750, 740, 730, 720, 710, 700, 690, 680, 670, 660, 650, 640, 630, 620, 610, 600, 590, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460, 450, 440, 430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320],
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T3",
-        data: [700, 680, 670, 650, 630, 610, 600, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460, 450, 440, 430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320, 310, 300, 290, 280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160],
-        borderColor: "rgb(54, 162, 235)",
-        backgroundColor: "rgba(54, 162, 235, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T4",
-        data: [800, 780, 770, 750, 730, 710, 700, 680, 670, 660, 650, 640, 630, 620, 610, 600, 590, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460, 450, 440, 430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320, 310, 300, 290, 280, 270, 260],
-        borderColor: "rgb(255, 206, 86)",
-        backgroundColor: "rgba(255, 206, 86, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T5",
-        data: [900, 880, 870, 850, 830, 810, 800, 780, 770, 760, 750, 740, 730, 720, 710, 700, 690, 680, 670, 660, 650, 640, 630, 620, 610, 600, 590, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460, 450, 440, 430, 420, 410, 400, 390, 380, 370, 360],
-        borderColor: "rgb(153, 102, 255)",
-        backgroundColor: "rgba(153, 102, 255, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T6",
-        data: [1000, 980, 970, 950, 930, 910, 900, 880, 870, 860, 850, 840, 830, 820, 810, 800, 790, 780, 770, 760, 750, 740, 730, 720, 710, 700, 690, 680, 670, 660, 650, 640, 630, 620, 610, 600, 590, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460],
-        borderColor: "rgb(255, 159, 64)",
-        backgroundColor: "rgba(255, 159, 64, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T7",
-        data: [1100, 1080, 1070, 1050, 1030, 1010, 1000, 980, 970, 960, 950, 940, 930, 920, 910, 900, 890, 880, 870, 860, 850, 840, 830, 820, 810, 800, 790, 780, 770, 760, 750, 740, 730, 720, 710, 700, 690, 680, 670, 660, 650, 640, 630, 620, 610, 600, 590, 580],
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T8",
-        data: [1200, 1180, 1170, 1150, 1130, 1110, 1100, 1080, 1070, 1060, 1050, 1040, 1030, 1020, 1010, 1000, 990, 980, 970, 960, 950, 940, 930, 920, 910, 900, 890, 880, 870, 860, 850, 840, 830, 820, 810, 800, 790, 780, 770, 760, 750, 740, 730, 720, 710],
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T9",
-        data: [1300, 1280, 1270, 1250, 1230, 1210, 1200, 1180, 1170, 1160, 1150, 1140, 1130, 1120, 1110, 1100, 1090, 1080, 1070, 1060, 1050, 1040, 1030, 1020, 1010, 1000, 990, 980, 970, 960, 950, 940, 930, 920, 910, 900, 890, 880, 870, 860, 850, 840, 830, 820, 810, 800, 790, 780, 770, 760],
-        borderColor: "rgb(54, 162, 235)",
-        backgroundColor: "rgba(54, 162, 235, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T10",
-        data: [1400, 1380, 1370, 1350, 1330, 1310, 1300, 1280, 1270, 1260, 1250, 1240, 1230, 1220, 1210, 1200, 1190, 1180, 1170, 1160, 1150, 1140, 1130, 1120, 1110, 1100, 1090, 1080, 1070, 1060, 1050, 1040, 1030, 1020, 1010, 1000, 990, 980, 970, 960, 950, 940, 930, 920, 910, 900, 890, 880],
-        borderColor: "rgb(255, 206, 86)",
-        backgroundColor: "rgba(255, 206, 86, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T11",
-        data: [1500, 1480, 1470, 1450, 1430, 1410, 1400, 1380, 1370, 1360, 1350, 1340, 1330, 1320, 1310, 1300, 1290, 1280, 1270, 1260, 1250, 1240, 1230, 1220, 1210, 1200, 1190, 1180, 1170, 1160, 1150, 1140, 1130, 1120, 1110, 1100, 1090, 1080, 1070, 1060, 1050, 1040, 1030, 1020, 1010, 1000],
-        borderColor: "rgb(153, 102, 255)",
-        backgroundColor: "rgba(153, 102, 255, 0.5)",
-        borderWidth: 2,
-      },
-      {
-        label: "Avg T12",
-        data: [1600, 1580, 1570, 1550, 1530, 1510, 1500, 1480, 1470, 1460, 1450, 1440, 1430, 1420, 1410, 1400, 1390, 1380, 1370, 1360, 1350, 1340, 1330, 1320, 1310, 1300, 1290, 1280, 1270, 1260, 1250, 1240, 1230, 1220, 1210, 1200, 1190, 1180, 1170, 1160, 1150, 1140, 1130, 1120, 1110, 1100],
-        borderColor: "rgb(255, 159, 64)",
-        backgroundColor: "rgba(255, 159, 64, 0.5)",
-        borderWidth: 2,
-      },
-    ],
+  // Get the number of data points
+  const dataPointsCount = data.labels.length;
+
+  // Prepare the chart data based on the fetched data
+  const chartData = {
+    labels: data.labels, // Use the labels directly from the data
+    datasets: data.datasets, // Use the datasets directly from the data
   };
 
   // Chart options
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: false, // Ensure the chart does not maintain aspect ratio
     elements: {
       line: {
         tension: 0,
-        borderWidth: 2
+        borderWidth: 2,
       },
     },
     plugins: {
@@ -144,7 +57,7 @@ const AnalyticsChart = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return `${context.raw}°C`; // Add °C unit
+            return `${context.raw}°C`; // Customize tooltip label
           },
         },
       },
@@ -165,7 +78,7 @@ const AnalyticsChart = () => {
         ticks: {
           color: "white",
           callback: function (value) {
-            return `${value}°C`; // Add °C unit
+            return `${value}°C`; // Customize y-axis labels
           },
         },
         grid: {
@@ -175,10 +88,15 @@ const AnalyticsChart = () => {
       },
     },
   };
+
   return (
-    <>
-      <Line data={data} options={options} className="bg-[rgba(16,16,16,0.7)] rounded-xl"/>
-    </>
+    <div className="bg-[rgba(16,16,16,0.7)] rounded-xl relative h-full">
+      {/* Display the number of data points in the top-right corner */}
+      <div className="absolute px-2 py-1 text-sm text-white bg-black bg-opacity-50 rounded top-1 right-24">
+        Data Points: {dataPointsCount}
+      </div>
+      <Line data={chartData} options={options} style={{ height: "100%" }} />
+    </div>
   );
 };
 

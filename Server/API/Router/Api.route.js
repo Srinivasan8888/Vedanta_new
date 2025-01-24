@@ -7,7 +7,12 @@ router.get('/getAside', ApiController.Aside);
 router.get('/getBside', ApiController.Bside);
 router.get('/getallsensor', ApiController.getallsensor);
 router.get('/getcbname', ApiController.cbname);
-// router.get('/getExcel'. ApiController.Excel)
-router.get('/getExcel', ApiController.fetchSensorDataByKey)
+router.get('/getAverageExcel', ApiController.fetchSensorDataByaverage)
+router.get('/getIntervalExcel', ApiController.fetchSensorDataByinterval)
+router.get('/getDateExcel', ApiController.fetchSensorDataByDate)
+router.get('/getLimit', ApiController.fetchSensorDataBylimit)
+router.get('/getAverageChart', ApiController.fetchSensorDataByaveragegraph)
+
+
 
 export default router;

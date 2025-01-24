@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Dropdown from "./Dropdown";
+import * as XLSX from 'xlsx/xlsx.mjs';
 
 const AverageDateRange = () => {
     const [selected, setSelected] = useState("");
@@ -15,7 +16,7 @@ const AverageDateRange = () => {
 
     const averageradio = (event) => {
       setAverage(event.target.value);
-      console.log("Selected Radio Value:", event.target.value); // Log the selected value
+      // console.log("Selected Radio Value:", event.target.value); // Log the selected value
     };
 
   
@@ -24,47 +25,48 @@ const AverageDateRange = () => {
       const { name, value } = event.target;
       if (name === "startdate") {
         setStartDate(value);
-        console.log("Start Date:", value);
+        // console.log("Start Date:", value);
       } else if (name === "enddate") {
         setEndDate(value);
-        console.log("End Date:", value);
+        // console.log("End Date:", value);
       }
     };
     
     const downloadexcel = () => {
       if (!startDate || !endDate) {
         alert("Please select both start and end dates.");
-      } else if (selected === null) {
+      } else if (!average) {
+        alert("Please select the average.");
+      } else if (!selected) {
         alert("Please select a configuration.");
       } else {
         const apidate = async () => {
           if (selected !== null) {
             try {
-              const response = await axios.get(`http://15.207.173.73:4000/api/v2/getexcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
+              const response = await axios.get(`http://15.207.173.73:4000/api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
               console.log(response);
-              const data = await response.json();
+              const data = response.data;
               console.log(data);
   
               if (data == null || data.length === 0 ) {
                 alert("No data found.");
                 return;
               }
-  
 
-              // if (Array.isArray(data)) {
-              //   const modifiedData = data.map((obj) => {
-              //     const { _id, __v, updatedAt, ...rest } = obj;
-              //     return rest;
-              //   });
+              if (Array.isArray(data)) {
+                const modifiedData = data.map((obj) => {
+                  const { _id, __v, updatedAt, ...rest } = obj;
+                  return rest;
+                });
   
-              //   const wb = XLSX.utils.book_new();
-              //   const ws = XLSX.utils.json_to_sheet(modifiedData);
-              //   XLSX.utils.book_append_sheet(wb, ws, "Data");
-              //   XLSX.writeFile(wb, `${selectedId} report.xlsx`);
-              //   console.log("Data:", modifiedData);
-              // } else {
-              //   console.error("Data received is not an array:", data);
-              // }
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(modifiedData);
+                XLSX.utils.book_append_sheet(wb, ws, "Data");
+                const currentTime = new Date().toLocaleString().replace(/:/g, '-');
+                XLSX.writeFile(wb, `${selected} Average_report${currentTime}.xlsx`);                console.log("Data:", modifiedData);
+              } else {
+                console.error("Data received is not an array:", data);
+              }
             } catch (error) {
               console.error("Error fetching data:", error);
             }

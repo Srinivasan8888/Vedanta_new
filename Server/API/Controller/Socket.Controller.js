@@ -335,7 +335,7 @@ export const AvgtempModel = (io, time) => {
                 // Loop through each parameter in nameMapping
                 for (let j = 0; j < nameMapping.length; j++) {
                     const parameter = nameMapping[j];
-                    console.log("parameter", parameter)
+                    // console.log("parameter", parameter)
                     const data = await model.aggregate([
                         {
                             $match: {
