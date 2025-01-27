@@ -39,7 +39,7 @@ const TimeInterval = ({ selectedBusBar, setFetchedData }) => {
       const apidate = async () => {
         try {
           const response = await axios.get(
-            `http://15.207.173.73:4000/api/v2/getAverageChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}&average=${average}`
+            `http://15.207.173.73:4000/api/v2/getIntervalChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}&average=${average}`
           );
           const data = response.data;
           setFetchedData(data);

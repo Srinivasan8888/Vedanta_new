@@ -26,7 +26,7 @@ const AnalyticsChart = ({ data }) => {
   // Check if data is an object with labels and datasets
   if (!data || typeof data !== 'object' || !Array.isArray(data.labels) || !Array.isArray(data.datasets)) {
     console.error("Expected data to be an object with labels and datasets, but received:", data);
-    return <div>No data available to display.</div>; // Handle non-array data
+    return <div className="flex items-center justify-center h-full text-5xl text-center text-white text-semibold">No data available to display.</div>; // Handle non-array data
   }
 
   // Get the number of data points
@@ -59,7 +59,7 @@ const AnalyticsChart = ({ data }) => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return `${context.raw}°C`; // Customize tooltip label
+            return `${context.raw.toFixed(2)}°C`; // Customize tooltip label with fixed 2 decimal places
           },
         },
       },
@@ -80,7 +80,7 @@ const AnalyticsChart = ({ data }) => {
         ticks: {
           color: "white",
           callback: function (value) {
-            return `${value}°C`; // Customize y-axis labels
+            return `${value.toFixed(2)}°C`; // Customize y-axis labels with fixed 2 decimal places
           },
         },
         grid: {
