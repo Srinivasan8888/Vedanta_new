@@ -25,7 +25,7 @@ const CountData = ({ selectedBusBar, setFetchedData }) => {
       const apidate = async () => {
         try {
           const response = await axios.get(
-            `http://15.207.173.73:4000/api/v2/getLimitChart?key=${busBarVariable}&&limit=${limit}`
+            `${process.env.REACT_APP_SERVER_URL}api/v2/getLimitChart?key=${busBarVariable}&&limit=${limit}`
           );
           const data = response.data;
           setFetchedData(data);

@@ -8,7 +8,7 @@ const Dropdown = ({ selected, setSelected }) => {
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const response = await axios.get("http://15.207.173.73:4000/api/v2/getcbname");
+                const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getcbname`);
                 setOptions(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error);

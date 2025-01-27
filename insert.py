@@ -4,7 +4,8 @@ import random
 
 # Base URL for the APIṇ
 # BASE_URL = 'http://localhost:4000/api/v1'  # Replace with your actual API URL
-BASE_URL = 'http://15.207.173.73:4000/api/v1'  # Replace with your actual API URL
+# BASE_URL = 'http://15.207.173.73:4000/api/v1'  # Replace with your actual API URL
+BASE_URL = 'http://34.100.168.176:4000/api/v1'  # Replace with your actual API URL
 
 # Function to create a sensor
 def create_sensor(sensor_number, data):

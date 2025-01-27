@@ -4,7 +4,8 @@ import random
 import statistics
 import time
 
-BASE_URL = 'http://15.207.173.73:4000/api/v1'
+# BASE_URL = 'http://15.207.173.73:4000/api/v1'
+BASE_URL = 'http://34.100.168.176:4000/api/v1'
 
 def create_sensor(data):
     url = f"{BASE_URL}/avgTemp"

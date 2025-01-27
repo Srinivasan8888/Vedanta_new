@@ -22,7 +22,7 @@ const CountData = () => {
 
     try {
       let limit = selectedDrop === "custom" ? customLimit : selectedDrop;
-      const response = await axios.get(`http://15.207.173.73:4000/api/v2/getLimit?key=All-Data&limit=${limit}`);
+      const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getLimit?key=All-Data&limit=${limit}`);
       const data = response.data;
 
       if (!data || data.length === 0) {

@@ -27,7 +27,7 @@ const RangeDate = () => {
       const apidate = async () => {
         if (selected !== null) {
           try {
-            const response = await axios.get(`http://15.207.173.73:4000/api/v2/getData?key=${selected}&startDate=${startDate}&endDate=${endDate}`);
+            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getData?key=${selected}&startDate=${startDate}&endDate=${endDate}`);
             console.log(response);
               const data = response.data;
               console.log(data);

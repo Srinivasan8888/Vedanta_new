@@ -43,7 +43,7 @@ const TimeInterval = () => {
       const apidate = async () => {
         if (selected !== null) {
           try {
-            const response = await axios.get(`http://15.207.173.73:4000/api/v2/getIntervalExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
+            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getIntervalExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
             console.log(response);
               const data = response.data;
               console.log(data);
