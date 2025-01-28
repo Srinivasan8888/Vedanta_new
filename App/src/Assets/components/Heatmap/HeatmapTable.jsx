@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-const HeatmapTable = () => {
+const HeatmapTable = ({combinedTableData}) => {
   // Define the headers
   const headers = [
     "Date",
@@ -9,6 +9,10 @@ const HeatmapTable = () => {
     "CBT16A1", "CBT17A1", "CBT18A1", "CBT19A1", "CBT20A1", "CBT21A1", "CBT22A1",
     "CBT23A1", "CBT24A1"
   ];
+
+  useEffect (() => {
+    console.log("data for table", combinedTableData)
+  })
 
   // Define the data (20 rows of 24 columns)
   const data = Array.from({ length: 20 }, (_, rowIndex) =>

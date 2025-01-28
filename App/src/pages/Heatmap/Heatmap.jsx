@@ -11,15 +11,12 @@ const Heatmap = () => {
   const [endDate, setEndDate] = useState(null);
   const [switcherValue, setSwitcherValue] = useState("min");
   const [switcherValue10, setSwitcherValue10] = useState("ASide");
-  const [ASideData, setASideData] = useState([]); // Store ASide data
-  const [BSideData, setBSideData] = useState([]); // Store BSide data
-
-  const [combinedData, setCombinedData] = useState([]);
-
+  // const [ASideData, setASideData] = useState([]); // Store ASide data
+  // const [BSideData, setBSideData] = useState([]); // Store BSide data
+  const [combinedData, setCombinedData] = useState([]); 
+  const [combinedTableData, setCombinedTableData] = useState([]); 
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
-  const [aSideRangeData, setASideRangeData] = useState([]); // Store ASide range data
-  const [bSideRangeData, setBSideRangeData] = useState([]); // Store BSide range data
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -34,12 +31,12 @@ const Heatmap = () => {
 
   const handleSwitcherValueChange = (newValue) => {
     setSwitcherValue(newValue);
-    console.log("Switcher Value:", newValue);
+    // console.log("Switcher Value of value:", newValue);
   };
 
   const handleSwitcherValueChange10 = (newValue) => {
     setSwitcherValue10(newValue);
-    console.log("Switcher Value10:", newValue);
+    // console.log("Switcher Value10 of side:", newValue);
   };
 
   useEffect(() => {
@@ -62,34 +59,54 @@ const Heatmap = () => {
   useEffect(() => {
     if (!socket) return;
 
+    // // Listen for ASide data
+    // socket.on("ASide", (data) => {
+    //   console.log("Received ASide Data:", data);
+    //   setASideData(data);
+    // });
+
+    // // Listen for BSide data
+    // socket.on("BSide", (data) => {
+    //   console.log("Received BSide Data:", data);
+    //   setBSideData(data);
+    // });
+    
+    let ASideTableData = []; // Initialize ASideTableData
+    let BSideTableData = []; // Initialize BSideTableData
+
+    // Function to handle the combined data
+    const handleTableData = () => {
+      const mergedData = [
+        ...ASideTableData.map((data) => ({ ...data, source: "ASide" })), // Tag ASide data
+        ...BSideTableData.map((data) => ({ ...data, source: "BSide" })), // Tag BSide data
+      ];
+      console.log("Merged Data:", mergedData);
+      setCombinedTableData(mergedData);
+    };
+
     // Listen for ASide data
     socket.on("ASide", (data) => {
-      console.log("Received ASide Data:", data);
-      setASideData(data);
+      console.log("Received ASide Table Data:", data);
+      if (Array.isArray(data)) {
+        ASideTableData = data; // Update ASideTableData instead of ASideData
+        handleTableData(); // Combine with BSideTableData
+      }
     });
 
     // Listen for BSide data
     socket.on("BSide", (data) => {
-      console.log("Received BSide Data:", data);
-      setBSideData(data);
+      console.log("Received BSide Table Data:", data);
+      if (Array.isArray(data)) {
+        BSideTableData = data; // Update BSideTableData instead of BSideData
+        handleTableData(); // Combine with ASideTableData
+      }
     });
 
-    // Listen for ASiderange data
-    // socket.on("ASiderange", (data) => {
-    //   console.log("Received ASiderange Data:", data);
-    //   setASideData(data);
-    // });
-
-    // // Listen for BSiderange data
-    // socket.on("BSiderange", (data) => {
-    //   console.log("Received BSiderange Data:", data);
-    //   setBSideData(data);
-    // });
-
+    
     const handleData = (ASideData, BSideData) => {
       const mergedData = [
-        ...ASideData.map((data) => ({ ...data, source: "ASide" })), // Add source identifier
-        ...BSideData.map((data) => ({ ...data, source: "BSide" })),
+        ...ASideData.map((data) => ({ ...data, source: "ASiderange" })), // Add source identifier
+        ...BSideData.map((data) => ({ ...data, source: "ASiderange" })),
       ];
       setCombinedData(mergedData);
     };
@@ -99,7 +116,7 @@ const Heatmap = () => {
     let BSideData = [];
 
     socket.on("ASiderange", (data) => {
-      console.log("Received ASiderange Data:", data);
+      // console.log("Received ASiderange Data:", data);
       if (Array.isArray(data)) {
         ASideData = data; // Store ASiderange data
         handleData(ASideData, BSideData);
@@ -107,13 +124,15 @@ const Heatmap = () => {
     });
 
     socket.on("BSiderange", (data) => {
-      console.log("Received BSiderange Data:", data);
+      // console.log("Received BSiderange Data:", data);
       if (Array.isArray(data)) {
         BSideData = data; // Store BSiderange data
         handleData(ASideData, BSideData);
       }
     });
 
+
+    
     // Automatically fetch data when the socket is connected or when dependencies change
     const requestData = {
       value: switcherValue,
@@ -196,7 +215,7 @@ const Heatmap = () => {
           <div className="md:h-[100%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
-                {switcherValue === "Max" ? "Extreme Max" : "Extreme Max"}
+                {switcherValue === "max" ? "Extreme Max" : "Extreme Max"}
               </p>
 
               <div className="flex justify-between md:h-[60%] px-4 gap-6">
@@ -210,9 +229,9 @@ const Heatmap = () => {
                         {data.value || "N/A"}
                       </p>
                       <p>
-                        Source: {data.source}{" "}
+                      {switcherValue === "max" ? "Max of" : "Min of"}{" "}
                         <span className="text-white">
-                          {data.label || "Data"}
+                          {data.key || "Data"}
                         </span>
                       </p>
                     </div>
@@ -220,8 +239,8 @@ const Heatmap = () => {
                 ) : (
                   <>
                     {[...Array(7)].map((_, index) => (
-                      <div key={index} className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg w-[12%] h-[100%] items-center justify-center flex flex-col">
-                        <div className="text-white">No Data Available</div>
+                      <div key={index} className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg w-[9%] h-[100%] items-center justify-center flex flex-col">
+                        <div className="text-xl text-[rgb(39,129,255)] font-semibold">No Data Available</div>
                       </div>
                     ))}
                   </>
@@ -231,7 +250,7 @@ const Heatmap = () => {
           </div>
         </div>
         <div className="md:h-[65%] h-[504px] flexmd:w-full rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
-          <HeatmapTable />
+          <HeatmapTable combinedTableData={combinedTableData}/>
         </div>
       </div>
     </div>
