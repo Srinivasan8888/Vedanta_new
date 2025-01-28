@@ -331,6 +331,7 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
               />
             </svg>
           </button>
+          
         </div>
       </div>
 

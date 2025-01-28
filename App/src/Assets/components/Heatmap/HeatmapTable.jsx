@@ -1,563 +1,61 @@
 import React from "react";
-import '../Miscellaneous/Scrollbar.css';
 
 const HeatmapTable = () => {
+  // Define the headers
+  const headers = [
+    "Date",
+    "CBT1A1", "CBT2A1", "CBT3A1", "CBT4A1", "CBT5A1", "CBT6A1", "CBT7A1", "CBT8A1",
+    "CBT9A1", "CBT10A1", "CBT11A1", "CBT12A1", "CBT13A1", "CBT14A1", "CBT15A1",
+    "CBT16A1", "CBT17A1", "CBT18A1", "CBT19A1", "CBT20A1", "CBT21A1", "CBT22A1",
+    "CBT23A1", "CBT24A1"
+  ];
+
+  // Define the data (20 rows of 24 columns)
+  const data = Array.from({ length: 20 }, (_, rowIndex) =>
+    Array.from({ length: 24 }, (_, colIndex) => 20 + colIndex)
+  );
+
   return (
-    <>
-      <table className="text-lg font-normal text-white font-poppins">
-        <thead className="sticky top-0 ">
-          <tr className="flex gap-7 py-4  justify-evenly bg-[rgb(16,16,16)] px-3 border border-white">
-            <th className="">S.No</th>
-            <th className="whitespace-nowrap">CBT1A1</th>
-            <th className="whitespace-nowrap">CBT2A1</th>
-            <th className="whitespace-nowrap">CBT3A1</th>
-            <th className="whitespace-nowrap">CBT4A1</th>
-            <th className="whitespace-nowrap">CBT5A1</th>
-            <th className="whitespace-nowrap">CBT6A1</th>
-            <th className="whitespace-nowrap">CBT7A1</th>
-            <th className="whitespace-nowrap">CBT8A1</th>
-            <th className="whitespace-nowrap">CBT9A1</th>
-            <th className="whitespace-nowrap">CBT10A1</th>
-            <th className="whitespace-nowrap">CBT11A1</th>
-            <th className="whitespace-nowrap">CBT12A1</th>
-            <th className="whitespace-nowrap">CBT13A1</th>
-            <th className="whitespace-nowrap">CBT14A1</th>
-            <th className="whitespace-nowrap">CBT15A1</th>
-            <th className="whitespace-nowrap">CBT16A1</th>
-            <th className="whitespace-nowrap">CBT17A1</th>
-            <th className="whitespace-nowrap">CBT18A1</th>
-            <th className="whitespace-nowrap">CBT19A1</th>
-            <th className="whitespace-nowrap">CBT20A1</th>
-            <th className="whitespace-nowrap">CBT21A1</th>
-            <th className="whitespace-nowrap">CBT22A1</th>
-            <th className="whitespace-nowrap">CBT23A1</th>
-            <th className="whitespace-nowrap">CBT24A1</th>
+    <div className="relative overflow-x-auto rounded-lg shadow-md">
+      <table className="w-full text-lg font-normal text-white font-poppins">
+        <thead className="sticky top-0 bg-[rgb(16,16,16)] z-10">
+          <tr>
+            {headers.map((header, index) => (
+              <th
+                key={index}
+                scope="col"
+                className={`px-6 py-3 border border-white ${index % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
+              >
+                {header}
+              </th>
+            ))}
           </tr>
         </thead>
-        <tbody className="overflow-y-scroll scrollbar-custom">
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly items-center bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="whitespace-nowrap">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
-          <tr className="flex px-3 py-2 border-t border-white gap-7 justify-evenly bg-[rgb(16,16,16)]">
-            <td className="">1</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-            <td className="whitespace-nowrap">29</td>
-            <td className="whitespace-nowrap">20</td>
-            <td className="whitespace-nowrap">22</td>
-            <td className="whitespace-nowrap">21</td>
-            <td className="whitespace-nowrap">19</td>
-            <td className="whitespace-nowrap">25</td>
-            <td className="whitespace-nowrap">24</td>
-            <td className="whitespace-nowrap">23</td>
-            <td className="whitespace-nowrap">26</td>
-            <td className="whitespace-nowrap">30</td>
-            <td className="whitespace-nowrap">28</td>
-            <td className="whitespace-nowrap">27</td>
-          </tr>
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr
+              key={rowIndex}
+              className="border-b border-white bg-[rgb(16,16,16)]"
+            >
+              <th
+                scope="row"
+                className="px-6 py-4 font-medium whitespace-nowrap border border-white bg-[rgb(16,16,16)]"
+              >
+                {rowIndex + 1}
+              </th>
+              {row.map((cell, colIndex) => (
+                <td
+                  key={colIndex}
+                  className={`px-6 py-4 border border-white ${colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
-    </>
+    </div>
   );
 };
 

@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
-const Switcher9 = () => {
+const Switcher9 = ({ onValueChange }) => {
   const [isChecked, setIsChecked] = useState(false);
-
+  const [value, setValue] = useState("Min");
+ 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
+    const newValue = !isChecked ? "max" : "min";
+    setValue(newValue);
+    onValueChange(newValue);
+    console.log("Value", newValue);
   };
 
   return (

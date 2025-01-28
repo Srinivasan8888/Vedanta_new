@@ -1,5 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import menuicon from '../../images/menu.png'
+// import menuicon from '../../images/menu.png'
+import menuicon from '../images/menu.png'
 export function Menus() {
   return (
     <div className="relative">
@@ -66,6 +67,7 @@ export function Menus() {
                       </a>
                     )}
                   </MenuItem>
+                  
                   <MenuItem>
                     {({ isActive }) => (
                       <a

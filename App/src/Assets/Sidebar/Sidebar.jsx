@@ -1,12 +1,14 @@
-import React, {useState} from 'react'
+import React, { useState } from "react";
 import logo from "../../Assets/images/Vedanta-Logo.png";
 import xyma_logo from "../../Assets/images/Xyma-Logo.png";
 import Arrow from "../../Assets/images/down-arrow.png";
-import { Menus } from "../components/Dashboard/Menu";
+import { Menus } from "./Menu";
 import { IoMdLogOut } from "react-icons/io";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { IoMdSettings } from "react-icons/io";
-import axios from 'axios';
+import { IoNotifications } from "react-icons/io5";
+
+import axios from "axios";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -25,14 +27,13 @@ const Sidebar = () => {
     // const refreshToken = localStorage.getItem('refreshToken');
     // await axios.post(`${process.env.REACT_APP_SERVER_URL}auth/logout`, { refreshToken });
     localStorage.clear();
-    window.location.href = '/';
-};
+    window.location.href = "/";
+  };
 
-// console.log("Server URL:", process.env.REACT_APP_SERVER_URL);
+  // console.log("Server URL:", process.env.REACT_APP_SERVER_URL);
 
   return (
     <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3">
-      
       {/* mobileview */}
       <div className="flex items-center w-full h-full text-lg font-semibold text-white bg-black bg-opacity-75 border border-white rounded-xl md:hidden font-poppins">
         <div className="flex items-start w-3/4 p-4">
@@ -50,16 +51,28 @@ const Sidebar = () => {
           className="w-full h-auto max-w-[220px] max-h-[45px]"
         />
       </div>
-      <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoDashboard()}>
+      <button
+        className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => gotoDashboard()}
+      >
         Home
       </button>
-      <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoReport()}>
+      <button
+        className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => gotoReport()}
+      >
         Report
-      </button> 
-      <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoAnalytics()}>
+      </button>
+      <button
+        className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => gotoAnalytics()}
+      >
         Analytics
       </button>
-      <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoHeatmap()}>
+      <button
+        className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => gotoHeatmap()}
+      >
         Heatmap
       </button>
       {/* <button className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center">
@@ -98,10 +111,19 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => gotoSettings()}>
+      <button
+        className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => gotoSettings()}
+      >
         <IoMdSettings />
       </button>
-      <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm" onClick={() => handleLogout()}>
+      <button className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm">
+        <IoNotifications />
+      </button>
+      <button
+        className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+        onClick={() => handleLogout()}
+      >
         <IoMdLogOut />
       </button>
       <div className="hidden md:flex md:w-[8%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
@@ -112,7 +134,7 @@ const Sidebar = () => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
