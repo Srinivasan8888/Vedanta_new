@@ -134,7 +134,7 @@ const Model = ({ socketData, ModelTempData }) => {
     CBT27B2: "s107",
     CBT27B1: "s108",
   };
-  
+
   const reverseNameMapping = Object.fromEntries(
     Object.entries(nameMapping).map(([key, value]) => [value, key])
   );
@@ -187,12 +187,15 @@ const Model = ({ socketData, ModelTempData }) => {
 
       if (partName && partName !== hoveredMesh) {
         setHoveredMesh(object);
-        
-        let value = 'N/A';
-        let setmax = 'N/A';
-        let setmin = 'N/A';
-        
-        for (const dataObj of [...(socketData || []), ...(ModelTempData || [])]) {
+
+        let value = "N/A";
+        let setmax = "N/A";
+        let setmin = "N/A";
+
+        for (const dataObj of [
+          ...(socketData || []),
+          ...(ModelTempData || []),
+        ]) {
           if (dataObj[partName]) {
             value = dataObj[partName];
           }
@@ -207,14 +210,12 @@ const Model = ({ socketData, ModelTempData }) => {
             }));
           }
         }
-        
+
         setHoveredInfo({
           name: partName,
           value: `${parseFloat(value).toFixed(2)}°C`,
-          // maxTemp: '686°C',  // placeholder
-          // minTemp: '146°C'   // placeholder
-          maxTemp: `${parseFloat(setmax).toFixed(2)}°C`,  // placeholder
-          minTemp: `${parseFloat(setmin).toFixed(2)}°C`,   // placeholder
+          maxTemp: `${parseFloat(setmax).toFixed(2)}°C`, // placeholder
+          minTemp: `${parseFloat(setmin).toFixed(2)}°C`, // placeholder
         });
       }
     } else if (hoveredMesh) {
@@ -225,12 +226,7 @@ const Model = ({ socketData, ModelTempData }) => {
 
   return (
     <>
-      <primitive
-        ref={group}
-        object={scene}
-        position={[0, -2, 0]}
-        scale={1}
-      />
+      <primitive ref={group} object={scene} position={[0, -2, 0]} scale={1} />
       {popupPosition.show && hoveredMesh && hoveredInfo && (
         <Html
           position={[
@@ -272,12 +268,12 @@ const Model = ({ socketData, ModelTempData }) => {
 
 const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   const controlsRef = useRef();
-  
+
   // useEffect(() => {
   //   Log the socket data if needed
   //   console.log("Socket data in ThreeModel:", socketData);
   //   console.log("ModelTempData data in ThreeModel:", ModelTempData);
-    
+
   // }, [ModelTempData]);
 
   // useEffect(() => {
@@ -286,67 +282,147 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   //   }
   // }, [lastButtonClicked]);
 
+  //   <div className="flex w-full gap-4">
+  //   <button
+  //     type="button"
+  //     className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+  //   >
+  //     <svg
+  //       xmlns="http://www.w3.org/2000/svg"
+  //       fill="none"
+  //       viewBox="0 0 24 24"
+  //       strokeWidth={1.5}
+  //       stroke="currentColor"
+  //       className="size-6"
+  //     >
+  //       <path
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //         d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+  //       />
+  //     </svg>
+  //   </button>
+  //   <p className="flex items-center justify-center text-2xl font-semibold text-white ">
+  //     1604
+  //   </p>
+  //   <button
+  //     type="button"
+  //     className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+  //   >
+  //     <svg
+  //       xmlns="http://www.w3.org/2000/svg"
+  //       fill="none"
+  //       viewBox="0 0 24 24"
+  //       strokeWidth={1.5}
+  //       stroke="currentColor"
+  //       className="size-6"
+  //     >
+  //       <path
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //         d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+  //       />
+  //     </svg>
+  //   </button>
+  // </div>
+
+  // <div className="flex md:w-[40%] md:gap-4  md:h-[12%]">
+  //   <div className="grid w-full    rounded-lg bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+  //     <p className="mt-3">Total Pots</p>
+  //     <span className="pb-2 font-semibold">1</span>
+  //   </div>
+  //   <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+  //     <p className="mt-3">Active</p>
+  //     <span className="pb-2 font-semibold">1</span>
+  //   </div>
+  //   <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+  //     <p className="mt-3">Inactive</p>
+  //     <span className="pb-2 font-semibold">0</span>
+  //   </div>
+  // </div>
+
   return (
-    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] md:h-auto md:w-[75%] z-1 rounded-2xl m-4">
-      <div className="absolute z-10 flex items-center justify-center p-4">
-        <div className="flex w-full gap-4">
-          <button
-            type="button"
-            className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
+    <div className="h-[500px] bg-[rgba(16,16,16,0.9)]  md:w-[75%] z-1 rounded-2xl m-4  md:h-auto">
+      <div className="absolute z-1 flex flex-col items-center justify-center  md:w-[72.5%] md:h-[42%]">
+        <div className="flex h-[50%] w-full p-4">
+          <div className="flex w-full gap-4 md:h-[30%] z-10">
+            <button
+              type="button"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-              />
-            </svg>
-          </button>
-          <p className="flex items-center justify-center text-2xl font-semibold text-white ">
-            1604
-          </p>
-          <button
-            type="button"
-            className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+                />
+              </svg>
+            </button>
+            <p className="flex items-center justify-center text-2xl font-semibold text-white ">
+              1604
+            </p>
+            <button
+              type="button"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-              />
-            </svg>
-          </button>
-          
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex md:w-[40%] md:gap-4  md:h-[33%]">
+            <div className="grid w-full    rounded-lg bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+              <p className="mt-3">Total Pots</p>
+              <span className="pb-2 font-semibold">1</span>
+            </div>
+            <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+              <p className="mt-3">Active</p>
+              <span className="pb-2 font-semibold">1</span>
+            </div>
+            <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
+              <p className="mt-3">Inactive</p>
+              <span className="pb-2 font-semibold">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex md:h-[50%] text-white items-end md:w-[24%]">
+        <div className="w-[100%] h-[20%] m-4 bg-[rgba(16,16,16,0.52)] rounded-lg justify-around grid grid-cols-2 place-items-center border-white border-[2px] ">
+          <div className="text-sm font-semibold ">Last Updation:</div>
+          <div className="text-sm font-normal">04:05PM 30.08.2024</div>
+        </div>
         </div>
       </div>
 
-      {/* <div className="z-30 items-center justify-center text-2xl font-medium text-white lex absolu">1908</div> */}
-
       {/* <Canvas style={{ width: "100%", height: "90vh" }}> */}
-        <Canvas >
+      <Canvas>
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
         <Model socketData={socketData} ModelTempData={ModelTempData} />
         <OrbitControls
           ref={controlsRef}
-          minDistance={10}
-          maxDistance={18}
+          minDistance={12}
+          maxDistance={14}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
         />

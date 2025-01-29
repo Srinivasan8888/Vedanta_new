@@ -201,7 +201,7 @@ const options = useMemo(() => ({
   };
 
   return (
-    <div className="h-[460px] md:h-auto md:w-[50%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
+    <div className="h-[460px] md:h-auto md:w-[75%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
       <div className="flex flex-col px-4 mt-4 md:flex-row md:justify-around">
         <p className="mt-2 mb-3 text-xl font-semibold text-center md:text-left md:mb-0 md:mt-0">
           CBTA1

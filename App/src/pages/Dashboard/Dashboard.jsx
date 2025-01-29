@@ -81,12 +81,14 @@ const Dashboard = () => {
       <div className="md:h-[45%] md:flex  ">
         <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} />
 
-        <Notifications />
+        {/* <Notifications /> */}
+
+        <Aside socketData={AsideData} />
       </div>
       <div className="md:h-[47%] md:flex">
         <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
 
-        <Aside socketData={AsideData} />
+        
 
         <Bside socketData={BsideData} />
       </div>
