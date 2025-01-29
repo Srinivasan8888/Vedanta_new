@@ -1,23 +1,28 @@
 import React, { useEffect } from "react";
 
-const HeatmapTable = ({combinedTableData}) => {
-  // Define the headers
+const HeatmapTable = ({ data }) => {
+  // Extract timestamps and data from props, ensuring proper fallbacks to avoid errors
+  const timestamps = data?.timestamps || [];
+  const tableData = data?.data || {};
+
+  // Store data in local storage if new data is available
+  useEffect(() => {
+    if (timestamps.length > 0) {
+      localStorage.setItem("heatmapData", JSON.stringify(data));
+    }
+  }, [data]);
+
+  // Retrieve data from local storage if no new data is available
+  const storedData = timestamps.length === 0 ? JSON.parse(localStorage.getItem("heatmapData")) : null;
+  const finalData = storedData || data;
+
+  // Define headers dynamically based on the keys in the data object
   const headers = [
     "Date",
-    "CBT1A1", "CBT2A1", "CBT3A1", "CBT4A1", "CBT5A1", "CBT6A1", "CBT7A1", "CBT8A1",
-    "CBT9A1", "CBT10A1", "CBT11A1", "CBT12A1", "CBT13A1", "CBT14A1", "CBT15A1",
-    "CBT16A1", "CBT17A1", "CBT18A1", "CBT19A1", "CBT20A1", "CBT21A1", "CBT22A1",
-    "CBT23A1", "CBT24A1"
+    ...Object.keys(finalData.data || {}).filter((key) => key !== "_id" && key !== "TIME"),
   ];
 
-  useEffect (() => {
-    console.log("data for table", combinedTableData)
-  })
-
-  // Define the data (20 rows of 24 columns)
-  const data = Array.from({ length: 20 }, (_, rowIndex) =>
-    Array.from({ length: 24 }, (_, colIndex) => 20 + colIndex)
-  );
+  const noDataAvailable = finalData.timestamps.length === 0 || Object.keys(finalData.data).length === 0;
 
   return (
     <div className="relative overflow-x-auto rounded-lg shadow-md">
@@ -28,7 +33,9 @@ const HeatmapTable = ({combinedTableData}) => {
               <th
                 key={index}
                 scope="col"
-                className={`px-6 py-3 border border-white ${index % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
+                className={`px-6 py-3 border border-white ${
+                  index % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"
+                }`}
               >
                 {header}
               </th>
@@ -36,27 +43,71 @@ const HeatmapTable = ({combinedTableData}) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr
-              key={rowIndex}
-              className="border-b border-white bg-[rgb(16,16,16)]"
-            >
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium whitespace-nowrap border border-white bg-[rgb(16,16,16)]"
+          {noDataAvailable ? (
+            <tr className="border-b border-white bg-[rgb(16,16,16)]">
+              <td
+                colSpan={headers.length}
+                className="px-6 py-4 text-center font-medium text-white border border-white bg-[rgb(16,16,16)]"
               >
-                {rowIndex + 1}
-              </th>
-              {row.map((cell, colIndex) => (
-                <td
-                  key={colIndex}
-                  className={`px-6 py-4 border border-white ${colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
-                >
-                  {cell}
-                </td>
-              ))}
+                No data available
+              </td>
             </tr>
-          ))}
+          ) : (
+            finalData.timestamps.map((timestamp, rowIndex) => {
+              // Extract row data based on the headers
+              const rowData = headers.slice(1).map((header) => finalData.data[header]?.[rowIndex]);
+
+              // Skip rendering the row if there is no data for any column
+              if (rowData.every((cell) => !cell)) {
+                return null;
+              }
+
+              return (
+                <tr key={rowIndex} className="border-b border-white bg-[rgb(16,16,16)]">
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium whitespace-nowrap border border-white bg-[rgb(16,16,16)]"
+                  >
+                    {new Date(timestamp).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </th>
+                  {headers.slice(1).map((header, colIndex) => {
+                    const cellData = finalData.data[header]?.[rowIndex];
+
+                    return (
+                      <td
+                        key={colIndex}
+                        className={`px-6 py-4 border border-white ${
+                          colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"
+                        }`}
+                      >
+                        <span
+                          className={`${
+                            cellData >= 190 && cellData < 230
+                              ? "text-green-400" // Light green for values between 190 and 230
+                              : cellData >= 230 && cellData < 250
+                              ? "text-green-600" // Dark green for values between 230 and 250
+                              : cellData >= 250 && cellData < 300
+                              ? "text-orange-600" // Orange for values between 250 and 300
+                              : cellData >= 300 && cellData < 450
+                              ? "text-red-600" // Light red for values between 300 and 450
+                              : cellData > 450
+                              ? "text-red-800" // Dark red for values above 450
+                              : "text-white" // Default text color
+                          }`}
+                        >
+                          {cellData || ""} {/* Display cell data or an empty string */}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>

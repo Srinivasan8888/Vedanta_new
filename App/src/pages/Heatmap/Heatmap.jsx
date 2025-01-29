@@ -11,8 +11,8 @@ const Heatmap = () => {
   const [endDate, setEndDate] = useState(null);
   const [switcherValue, setSwitcherValue] = useState("min");
   const [switcherValue10, setSwitcherValue10] = useState("ASide");
-  // const [ASideData, setASideData] = useState([]); // Store ASide data
-  // const [BSideData, setBSideData] = useState([]); // Store BSide data
+  const [ASideData, setASideData] = useState([]); // Store ASide data
+  const [BSideData, setBSideData] = useState([]); // Store BSide data
   const [combinedData, setCombinedData] = useState([]); 
   const [combinedTableData, setCombinedTableData] = useState([]); 
   const [socket, setSocket] = useState(null);
@@ -22,10 +22,10 @@ const Heatmap = () => {
     const { name, value } = event.target;
     if (name === "startdate") {
       setStartDate(value);
-      console.log("Start Date:", value);
+      // console.log("Start Date:", value);
     } else if (name === "enddate") {
       setEndDate(value);
-      console.log("End Date:", value);
+      // console.log("End Date:", value);
     }
   };
 
@@ -33,6 +33,9 @@ const Heatmap = () => {
     setSwitcherValue(newValue);
     // console.log("Switcher Value of value:", newValue);
   };
+
+  // console.log("Combined Table Data:", ASideData);
+
 
   const handleSwitcherValueChange10 = (newValue) => {
     setSwitcherValue10(newValue);
@@ -59,50 +62,60 @@ const Heatmap = () => {
   useEffect(() => {
     if (!socket) return;
 
-    // // Listen for ASide data
-    // socket.on("ASide", (data) => {
-    //   console.log("Received ASide Data:", data);
-    //   setASideData(data);
-    // });
-
-    // // Listen for BSide data
-    // socket.on("BSide", (data) => {
-    //   console.log("Received BSide Data:", data);
-    //   setBSideData(data);
-    // });
-    
-    let ASideTableData = []; // Initialize ASideTableData
-    let BSideTableData = []; // Initialize BSideTableData
-
-    // Function to handle the combined data
-    const handleTableData = () => {
-      const mergedData = [
-        ...ASideTableData.map((data) => ({ ...data, source: "ASide" })), // Tag ASide data
-        ...BSideTableData.map((data) => ({ ...data, source: "BSide" })), // Tag BSide data
-      ];
-      console.log("Merged Data:", mergedData);
-      setCombinedTableData(mergedData);
-    };
-
     // Listen for ASide data
     socket.on("ASide", (data) => {
-      console.log("Received ASide Table Data:", data);
-      if (Array.isArray(data)) {
-        ASideTableData = data; // Update ASideTableData instead of ASideData
-        handleTableData(); // Combine with BSideTableData
-      }
+      console.log("Received ASide Data:", data);
+      setASideData(data);
+      localStorage.setItem("ASideData", JSON.stringify(data)); // Store ASide data in local storage
     });
 
     // Listen for BSide data
     socket.on("BSide", (data) => {
-      console.log("Received BSide Table Data:", data);
-      if (Array.isArray(data)) {
-        BSideTableData = data; // Update BSideTableData instead of BSideData
-        handleTableData(); // Combine with ASideTableData
-      }
+      console.log("Received BSide Data:", data);
+      setBSideData(data);
+      localStorage.setItem("BSideData", JSON.stringify(data)); // Store BSide data in local storage
     });
+    
+
+
+
+
 
     
+    // let ASideTableData = []; // Initialize ASideTableData
+    // let BSideTableData = []; // Initialize BSideTableData
+
+    // // Function to handle the combined data
+    // const handleTableData = () => {
+    //   const mergedData = [
+    //     ...ASideTableData.map((data) => ({ ...data, source: "ASide" })), // Tag ASide data
+    //     ...BSideTableData.map((data) => ({ ...data, source: "BSide" })), // Tag BSide data
+    //   ];
+    //   console.log("Merged Data:", mergedData);
+    //   setCombinedTableData(mergedData);
+    // };
+
+    // Listen for ASide data
+    // socket.on("ASide", (data) => {
+    //   console.log("Received ASide Table Data:", data);
+    //   if (Array.isArray(data)) {
+    //     setCombinedTableData(data); // Store ASideTableData in combinedTableData
+    //   }
+    // });
+
+    // // Listen for BSide data
+    // socket.on("BSide", (data) => {
+    //   console.log("Received BSide Table Data:", data);
+    //   if (Array.isArray(data)) {
+    //     setCombinedTableData(data); // Store BSideTableData in combinedTableData
+    //   }
+    // });
+
+    
+
+
+
+    // for the 7 values for min and max in the table
     const handleData = (ASideData, BSideData) => {
       const mergedData = [
         ...ASideData.map((data) => ({ ...data, source: "ASiderange" })), // Add source identifier
@@ -131,8 +144,17 @@ const Heatmap = () => {
       }
     });
 
-
+    // Retrieve data from local storage if no new data is available
+    const storedASideData = JSON.parse(localStorage.getItem("ASideData")) || [];
+    const storedBSideData = JSON.parse(localStorage.getItem("BSideData")) || [];
     
+    if (ASideData.length === 0) {
+      setASideData(storedASideData);
+    }
+    if (BSideData.length === 0) {
+      setBSideData(storedBSideData);
+    }
+
     // Automatically fetch data when the socket is connected or when dependencies change
     const requestData = {
       value: switcherValue,
@@ -250,7 +272,9 @@ const Heatmap = () => {
           </div>
         </div>
         <div className="md:h-[65%] h-[504px] flexmd:w-full rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
-          <HeatmapTable combinedTableData={combinedTableData}/>
+        <HeatmapTable
+            data={switcherValue10 === "ASide" ? ASideData : BSideData}
+          />
         </div>
       </div>
     </div>
