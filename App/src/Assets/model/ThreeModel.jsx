@@ -342,7 +342,7 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   // </div>
 
   return (
-    <div className="h-[500px] bg-[rgba(16,16,16,0.9)]  md:w-[75%] z-1 rounded-2xl m-4  md:h-auto">
+    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[75%] z-1 rounded-2xl m-4  md:h-auto">
       <div className="absolute z-1 flex flex-col items-center justify-center  md:w-[72.5%] md:h-[42%]">
         <div className="flex h-[50%] w-full p-4">
           <div className="flex w-full gap-4 md:h-[30%] z-10">

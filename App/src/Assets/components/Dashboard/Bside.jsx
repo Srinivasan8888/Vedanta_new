@@ -47,7 +47,7 @@ const Bside = ({ socketData }) => {
   }, [socketData]);
 
   return (
-    <div className="h-[400px] md:w-[25%] md:h-auto rounded-2xl border-[1.5px] border-white backdrop-blur-2xl bg-[rgba(16,16,16,0.7)] m-4 text-white font-poppins">
+    <div className="h-[400px] md:w-[25%] md:h-auto rounded-2xl border-[1.5px] border-white  bg-[rgba(16,16,16,0.9)] m-4 text-white font-poppins">
       <div className="flex justify-between">
         <p className="mt-6 ml-8 text-2xl font-semibold">B Side</p>
         <div className="relative flex items-center">

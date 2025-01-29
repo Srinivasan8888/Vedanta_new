@@ -184,7 +184,7 @@ const Heatmap = () => {
       <Sidebar />
 
       <div className="flex  bg-[rgba(16,16,16,0.75)] h-[840px] md:h-[87%] m-4 rounded-lg border border-white flex-col text-white">
-        <div className="md:h-[35%] h-[336px] grid grid-rows-2  md:w-full rounded-tr-lg rounded-tl-lg ">
+        <div className="md:h-[40%] h-[336px] grid grid-rows-2  md:w-full rounded-tr-lg rounded-tl-lg ">
           <div className="md:h-[100%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
@@ -234,7 +234,7 @@ const Heatmap = () => {
               </div>
             </div>
           </div>
-          <div className="md:h-[100%]">
+          <div className="md:h-[90%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
                 {switcherValue === "max" ? "Extreme Max" : "Extreme Max"}
@@ -271,7 +271,7 @@ const Heatmap = () => {
             </div>
           </div>
         </div>
-        <div className="md:h-[65%] h-[504px] flexmd:w-full rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
+        <div className="md:h-[60%] h-[504px] flexmd:w-full rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
         <HeatmapTable
             data={switcherValue10 === "ASide" ? ASideData : BSideData}
           />

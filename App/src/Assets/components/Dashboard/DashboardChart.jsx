@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useMemo} from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Switcher13 from "./miscellaneous/Switcher13.jsx";
 import Chartline from "./miscellaneous/chartline.jsx";
 import Chartbar from "./miscellaneous/chartbar.jsx";
 import { temp } from "./data/data.js";
 import 'chartjs-plugin-annotation';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { Chart as ChartJS, registerables } from 'chart.js';
+
+// Register all necessary components and plugins
+ChartJS.register(...registerables, annotationPlugin);
 
 const DashboardChart = ({ socketData = [], onChartClick }) => {
   const [isBarChart, setIsBarChart] = useState(false);
@@ -113,30 +117,80 @@ const options = useMemo(() => ({
     legend: {
       display: false,
     },
+    // tooltip: {
+    //   callbacks: {
+    //     title: function (value) {
+    //       const timestamp = value[0].label || "No timestamp available";
+    //       return `Timestamp: ${timestamp}`;
+    //     },
+    //     label: function (context) {
+    //       return `Temperature: ${context.parsed.y.toFixed(2)}°C`;
+    //     },
+    //   },
+    //   displayColors: false,
+    //   backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
+    //   titleFont: {
+    //     size: 14,
+    //     weight: "bold",
+    //     color: "#fff",
+    //   },
+    //   bodyFont: {
+    //     size: 12,
+    //     color: "#fff",
+    //   },
+    //   padding: 10, // Adjust padding
+    //   borderWidth: 1,
+    //   borderColor: "#00c8ff", // A matching border color
+    // },
     tooltip: {
-      callbacks: {
-        title: function (value) {
-          const timestamp = value[0].label || "No timestamp available";
-          return `Timestamp: ${timestamp}`;
-        },
-        label: function (context) {
-          return `Temperature: ${context.parsed.y.toFixed(2)}°C`;
-        },
+      enabled: false, // Disable the default tooltip
+      external: function (context) {
+        // Get the tooltip element or create it if it doesn't exist
+        let tooltipEl = document.getElementById("chartjs-tooltip");
+        if (!tooltipEl) {
+          tooltipEl = document.createElement("div");
+          tooltipEl.id = "chartjs-tooltip";
+          tooltipEl.style.position = "absolute";
+          tooltipEl.style.pointerEvents = "none";
+          tooltipEl.style.backgroundColor = "rgba(0, 119, 228, 0.9)";
+          tooltipEl.style.color = "#fff";
+          tooltipEl.style.borderRadius = "8px";
+          tooltipEl.style.width = "130px"; // Fixed width
+          tooltipEl.style.height = "65px"; // Fixed height
+          tooltipEl.style.padding = "10px";
+          tooltipEl.style.fontSize = "14px";
+          tooltipEl.style.textAlign = "center";
+          tooltipEl.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+          document.body.appendChild(tooltipEl);
+        }
+
+        // Hide if no tooltip is active
+        const tooltipModel = context.tooltip;
+        console.log(tooltipModel);
+        if (tooltipModel.opacity === 0) {
+          tooltipEl.style.opacity = 0;
+          return;
+        }
+
+        // Set tooltip content
+        if (tooltipModel.body) {
+          const title = tooltipModel.dataPoints[0].raw;
+          const bodyLines = tooltipModel.title || [];
+
+          let innerHtml = `<div style="font-size: 18px; font-weight: bold;">${title} °C</div>`;
+          bodyLines.forEach((body) => {
+            innerHtml += `<div style="font-size: 12px; margin-top: 5px;">${body}</div>`;
+          });
+
+          tooltipEl.innerHTML = innerHtml;
+        }
+
+        // Position the tooltip
+        const { offsetLeft, offsetTop } = context.chart.canvas;
+        tooltipEl.style.left = offsetLeft + tooltipModel.caretX + "px";
+        tooltipEl.style.top = offsetTop + tooltipModel.caretY + "px";
+        tooltipEl.style.opacity = 1;
       },
-      displayColors: false,
-      backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
-      titleFont: {
-        size: 14,
-        weight: "bold",
-        color: "#fff",
-      },
-      bodyFont: {
-        size: 12,
-        color: "#fff",
-      },
-      padding: 10, // Adjust padding
-      borderWidth: 1,
-      borderColor: "#00c8ff", // A matching border color
     },
     annotation: {
       annotations: {
@@ -187,7 +241,7 @@ const options = useMemo(() => ({
   },
   elements: {
     point: {
-      radius: 5, // Default radius
+      radius: 1, // Default radius
       hoverRadius: 7, // Radius on hover
       pointStyle: 'circle', // Default point style
       hoverPointStyle: 'circle', // Point style on hover
@@ -199,9 +253,59 @@ const options = useMemo(() => ({
   const toggleChartType = () => {
     setIsBarChart(!isBarChart);
   };
+  
+// ... existing code ...
 
+// Register tooltip plugin
+const tooltipPlugin = {
+  id: "hoverline",
+  beforeDraw: (chart) => {
+    if (chart.tooltip._active && chart.tooltip._active.length) {
+      const ctx = chart.ctx;
+      const tooltip = chart.tooltip._active[0];
+      const x = tooltip.element.x;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x, chart.scales.y.top);
+      ctx.lineTo(x, chart.scales.y.bottom);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.stroke();
+      ctx.restore();
+    }
+  },
+};
+ChartJS.register(tooltipPlugin);
+
+// Register danger line plugin
+const dangerLinePlugin = {
+  id: "dangerLine",
+  afterDraw: (chart) => {
+    const ctx = chart.ctx;
+    const yAxis = chart.scales.y;
+    const xAxis = chart.scales.x;
+
+    // Get the y-coordinate for value 800
+    const yValue = yAxis.getPixelForValue(80);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 0, 0, 0.6)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(xAxis.left, yValue);
+    ctx.lineTo(xAxis.right, yValue);
+    ctx.stroke();
+    ctx.restore();
+  },
+};
+ChartJS.register(dangerLinePlugin);
+
+// ... existing code ...
+  
   return (
-    <div className="h-[460px] md:h-auto md:w-[75%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
+    <div className="h-[460px] md:h-auto md:w-[75%] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm m-4 rounded-xl text-white">
       <div className="flex flex-col px-4 mt-4 md:flex-row md:justify-around">
         <p className="mt-2 mb-3 text-xl font-semibold text-center md:text-left md:mb-0 md:mt-0">
           CBTA1
