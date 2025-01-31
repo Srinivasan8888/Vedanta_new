@@ -15,17 +15,8 @@ const Sidebar = () => {
   const [isClosing, setIsClosing] = useState(false);
 
   const toggleSidebar = () => {
-    if (isSidebarOpen) {
-      setIsClosing(true);
-      setTimeout(() => {
-        setIsSidebarOpen(false);
-        setIsClosing(false);
-      }, 500);
-    } else {
-      setIsSidebarOpen(true);
-    }
+    setIsSidebarOpen((prev) => !prev);
   };
-
   const goTo = (path) => {
     navigate(path);
   };
@@ -125,8 +116,9 @@ const Sidebar = () => {
           <IoMdSettings />
         </button>
         <button
-          className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm"
           onClick={toggleSidebar}
+          onMouseEnter={() => setIsSidebarOpen(true)}
         >
           <IoNotifications />
         </button>
@@ -146,29 +138,17 @@ const Sidebar = () => {
       </div>
 
       {/* Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div className={`fixed top-0 right-0 z-50 flex flex-col h-full text-white duration-1000 bg-[rgba(16,16,16,0.95)] shadow-lg w-96  rounded-tl-2xl rounded-bl-2xl  ${isClosing ? 'animate__easeOutRight' : 'animate__easeInRight'}`}>
-          <div className="flex items-center justify-center p-4 ">
-            <button className="text-2xl font-bold " onClick={toggleSidebar}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-12"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-              </svg>
-            </button>
+      {/* {isSidebarOpen && (
+        <div 
+          className={`fixed top-20 right-2.5 z-50 flex flex-col h-5/6 text-white duration-1000  bg-[#101010] shadow-lg w-1/4 border-2 border-white rounded-2xl`}
+          onMouseEnter={() => setIsSidebarOpen(true)}
+          onMouseLeave={() => setIsSidebarOpen(false)}
+        >
+          <div className="relative flex items-center justify-center p-4 ">
             <p className="flex-1 text-2xl font-semibold text-center">Alerts</p>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

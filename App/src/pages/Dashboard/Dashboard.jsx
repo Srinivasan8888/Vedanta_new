@@ -78,14 +78,14 @@ const Dashboard = () => {
     >
       <Sidebar />
 
-      <div className="md:h-[45%] md:flex  ">
+      <div className="md:h-[45%] md:flex gap-5">
         <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} />
 
         {/* <Notifications /> */}
 
         <Aside socketData={AsideData} />
       </div>
-      <div className="md:h-[47%] md:flex">
+      <div className="md:h-[47%] md:flex gap-5">
         <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
 
         

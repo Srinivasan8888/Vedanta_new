@@ -11,6 +11,7 @@ import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter";
 import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
+import CollectorBar from "./pages/CollectorBar/CollectorBar";
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           <Route path="/admin_xyma_signup" element={<Signup />} />
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="/Dashboard" element={<Dashboard />} />
-            {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}
+            {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}{" "}
+            <Route path="/CollectorBar" element={<CollectorBar />} />
             <Route path="/Analytics" element={<Analytics />} />
             <Route path="/Report" element={<Report />} />
             <Route path="/Settings" element={<Settings />} />

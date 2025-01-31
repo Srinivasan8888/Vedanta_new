@@ -14,7 +14,7 @@ const HeatmapTable = ({ data }) => {
 
   // Retrieve data from local storage if no new data is available
   const storedData = timestamps.length === 0 ? JSON.parse(localStorage.getItem("heatmapData")) : null;
-  const finalData = storedData || data;
+  const finalData = storedData || data || { timestamps: [], data: {} }; // Ensure finalData has default structure
 
   // Define headers dynamically based on the keys in the data object
   const headers = [
@@ -22,7 +22,8 @@ const HeatmapTable = ({ data }) => {
     ...Object.keys(finalData.data || {}).filter((key) => key !== "_id" && key !== "TIME"),
   ];
 
-  const noDataAvailable = finalData.timestamps.length === 0 || Object.keys(finalData.data).length === 0;
+  const noDataAvailable = (!finalData.timestamps || finalData.timestamps.length === 0) || 
+                        (finalData.data && Object.keys(finalData.data).length === 0);
 
   return (
     <div className="relative overflow-x-auto rounded-lg shadow-md">

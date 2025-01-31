@@ -185,6 +185,29 @@ const Model = ({ socketData, ModelTempData }) => {
       const object = intersects[0].object;
       const partName = reverseNameMapping[object.name];
 
+      // Check if the partName is in the hoveredInfo
+      const hoveredPartInfo = hoveredInfo && hoveredInfo.name === partName;
+
+      // // Set color based on value ranges for parts s1 to s108
+      // if (hoveredPartInfo) {
+      //   const value = parseFloat(hoveredInfo.value); // Get the value as a float
+
+      //   if (value >= 190 && value <= 230) {
+      //     object.material.color.set(0x00ff00); // Set to green
+      //   } else if (value >= 231 && value <= 300) {
+      //     object.material.color.set(0x008000); // Set to dark green
+      //   } else if (value >= 301 && value <= 450) {
+      //     object.material.color.set(0xFFA500); // Set to orange
+      //   } else if (value > 451) {
+      //     object.material.color.set(0xFF0000); // Set to red
+      //   } else {
+      //     object.material.color.set(0xFFFFFF); // Set to default color
+      //   }
+      // } else if (partName) {
+      //   // Reset color for parts not in hoveredInfo
+      //   object.material.color.set(0xFFFFFF); // Reset to default color
+      // }
+
       if (partName && partName !== hoveredMesh) {
         setHoveredMesh(object);
 
@@ -222,6 +245,36 @@ const Model = ({ socketData, ModelTempData }) => {
       setHoveredMesh(null);
       setPopupPosition((prev) => ({ ...prev, show: false }));
     }
+
+    // if (group.current) {
+    //   // Iterate through all parts defined in nameMapping
+    //   Object.entries(nameMapping).forEach(([key, value]) => {
+    //     const partObject = group.current.getObjectByName(value); // Get the object by its name (s1, s2, ..., s108)
+
+    //     if (partObject) {
+    //       // Find the corresponding value for the part
+    //       const partInfo = socketData.find(data => data[key]) || ModelTempData.find(data => data.parameter === key);
+    //       const partValue = partInfo ? parseFloat(partInfo[key]) : null; // Get the value as a float
+
+    //       // Set color based on value ranges
+    //       if (partValue !== null) {
+    //         if (partValue >= 190 && partValue < 230) {
+    //           partObject.material.color.set(0x00ff00); // Set to green
+    //         } else if (partValue >= 230 && partValue < 300) {
+    //           partObject.material.color.set(0x008000); // Set to dark green
+    //         } else if (partValue >= 300 && partValue < 450) {
+    //           partObject.material.color.set(0xFFA500); // Set to orange
+    //         } else if (partValue > 450) {
+    //           partObject.material.color.set(0xFF0000); // Set to red
+    //         } else {
+    //           partObject.material.color.set(0xFFFFFF); // Set to default color
+    //         }
+    //       } else {
+    //         partObject.material.color.set(0xFFFFFF); // Reset to default color if no value is found
+    //       }
+    //     }
+    //   });
+    // }
   });
 
   return (
@@ -342,13 +395,15 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
   // </div>
 
   return (
-    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[75%] z-1 rounded-2xl m-4  md:h-auto">
-      <div className="absolute z-1 flex flex-col items-center justify-center  md:w-[72.5%] md:h-[42%]">
-        <div className="flex h-[50%] w-full p-4">
-          <div className="flex w-full gap-4 md:h-[30%] z-10">
+    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[73%] z-1 rounded-2xl m-4 md:h-auto relative">
+      <div className="absolute flex flex-col p-4 space-y-4 md:h-full md:w-full">
+        {/* Top Section */}
+        <div className="flex items-center justify-between w-full">
+          {/* Buttons and Counter */}
+          <div className="flex items-center gap-4">
             <button
               type="button"
-              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -356,7 +411,7 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="size-6"
+                className="w-5 h-5"
               >
                 <path
                   strokeLinecap="round"
@@ -365,12 +420,10 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
                 />
               </svg>
             </button>
-            <p className="flex items-center justify-center text-2xl font-semibold text-white ">
-              1604
-            </p>
+            <p className="text-2xl font-semibold text-white">1604</p>
             <button
               type="button"
-              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -378,7 +431,7 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="size-6"
+                className="w-5 h-5"
               >
                 <path
                   strokeLinecap="round"
@@ -388,33 +441,37 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
               </svg>
             </button>
           </div>
-
-          <div className="flex md:w-[40%] md:gap-4  md:h-[33%]">
-            <div className="grid w-full    rounded-lg bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-              <p className="mt-3">Total Pots</p>
-              <span className="pb-2 font-semibold">1</span>
-            </div>
-            <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-              <p className="mt-3">Active</p>
-              <span className="pb-2 font-semibold">1</span>
-            </div>
-            <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-              <p className="mt-3">Inactive</p>
-              <span className="pb-2 font-semibold">0</span>
-            </div>
+          {/* Status */}
+          <div className="flex items-center gap-6">
+            <p className="font-bold text-[rgba(0,119,228)]">
+              Total Pots: <span className="text-white">12</span>
+            </p>
+            <p className="font-bold text-[rgba(0,119,228)]">
+              Active: <span className="text-green-500">1</span>
+            </p>
+            <p className="font-bold text-[rgba(0,119,228)]">
+              Inactive: <span className="text-red-600">11</span>
+            </p>
           </div>
         </div>
 
-        <div className="flex md:h-[50%] text-white items-end md:w-[24%]">
-        <div className="w-[100%] h-[20%] m-4 bg-[rgba(16,16,16,0.52)] rounded-lg justify-around grid grid-cols-2 place-items-center border-white border-[2px] ">
-          <div className="text-sm font-semibold ">Last Updation:</div>
-          <div className="text-sm font-normal">04:05PM 30.08.2024</div>
-        </div>
+        {/* Last Updation Section */}
+        <div className="containermx-auto" >
+          <div className="flex justify-end -z-10">
+            <div className="w-[90%] md:w-fit bg-[rgba(16,16,16,0.52)] rounded-lg grid grid-cols-2 place-items-center border-white border-2 p-2">
+              <div className="text-sm font-semibold text-gray-300">
+                Last Updation:
+              </div>
+              <div className="text-sm font-normal text-white">
+                04:05 PM 30.08.2024
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* <Canvas style={{ width: "100%", height: "90vh" }}> */}
-      <Canvas>
+      <Canvas className="">
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
@@ -425,6 +482,8 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
           maxDistance={14}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
+          enableZoom={true}
+          enablePan={true}
         />
       </Canvas>
     </div>

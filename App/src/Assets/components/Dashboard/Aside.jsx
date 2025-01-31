@@ -49,7 +49,7 @@ const Aside = ({ socketData }) => {
   }, [socketData]);
 
   return (
-    <div className="h-[400px] md:w-[25%] md:h-auto rounded-2xl border-[1.5px] border-white bg-[rgba(16,16,16,0.9)] m-4 text-white font-poppins">
+    <div className="h-[400px] md:w-[22%] md:h-auto rounded-2xl border-[1.5px] border-white bg-[rgba(16,16,16,0.9)] m-4 text-white font-poppins">
       <div className="flex justify-between">
         <p className="mt-6 ml-8 text-2xl font-semibold">A Side</p>
         <div className="relative flex items-center">
@@ -93,6 +93,7 @@ const Aside = ({ socketData }) => {
                   <p className="ml-6">{value}</p>
                   <p>
                     <img src={arrow} alt="arrow" />
+                    {/* {" "} */}
                   </p>
                 </div>
                 <div className="h-[1px] mx-8 mt-3 bg-white"></div>

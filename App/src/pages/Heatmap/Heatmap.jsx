@@ -22,10 +22,10 @@ const Heatmap = () => {
     const { name, value } = event.target;
     if (name === "startdate") {
       setStartDate(value);
-      // console.log("Start Date:", value);
+      localStorage.setItem("startDate", value); // Store start date in local storage
     } else if (name === "enddate") {
       setEndDate(value);
-      // console.log("End Date:", value);
+      localStorage.setItem("endDate", value); // Store end date in local storage
     }
   };
 
@@ -175,6 +175,19 @@ const Heatmap = () => {
       socket.off("BSiderange");
     };
   }, [socket, switcherValue, startDate, endDate, switcherValue10]); // Ensure switcherValue10 is included
+
+  // Retrieve dates from local storage on component mount
+  useEffect(() => {
+    const storedStartDate = localStorage.getItem("startDate");
+    const storedEndDate = localStorage.getItem("endDate");
+
+    if (storedStartDate) {
+      setStartDate(storedStartDate);
+    }
+    if (storedEndDate) {
+      setEndDate(storedEndDate);
+    }
+  }, []);
 
   return (
     <div
