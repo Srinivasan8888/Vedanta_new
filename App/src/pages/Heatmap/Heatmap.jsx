@@ -76,45 +76,6 @@ const Heatmap = () => {
       localStorage.setItem("BSideData", JSON.stringify(data)); // Store BSide data in local storage
     });
     
-
-
-
-
-
-    
-    // let ASideTableData = []; // Initialize ASideTableData
-    // let BSideTableData = []; // Initialize BSideTableData
-
-    // // Function to handle the combined data
-    // const handleTableData = () => {
-    //   const mergedData = [
-    //     ...ASideTableData.map((data) => ({ ...data, source: "ASide" })), // Tag ASide data
-    //     ...BSideTableData.map((data) => ({ ...data, source: "BSide" })), // Tag BSide data
-    //   ];
-    //   console.log("Merged Data:", mergedData);
-    //   setCombinedTableData(mergedData);
-    // };
-
-    // Listen for ASide data
-    // socket.on("ASide", (data) => {
-    //   console.log("Received ASide Table Data:", data);
-    //   if (Array.isArray(data)) {
-    //     setCombinedTableData(data); // Store ASideTableData in combinedTableData
-    //   }
-    // });
-
-    // // Listen for BSide data
-    // socket.on("BSide", (data) => {
-    //   console.log("Received BSide Table Data:", data);
-    //   if (Array.isArray(data)) {
-    //     setCombinedTableData(data); // Store BSideTableData in combinedTableData
-    //   }
-    // });
-
-    
-
-
-
     // for the 7 values for min and max in the table
     const handleData = (ASideData, BSideData) => {
       const mergedData = [

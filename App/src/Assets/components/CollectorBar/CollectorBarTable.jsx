@@ -2,41 +2,17 @@ import React from "react";
 import "../Miscellaneous/Scrollbar.css";
 
 const CollectorBarTable = ({ data }) => {
-  // Dummy data for testing
-  const dummyData = {
-    timestamps: [
-      "2023-10-01T12:00:00Z", 
-      "2023-10-01T12:05:00Z", 
-      "2023-10-01T12:10:00Z",
-      "2023-10-01T12:15:00Z", // New timestamp
-       "2023-10-01T12:20:00Z", // New timestamp
-       "2023-10-01T12:25:00Z", // Added timestamp
-       "2023-10-01T12:30:00Z"  // Added timestamp
-    ],
-    data: {
-      CB1A1: [100, 200, 300, 400, 500, 600, 700], // Added more data points
-      Value: [10, 20, 30, 40, 50, 60, 70],         // Added more data points
-    },
-  };
+  // Handle data from props, if available
+  const tableData = data || [];
 
-  // Use dummy data if no data is provided
-  const tableData = data || dummyData;
+  // Define headers based on your data (you can dynamically generate them from the keys)
+  const headers = ["S.no", "TimeStamp", ...Object.keys(tableData[0] || {}).filter(key => key !== "createdAt")];
 
-  // Define headers dynamically based on the keys in the data object
-  const headers = [
-    "CB1A1",
-    "TimeStamp",
-    "Value",
-    // Add more headers as needed based on the data structure
-  ];
-
-  // Extract timestamps and data from props, ensuring proper fallbacks to avoid errors
-  const timestamps = tableData?.timestamps || [];
-  const noDataAvailable = (!timestamps || timestamps.length === 0) || 
-                          (tableData.data && Object.keys(tableData.data).length === 0);
+  // Check if data is available
+  const noDataAvailable = tableData.length === 0;
 
   return (
-    <div style={{ maxHeight: '600px' }}>
+    <div style={{ maxHeight: '361px' }}>
       <table className="w-full text-lg font-normal text-white font-poppins">
         <thead className="sticky top-0 bg-[rgb(16,16,16)] z-10">
           <tr>
@@ -44,9 +20,7 @@ const CollectorBarTable = ({ data }) => {
               <th
                 key={index}
                 scope="col"
-                className={`px-6 py-3 border border-white ${
-                  index % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"
-                }`}
+                className={`px-6 py-3 border border-white ${index % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
               >
                 {header}
               </th>
@@ -64,30 +38,25 @@ const CollectorBarTable = ({ data }) => {
               </td>
             </tr>
           ) : (
-            timestamps.map((timestamp, rowIndex) => {
-              // Extract row data based on the headers
+            tableData.map((row, rowIndex) => {
               const rowData = [
-                tableData.data["CB1A1"]?.[rowIndex],
-                timestamp,
-                tableData.data["Value"]?.[rowIndex],
+                rowIndex + 1, // Dynamically generate S.no based on row index
+                new Date(row["createdAt"]).toLocaleString(), // Access and format timestamp from the row
+                ...Object.keys(row).filter(key => key !== "createdAt").map(key => {
+                  const value = row[key];
+                  return value ? `${value} °C` : "N/A";
+                }),
               ];
-
-              // Skip rendering the row if there is no data for any column
-              if (rowData.every((cell) => !cell)) {
-                return null;
-              }
 
               return (
                 <tr key={rowIndex} className="border-b border-white bg-[rgb(16,16,16)]">
                   {rowData.map((cellData, colIndex) => (
                     <td
                       key={colIndex}
-                      className={`px-6 py-4 border border-white  ${
-                        colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"
-                      }`}
+                      className={`px-6 py-4 border border-white ${colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}
                     >
                       <span className={`text-white`}>
-                        {cellData || ""} {/* Display cell data or an empty string */}
+                        {cellData || ""}
                       </span>
                     </td>
                   ))}

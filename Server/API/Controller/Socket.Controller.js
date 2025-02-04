@@ -273,7 +273,6 @@ export const Avgchartdash = (io, time) => {
     });
 };
 
-
 export const AvgtempModel = (io, time) => {
     const options = { fullDocument: "updateLookup" };
     const models = [
@@ -771,4 +770,173 @@ export const Heatmap = (io) => {
             io.emit('BSide', BData);
         });
     }
+};
+
+export const collectorbar = (io) => {
+    const options = { fullDocument: "updateLookup" };
+
+    const modelMap = {
+        model1: SensorModel1,
+        model2: SensorModel2,
+        model3: SensorModel3,
+        model4: SensorModel4,
+        model5: SensorModel5,
+        model6: SensorModel6,
+        model7: SensorModel7,
+        model8: SensorModel8,
+        model9: SensorModel9,
+        model10: SensorModel10,
+    };
+
+    const models = {
+        model1: [
+            "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+            "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+            "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+            "CBT7A1", "CBT7A2"
+        ],
+        model2: [
+            "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+            "CBT10A1", "CBT10A2"
+        ],
+        model3: [
+            "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+            "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+        ],
+        model4: [
+            "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+        ],
+        model5: [
+            "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+            "CBT19A1", "CBT19A2"
+        ],
+        model6: [
+            "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+            "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+            "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+            "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+        ],
+        model7: [
+            "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+            "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+            "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+            "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+            "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+        ],
+        model8: [
+            "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+            "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+        ],
+        model9: [
+            "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+            "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+        ],
+        model10: [
+            "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+            "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+            "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+            "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+            "CBT27B1", "CBT27B2"
+        ]
+    };
+
+    const parseTimeToDate = (time) => {
+        const now = Date.now(); // Get current timestamp in milliseconds
+        const num = parseInt(time.match(/\d+/)?.[0] || 0, 10); // Extract numeric value
+        const unit = time.match(/[a-zA-Z]+/)?.[0] || ''; // Extract time unit
+
+        let seconds = 0;
+
+        switch (unit.toLowerCase()) {
+            case 'min': seconds = num * 60; break; // Minutes
+            case 'h': seconds = num * 60 * 60; break; // Hours
+            case 'd': seconds = num * 24 * 60 * 60; break; // Days
+            case 'w': seconds = num * 7 * 24 * 60 * 60; break; // Weeks
+            case 'm': seconds = num * 30 * 24 * 60 * 60; break; // Months (approximate)
+            default:
+                console.warn("Invalid time format:", time);
+                return new Date(now); // Return current time if invalid
+        }
+
+        return new Date(now - seconds * 1000); // Convert to milliseconds
+    };
+
+    const getModelKeyFromSensorId = (sensorId) => {
+        for (const [key, sensors] of Object.entries(models)) {
+            if (sensors.includes(sensorId)) {
+                return key; // Return the model key if the sensor ID is found
+            }
+        }
+        return null; // Return null if no model is found
+    };
+
+    const getCollectorBarData = async (sensorId, time) => {
+        const modelKey = getModelKeyFromSensorId(sensorId);
+        if (!modelKey) {
+            console.warn(`No model found for sensor ID: ${sensorId}`);
+            return null;
+        }
+
+        const model = modelMap[modelKey];
+        if (!model) {
+            console.warn(`Model ${modelKey} not found`);
+            return null;
+        }
+
+        const date = parseTimeToDate(time);
+        console.log(`Fetching data for sensor ID: ${sensorId}, Model: ${modelKey}, Time: ${time}, Date: ${date}`);
+
+        try {
+            const data = await model.aggregate([
+                { $match: { createdAt: { $gte: date } } },
+                {
+                    $project: {
+                        _id: 0,
+                        createdAt: 1,
+                        [sensorId]: 1 // Include only the requested sensor ID
+                    }
+                }
+            ]);
+
+            console.log('Fetched data:', data);
+            return data;
+        } catch (error) {
+            console.error("Error fetching collector bar data:", error);
+            return null;
+        }
+    };
+
+    io.on('connection', (socket) => {
+        console.log('Client connected');
+
+        socket.on('requestedCollectorbar', async (params) => {
+            console.log('Received requestData:', params);
+
+            const { value: sensorId, date: time } = params; // 'value' is the sensor ID, 'date' is the time
+            if (!sensorId || !time) {
+                console.warn("Invalid request: Missing sensor ID or time");
+                io.emit('error', { message: "Invalid parameters: sensor ID and time are required" });
+                return;
+            }
+
+            try {
+                const data = await getCollectorBarData(sensorId, time); // Use sensor ID and time
+                socket.emit('collectorBarData', data);
+            } catch (error) {
+                console.error("Error processing request:", error);
+                socket.emit('error', { message: "Failed to retrieve data" });
+            }
+        });
+
+        Object.keys(modelMap).forEach((modelKey) => {
+            const model = modelMap[modelKey];
+            if (model) {
+                model.watch([], options).on('change', async (change) => {
+                    console.log(`Data changed for ${modelKey}:`, change);
+                    const updatedData = await getCollectorBarData(models[modelKey][0], "10m"); // Use the first sensor ID in the model
+                    io.emit('collectorBarData', updatedData);
+                });
+            }
+        });
+    });
 };
