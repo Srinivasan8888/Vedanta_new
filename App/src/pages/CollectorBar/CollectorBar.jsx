@@ -79,22 +79,23 @@ const CollectorBar = () => {
     const handleCollectorbarData = (data) => {
       console.log("Received Collector Bar Data:", data); // Log the received data
       setCollectorbar(data);
+      const tableData = Array.isArray(data?.data) ? data.data : [];
+      
+    // Transform the data for the chart
+    const labels = tableData.map((item) => new Date(item.createdAt).toLocaleTimeString());
+    const temperatures = tableData.map((item) => parseFloat(item[dropdown]));
 
-        // Transform the data for the chart
-        const labels = data.map((item) => new Date(item.createdAt).toLocaleTimeString());
-        const temperatures = data.map((item) => parseFloat(item[dropdown]));
-  
-        setUserData((prevData) => ({
-          ...prevData,
-          labels: labels,
-          datasets: [
+    setUserData((prevData) => ({
+        ...prevData,
+        labels: labels,
+        datasets: [
             {
-              ...prevData.datasets[0],
-              data: temperatures,
+                ...prevData.datasets[0],
+                data: temperatures,
             },
-          ],
-        }));
-    };
+        ],
+    }));
+};
   
     // Listen for the 'collectorBarData' event from the server
     socket.on("collectorBarData", handleCollectorbarData);
@@ -287,6 +288,11 @@ const CollectorBar = () => {
     fetchOptions();
   }, []);
 
+  // Calculate min, max, and average values from collectorbar data
+  const minValue = collectorbar ? Math.min(...collectorbar.data.map(item => parseFloat(item[dropdown]))) : 0;
+  const maxValue = collectorbar ? Math.max(...collectorbar.data.map(item => parseFloat(item[dropdown]))) : 0;
+  const avgValue = collectorbar ? (collectorbar.data.reduce((acc, item) => acc + parseFloat(item[dropdown]), 0) / collectorbar.data.length).toFixed(2) : 0;
+
   return (
     <div
       className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1100px]"
@@ -319,7 +325,7 @@ const CollectorBar = () => {
                   Max Value
                 </div>
                 <div className="text-[#0084fe] text-3xl font-bold font-['Inter'] ml-4">
-                  930°C
+                  {maxValue}°C
                 </div>
               </div>
               <div className="flex items-center mx-auto">
@@ -327,7 +333,7 @@ const CollectorBar = () => {
                   Min Value
                 </div>
                 <div className="text-[#0084fe] ml-4 text-3xl font-bold font-['Inter']">
-                  618°C
+                  {minValue}°C
                 </div>
               </div>
               <div className="flex items-center mx-auto">
@@ -335,7 +341,7 @@ const CollectorBar = () => {
                   Avg Value
                 </div>
                 <div className="text-[#0084fe] ml-4 text-3xl font-bold font-['Inter']">
-                  820°C
+                  {avgValue}°C
                 </div>
               </div>
             </div>
