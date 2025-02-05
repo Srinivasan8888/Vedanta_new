@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [AsideData, setAsidedata] = useState([]);
   const [BsideData, setBsidedata] = useState([]);
   const [ModelData, setModelData] = useState([]);
+  const [latesttimestamp, setLatestTimestamp] = useState([]);
   const [AvgData, setAvgData] = useState([]);
   const [ModelTempData, setModelTempData] = useState([]);
   const [lastButtonClicked, setLastButtonClicked] = useState(null);
@@ -27,12 +28,18 @@ const Dashboard = () => {
     // Setup event listeners
     socket.on("ASide", (data) => {
       setAsidedata(data);
+      // console.log("Received Aside Data:", data);
     });
 
     // Listen for updates from SensorModel2
     socket.on("BSide", (data) => {
       setBsidedata(data);
       // console.log("Received Bside Data:", data);
+    });
+
+    
+    socket.on("LatestTimestamp", (data) => {
+      setLatestTimestamp(data);
     });
 
     socket.on("AllData", (data) => {
@@ -50,12 +57,11 @@ const Dashboard = () => {
     });
 
     socket.on("AvgModeltemp", (data) => {
-      // console.log("AvgModeltemp", data);
-      if (data) {
-        setModelTempData(data);
-      }
+      // console.error("AvgModeltemp data not received:", data);
+      setModelTempData(data);
     });
 
+    
     return () => {
       socket.off("ASide");
       socket.off("BSide");
@@ -79,7 +85,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="md:h-[45%] md:flex gap-5">
-        <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} />
+        <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} latesttimestamp={latesttimestamp}/>
 
         {/* <Notifications /> */}
 

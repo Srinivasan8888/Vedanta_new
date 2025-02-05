@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import io from "socket.io-client";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import bg from "../../Assets/images/bg.png";
@@ -14,7 +15,8 @@ const CollectorBar = () => {
   const [dropdown, setSelectedDropdown] = useState("CBT1A1");
   const [collectorbar, setCollectorbar] = useState();
   const [socket, setSocket] = useState(null);
-  const [error, setError] = useState(null); // Store error messages
+  const [error, setError] = useState(null);
+  const [searchParams] = useSearchParams();
   const [userData, setUserData] = useState({
     labels: [],
     datasets: [
@@ -44,7 +46,9 @@ const CollectorBar = () => {
       },
     ],
   });
- 
+
+  const [unitPreference, setUnitPreference] = useState("C");
+
   const handleButtonClick = (buttonId) => {
     setActiveButton(buttonId);
   };
@@ -53,8 +57,21 @@ const CollectorBar = () => {
     setSelectedButton(buttonId);
   };
 
-
+  useEffect(() => {
+    // Get part from URL or localStorage
+    const partFromURL = searchParams.get("part");
+    const storedPart = localStorage.getItem("selectedDropdown");
   
+    if (partFromURL) {
+      setSelectedDropdown(partFromURL);
+      localStorage.setItem("selectedDropdown", partFromURL); // Store in local storage
+    } else if (storedPart) {
+      setSelectedDropdown(storedPart);
+    }
+  }, [searchParams]);
+
+
+
   useEffect(() => {
     // Initialize WebSocket connection
     const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
@@ -72,48 +89,48 @@ const CollectorBar = () => {
     };
   }, []);
 
+
+
   useEffect(() => {
-    if (!socket) return;
-  
-    // Handle incoming collector bar data
+    if (!socket || !dropdown) return;
+
     const handleCollectorbarData = (data) => {
-      console.log("Received Collector Bar Data:", data); // Log the received data
+      console.log("Received Collector Bar Data:", data);
       setCollectorbar(data);
       const tableData = Array.isArray(data?.data) ? data.data : [];
-      
-    // Transform the data for the chart
-    const labels = tableData.map((item) => new Date(item.createdAt).toLocaleTimeString());
-    const temperatures = tableData.map((item) => parseFloat(item[dropdown]));
 
-    setUserData((prevData) => ({
+      // Transform the data for the chart
+      const labels = tableData.map((item) =>
+        new Date(item.createdAt).toLocaleTimeString()
+      );
+      const temperatures = tableData.map((item) => parseFloat(item[dropdown]));
+
+      setUserData((prevData) => ({
         ...prevData,
         labels: labels,
         datasets: [
-            {
-                ...prevData.datasets[0],
-                data: temperatures,
-            },
+          {
+            ...prevData.datasets[0],
+            data: temperatures,
+          },
         ],
-    }));
-};
-  
-    // Listen for the 'collectorBarData' event from the server
+      }));
+    };
+
     socket.on("collectorBarData", handleCollectorbarData);
-  
-    // Emit the 'requestedCollectorbar' event to request data
+
     const requestData = {
       value: dropdown,
       date: activeButton,
     };
     console.log("Emitting requestedCollectorbar:", requestData);
     socket.emit("requestedCollectorbar", requestData);
-  
-    // Cleanup on component unmount
+
     return () => {
-      socket.off("collectorBarData", handleCollectorbarData); // Remove the event listener
+      socket.off("collectorBarData", handleCollectorbarData);
     };
   }, [socket, dropdown, activeButton]);
-  
+
   const options = {
     maintainAspectRatio: false,
     plugins: {
@@ -177,100 +194,6 @@ const CollectorBar = () => {
       },
     },
   };
-  
-  // const userData = {
-  //   labels: temp.map((data) => data.month),
-  //   datasets: [
-  //     {
-  //       data: temp.map((data) => data.temp),
-  //       borderColor: "rgb(0, 119, 228)",
-  //       backgroundColor: (context) => {
-  //         const chart = context.chart;
-  //         const { ctx, chartArea } = chart;
-  //         if (!chartArea) return null;
-
-  //         const gradient = ctx.createLinearGradient(
-  //           0,
-  //           chartArea.bottom,
-  //           0,
-  //           chartArea.top
-  //         );
-  //         gradient.addColorStop(0, "rgba(0, 119, 228, 0.1)");
-  //         gradient.addColorStop(0.5, "rgba(0, 119, 228, 0.3)");
-  //         gradient.addColorStop(1, "rgba(0, 119, 228, 0.8)");
-
-  //         return gradient;
-  //       },
-  //       tension: 0,
-  //       fill: true,
-  //       borderWidth: 4,
-  //     },
-  //   ],
-  // };
-
-  // const options = {
-  //   maintainAspectRatio: false,
-  //   plugins: {
-  //     legend: {
-  //       display: false,
-  //     },
-  //     tooltip: {
-  //       callbacks: {
-  //         title: function (context) {
-  //           const index = context[0].dataIndex;
-  //           const timestamp = temp[index].timestamp;
-  //           return `Timestamp: ${timestamp}`;
-  //         },
-  //         label: function (context) {
-  //           return `Temperature: ${context.parsed.y}°C`;
-  //         },
-  //         afterLabel: function (context) {
-  //           return "Hover for details!";
-  //         },
-  //       },
-  //       displayColors: false,
-  //       backgroundColor: "rgba(0, 0, 0, 0.8)", // Custom background
-  //       titleFont: {
-  //         size: 14,
-  //         weight: "bold",
-  //         color: "#fff",
-  //       },
-  //       bodyFont: {
-  //         size: 12,
-  //         color: "#fff",
-  //       },
-  //       padding: 10, // Adjust padding
-  //       borderWidth: 1,
-  //       borderColor: "#00c8ff", // A matching border color
-  //     },
-  //   },
-  //   scales: {
-  //     y: {
-  //       position: "right",
-  //       title: {
-  //         display: true,
-  //         text: "Temperature (°C)",
-  //         color: "white",
-  //       },
-  //       ticks: {
-  //         color: "white",
-  //         callback: function (value) {
-  //           return value + " °C";
-  //         },
-  //       },
-  //     },
-  //     x: {
-  //       title: {
-  //         display: true,
-  //         text: "Timestamp",
-  //         color: "white",
-  //       },
-  //       ticks: {
-  //         color: "white",
-  //       },
-  //     },
-  //   },
-  // };
 
   const [fetchedOptions, setFetchedOptions] = useState([]);
 
@@ -288,10 +211,23 @@ const CollectorBar = () => {
     fetchOptions();
   }, []);
 
+
+  
   // Calculate min, max, and average values from collectorbar data
-  const minValue = collectorbar ? Math.min(...collectorbar.data.map(item => parseFloat(item[dropdown]))) : 0;
-  const maxValue = collectorbar ? Math.max(...collectorbar.data.map(item => parseFloat(item[dropdown]))) : 0;
-  const avgValue = collectorbar ? (collectorbar.data.reduce((acc, item) => acc + parseFloat(item[dropdown]), 0) / collectorbar.data.length).toFixed(2) : 0;
+  const minValue = collectorbar
+    ? Math.min(...collectorbar.data.map((item) => parseFloat(item[dropdown])))
+    : 0;
+  const maxValue = collectorbar
+    ? Math.max(...collectorbar.data.map((item) => parseFloat(item[dropdown])))
+    : 0;
+  const avgValue = collectorbar
+    ? (
+        collectorbar.data.reduce(
+          (acc, item) => acc + parseFloat(item[dropdown]),
+          0
+        ) / collectorbar.data.length
+      ).toFixed(2)
+    : 0;
 
   return (
     <div
@@ -303,7 +239,12 @@ const CollectorBar = () => {
         <div className="flex flex-col bg-black rounded-tl-lg rounded-tr-lg md:h-16 md:w-full md:flex-row">
           <select
             className="ml-5 text-white text-3xl font-bold font-['Inter'] bg-transparent border-b border-white focus:outline-none"
-            onChange={(e) => setSelectedDropdown(e.target.value)}
+            value={dropdown} // Set selected value
+            onChange={(e) => {
+              const selectedValue = e.target.value;
+              setSelectedDropdown(selectedValue);
+              localStorage.setItem("selectedDropdown", selectedValue); // Store in local storage
+            }}
           >
             {fetchedOptions.map((option, index) => (
               <option
@@ -354,7 +295,6 @@ const CollectorBar = () => {
                   </div>
                 </div>
                 <div className="flex   md:w-[50%] items-center justify-around">
-                  
                   <button
                     className={`text-blue-700 ${
                       activeButton === "30Min" ? "bg-blue-700 text-white" : ""
@@ -415,6 +355,7 @@ const CollectorBar = () => {
                 <div className="flex md:w-[10%] items-center justify-evenly" />
                 <div className="flex md:w-[30%] items-center justify-evenly">
                   <button
+                    disabled
                     className={`text-blue-700 ${
                       selectedButton === "I" ? "bg-blue-700 text-white " : ""
                     } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
@@ -423,6 +364,7 @@ const CollectorBar = () => {
                     I
                   </button>
                   <button
+                    disabled
                     className={`text-blue-700 ${
                       selectedButton === "II" ? "bg-blue-700 text-white" : ""
                     } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
@@ -431,6 +373,7 @@ const CollectorBar = () => {
                     II
                   </button>
                   <button
+                    disabled
                     className={`text-blue-700 ${
                       selectedButton === "III" ? "bg-blue-700 text-white" : ""
                     } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
@@ -439,6 +382,7 @@ const CollectorBar = () => {
                     III
                   </button>
                   <button
+                    disabled
                     className={`text-blue-700 ${
                       selectedButton === "IV" ? "bg-blue-700 text-white" : ""
                     } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
@@ -467,23 +411,44 @@ const CollectorBar = () => {
               </div>
               <div className="md:h-[76%] md:w-[40%] my-8 bg-[#101010]/90 rounded-lg flex items-center justify-evenly">
                 <div className="flex items-center">
-                  <input type="radio" id="radio1" name="radio" value="radio1" />
+                  <input 
+                    type="radio" 
+                    id="radio1" 
+                    name="unit" 
+                    value="C" 
+                    checked={unitPreference === "C"} 
+                    onChange={() => setUnitPreference("C")} 
+                  />
                   <div className="w-[29px] text-white text-sm font-medium font-['Inter']">
                     (°C)
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <input type="radio" id="radio2" name="radio" value="radio2" />
+                {/* <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    id="radio2" 
+                    name="unit" 
+                    value="F" 
+                    checked={unitPreference === "F"} 
+                    onChange={() => setUnitPreference("F")} 
+                  />
                   <div className="w-[29px] text-white text-sm font-medium font-['Inter']">
                     (°F)
                   </div>
-                </div>
-                <div className="flex items-center">
-                  <input type="radio" id="radio3" name="radio" value="radio3" />
+                </div> */}
+                {/* <div className="flex items-center">
+                  <input 
+                    type="radio" 
+                    id="radio3" 
+                    name="unit" 
+                    value="K" 
+                    checked={unitPreference === "K"} 
+                    onChange={() => setUnitPreference("K")} 
+                  />
                   <div className="w-[29px] text-white text-sm font-medium font-['Inter']">
                     (K)
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 

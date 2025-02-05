@@ -1,10 +1,12 @@
-import {Server} from 'socket.io'
+import { Server } from 'socket.io'
 import http from 'http'
 import dotenv from 'dotenv'
 dotenv.config()
 // import { watchsocketsidesdata, allsocketData, SideData, Avgchartdash} from '../API/Controller/Socket.Controller.js';
-import { allsocketData, SideData, Avgchartdash, AvgtempModel, Heatmap, Heatmaprange, 
-  collectorbar
+import {
+  allsocketData, SideData, Avgchartdash, AvgtempModel, Heatmap, Heatmaprange,
+  collectorbar,
+  latesttimetamp
 } from '../API/Controller/Socket.Controller.js';
 
 const httpServer = http.createServer()
@@ -32,6 +34,7 @@ AvgtempModel(io)
 Heatmap(io)
 Heatmaprange(io)
 collectorbar(io)
+latesttimetamp(io)
 
 httpServer.listen(process.env.WS_PORT, () => {
   console.log(`WS_Server is running on port ${process.env.WS_PORT}`);

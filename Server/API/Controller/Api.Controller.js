@@ -110,27 +110,32 @@ export const cbname = async (req, res) => {
     SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
     SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
   ];
-  const limitPerModel = 1;
-  const combinedData = {};
 
-  for (let i = 0; i < collectionModels.length; i++) {
-    try {
-      const documents = await collectionModels[i]
-        .find({})
-        .sort({ updatedAt: -1 })
-        .limit(limitPerModel)
-        .lean()
-        .select('-_id -id -TIME -createdAt -updatedAt -__v -busbar');
+  try {
+    // Run all queries in parallel
+    const results = await Promise.all(
+      collectionModels.map((model) =>
+        model
+          .find({})
+          .sort({ updatedAt: -1 })
+          .limit(1)
+          .lean()
+          .select('-_id -id -TIME -createdAt -updatedAt -__v -busbar')
+      )
+    );
 
+    // Merge results
+    const combinedData = {};
+    results.forEach((documents) => {
       if (documents.length > 0) {
         Object.assign(combinedData, documents[0]);
       }
-    } catch (error) {
-      return res.status(500).json(error);
-    }
-  }
+    });
 
-  res.status(200).json(Object.keys(combinedData));
+    res.status(200).json(Object.keys(combinedData));
+  } catch (error) {
+    res.status(500).json(error);
+  }
 };
 
 export const fetchSensorDataByaverage = async (req, res) => {

@@ -11,6 +11,8 @@ import down from "../../Assets/images/red-arrow.png";
 import up from "../../Assets/images/green-arrow.png";
 
 const Model = ({ socketData, ModelTempData }) => {
+  // console.log("Socket Data:", socketData);
+  // console.log("Model Temp Data:", ModelTempData);
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
@@ -167,7 +169,7 @@ const Model = ({ socketData, ModelTempData }) => {
 
     if (partName) {
       setHoveredMesh(partName);
-      // console.log(`Clicked on: ${partName}`);
+      window.location.href = `/CollectorBar?part=${encodeURIComponent(partName)}`;
     }
   };
 
@@ -221,6 +223,7 @@ const Model = ({ socketData, ModelTempData }) => {
         ]) {
           if (dataObj[partName]) {
             value = dataObj[partName];
+            console.log(`Value for ${partName}: ${value}`);
           }
           if (dataObj.parameter === partName) {
             // console.log("parameter", value);
@@ -231,6 +234,8 @@ const Model = ({ socketData, ModelTempData }) => {
               maxTemp: dataObj.max,
               minTemp: dataObj.min,
             }));
+            console.log(`Max for ${partName}: ${setmax}`);
+            console.log(`Min for ${partName}: ${setmin}`);
           }
         }
 
@@ -279,47 +284,50 @@ const Model = ({ socketData, ModelTempData }) => {
 
   return (
     <>
-      <primitive ref={group} object={scene} position={[0, -2, 0]} scale={1} />
-      {popupPosition.show && hoveredMesh && hoveredInfo && (
-        <Html
-          position={[
-            hoveredMesh.position.x,
-            hoveredMesh.position.y,
-            hoveredMesh.position.z,
-          ]}
-        >
-          <div className="relative text-white pointer-events-none">
-            <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
-              <div className="w-full text-xs font-semibold text-center">
-                {hoveredInfo.name}
-              </div>
-              <div className="w-full text-base font-bold text-center">
-                {hoveredInfo.value}
-              </div>
-              <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-                <img src={up} alt="up" className="w-[17px] h-[17px]" />
-                <div className="text-white text-[11px] font-medium">
-                  {hoveredInfo.maxTemp}
-                </div>
-              </div>
-              <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-                <img src={down} alt="up" className="w-[17px] h-[17px]" />
-                <div className="text-white text-[11px] font-medium">
-                  {hoveredInfo.minTemp}
-                </div>
-              </div>
-            </div>
-            {/* <div className="w-2.5 h-[60px] relative">
-              <div className="w-[53px] h-[1px] left-[3px] top-[42px] rounded-xl absolute origin-top-left -rotate-90 bg-white border-2 border-white"></div>
-            </div> */}
+  <primitive ref={group} object={scene} position={[0, -2, 0]} scale={1} onClick={handleClick} />
+  {popupPosition.show && hoveredMesh && hoveredInfo && hoveredMesh.position && (
+    <Html
+      position={[
+        hoveredMesh.position.x,
+        hoveredMesh.position.y,
+        hoveredMesh.position.z,
+      ]}
+    >
+      <div className="relative text-white pointer-events-none">
+        <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
+          <div className="w-full text-xs font-semibold text-center">
+            {hoveredInfo.name}
           </div>
-        </Html>
-      )}
-    </>
+          <div className="w-full text-base font-bold text-center">
+            {hoveredInfo.value}
+          </div>
+          <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+            <img src={up} alt="up" className="w-[17px] h-[17px]" />
+            <div className="text-white text-[11px] font-medium">
+              {hoveredInfo.maxTemp}
+            </div>
+          </div>
+          <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+            <img src={down} alt="up" className="w-[17px] h-[17px]" />
+            <div className="text-white text-[11px] font-medium">
+              {hoveredInfo.minTemp}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Html>
+  )}
+</>
+
   );
 };
 
-const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
+const ThreeModel = ({
+  socketData,
+  lastButtonClicked,
+  ModelTempData,
+  latesttimestamp,
+}) => {
   const controlsRef = useRef();
 
   // useEffect(() => {
@@ -401,7 +409,7 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
         <div className="flex items-center justify-between w-full">
           {/* Buttons and Counter */}
           <div className="flex items-center gap-4">
-            <button
+            {/* <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
             >
@@ -419,9 +427,9 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
                   d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
                 />
               </svg>
-            </button>
+            </button> */}
             <p className="text-2xl font-semibold text-white">1604</p>
-            <button
+            {/* <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
             >
@@ -439,31 +447,31 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
                   d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
                 />
               </svg>
-            </button>
+            </button> */}
           </div>
           {/* Status */}
           <div className="flex items-center gap-6">
-            <p className="font-bold text-[rgba(0,119,228)]">
-              Total Pots: <span className="text-white">12</span>
+            <p className="font-bold text-white">
+              Total Pots: <span className="text-[rgba(0,119,228)]">12</span>
             </p>
-            <p className="font-bold text-[rgba(0,119,228)]">
+            <p className="font-bold text-white">
               Active: <span className="text-green-500">1</span>
             </p>
-            <p className="font-bold text-[rgba(0,119,228)]">
+            <p className="font-bold text-white">
               Inactive: <span className="text-red-600">11</span>
             </p>
           </div>
         </div>
 
         {/* Last Updation Section */}
-        <div className="containermx-auto" >
+        <div className="container mx-auto">
           <div className="flex justify-end -z-10">
-            <div className="w-[90%] md:w-fit bg-[rgba(16,16,16,0.52)] rounded-lg grid grid-cols-2 place-items-center border-white border-2 p-2">
-              <div className="text-sm font-semibold text-gray-300">
+            <div className="w-[90%] md:w-fit rounded-lg grid grid-cols-2 justify-center items-center">
+              <div className="text-md font-semibold text-gray-300">
                 Last Updation:
               </div>
-              <div className="text-sm font-normal text-white">
-                04:05 PM 30.08.2024
+              <div className="text-base font-semibold text-white">
+                {latesttimestamp}
               </div>
             </div>
           </div>
@@ -475,7 +483,11 @@ const ThreeModel = ({ socketData, lastButtonClicked, ModelTempData }) => {
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
-        <Model socketData={socketData} ModelTempData={ModelTempData} />
+        <Model
+          socketData={socketData}
+          ModelTempData={ModelTempData}
+          latesttimestamp={latesttimestamp}
+        />
         <OrbitControls
           ref={controlsRef}
           minDistance={12}
