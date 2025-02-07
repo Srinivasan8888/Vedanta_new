@@ -10,7 +10,7 @@ import CollectorBarTable from "../../Assets/components/CollectorBar/CollectorBar
 import axios from "axios";
 
 const CollectorBar = () => {
-  const [activeButton, setActiveButton] = useState("1W");
+  const [activeButton, setActiveButton] = useState("30Min");
   const [selectedButton, setSelectedButton] = useState(null);
   const [dropdown, setSelectedDropdown] = useState("CBT1A1");
   const [collectorbar, setCollectorbar] = useState();

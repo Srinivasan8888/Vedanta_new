@@ -3912,4 +3912,5 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
   }
 };
 
+
 export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph };

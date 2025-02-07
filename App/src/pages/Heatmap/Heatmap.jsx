@@ -66,14 +66,14 @@ const Heatmap = () => {
     socket.on("ASide", (data) => {
       console.log("Received ASide Data:", data);
       setASideData(data);
-      localStorage.setItem("ASideData", JSON.stringify(data)); // Store ASide data in local storage
+      // localStorage.setItem("ASideData", JSON.stringify(data)); // Store ASide data in local storage
     });
 
     // Listen for BSide data
     socket.on("BSide", (data) => {
       console.log("Received BSide Data:", data);
       setBSideData(data);
-      localStorage.setItem("BSideData", JSON.stringify(data)); // Store BSide data in local storage
+      // localStorage.setItem("BSideData", JSON.stringify(data)); // Store BSide data in local storage
     });
     
     // for the 7 values for min and max in the table
@@ -105,16 +105,16 @@ const Heatmap = () => {
       }
     });
 
-    // Retrieve data from local storage if no new data is available
-    const storedASideData = JSON.parse(localStorage.getItem("ASideData")) || [];
-    const storedBSideData = JSON.parse(localStorage.getItem("BSideData")) || [];
+    // // Retrieve data from local storage if no new data is available
+    // const storedASideData = JSON.parse(localStorage.getItem("ASideData")) || [];
+    // const storedBSideData = JSON.parse(localStorage.getItem("BSideData")) || [];
     
-    if (ASideData.length === 0) {
-      setASideData(storedASideData);
-    }
-    if (BSideData.length === 0) {
-      setBSideData(storedBSideData);
-    }
+    // if (ASideData.length === 0) {
+    //   setASideData(storedASideData);
+    // }
+    // if (BSideData.length === 0) {
+    //   setBSideData(storedBSideData);
+    // }
 
     // Automatically fetch data when the socket is connected or when dependencies change
     const requestData = {
@@ -211,7 +211,7 @@ const Heatmap = () => {
           <div className="md:h-[90%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
-                {switcherValue === "max" ? "Extreme Max" : "Extreme Max"}
+                {switcherValue === "max" ? "Extreme Max" : "Extreme Min"}
               </p>
 
               <div className="flex justify-between md:h-[60%] px-4 gap-6">

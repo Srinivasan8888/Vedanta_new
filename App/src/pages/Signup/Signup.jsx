@@ -9,6 +9,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmpassword, setconfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [passkey, setPasskey] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -22,6 +23,10 @@ const Signup = () => {
   const registerUser = async (event) => {
     event.preventDefault();
     if (confirmpassword === password) {
+      if (passkey !== process.env.REACT_APP_SIGNUP_SECRET_KEY) {
+        setErrorMessage("Invalid passkey");
+        return;
+      }
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_SERVER_URL}auth/register`,
@@ -38,8 +43,7 @@ const Signup = () => {
           alert("Unknown error has occurred");
         }
       } catch (error) {
-        setErrorMessage(`Failed to register: ${error.response?.data?.error?.message || error.message}`);
-      }
+        setErrorMessage(`Failed to register: ${error.response?.data?.error?.message || error.message}`);      }
     } else {
       alert("Password is not matching");
     }
@@ -110,7 +114,21 @@ const Signup = () => {
                     required=""
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div>
+                  <label
+                    htmlFor="passkey"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Enter Pass Key
+                  </label>
+                  <input
+                    type="password"
+                    name="passkey"
+                    onChange={(e) => setPasskey(e.target.value)}
+                    placeholder="Enter secret passkey"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    required
+                  />
                 </div>
                 <div className="text-red-700 error-message">{errorMessage}</div>
                 <div></div>

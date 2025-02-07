@@ -12,8 +12,17 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [token, setToken] = useState("");
+  const [cooldownTime, setCooldownTime] = useState(0);
 
   useEffect(() => {
+    // Check existing cooldown
+    const storedCooldown = localStorage.getItem("loginCooldown");
+    if (storedCooldown && Date.now() < parseInt(storedCooldown)) {
+      const remaining = Math.ceil((parseInt(storedCooldown) - Date.now()) / 1000);
+      setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+      setCooldownTime(parseInt(storedCooldown));
+    }
+    
     const token = localStorage.getItem("accessToken");
     const token2 = localStorage.getItem("refreshToken");
     // const token3 = document.cookie
@@ -30,32 +39,90 @@ const Login = () => {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    // Restore cooldown on page load
+    const storedCooldown = localStorage.getItem("loginCooldown");
+    if (storedCooldown) {
+      const remaining = Math.max(0, (parseInt(storedCooldown) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setCooldownTime(parseInt(storedCooldown));
+        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+      } else {
+        localStorage.removeItem("loginCooldown");
+      }
+    }
+  }, []);
+
   const Loginuser = async (event) => {
     event.preventDefault();
+    
+    // Disable button during cooldown
+    if (cooldownTime > Date.now()) {
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}auth/login`,
-        {
-          email,
-          password,
+        { email, password },
+        { 
+          headers: {
+            'X-Client-IP': '', // Server should track attempts by IP
+            'X-Client-ID': '' // Or device fingerprint
+          }
         }
       );
 
-      const data = response.data;
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      document.cookie = `accessToken=${data.accessToken}; path=/; secure`;
-      document.cookie = `refreshToken=${data.refreshToken}; path=/; secure`;
-
+      // Reset success state
+      localStorage.removeItem("failedAttempts");
       setSuccessMessage("Login Successful");
       navigate("/Dashboard");
+      
+      const { accessToken, refreshToken } = response.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      document.cookie = `accessToken=${accessToken}; path=/; secure`;
+      document.cookie = `refreshToken=${refreshToken}; path=/; secure`;
+
     } catch (error) {
-      setToken(null);
-      const errorMsg = error.response?.data?.message || "An error occurred. Please try again.";
-      setErrorMessage(errorMsg);
+      if (error.response?.status === 429) {
+        // Get cooldown time from server response
+        const retryAfter = error.response.headers['retry-after'] || 900; // 15min default
+        const cooldownEnd = Date.now() + (retryAfter * 1000);
+        setErrorMessage(`Too many attempts. Try again in ${formatTime(retryAfter)}`);
+        setCooldownTime(cooldownEnd);
+      } else {
+        const errorMsg = error.response?.data?.message || "Check your email and password and try again.";
+        setErrorMessage(errorMsg);
+      }
       console.error("Error during login:", error);
     }
   };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    if (!cooldownTime) return;
+
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((cooldownTime - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setCooldownTime(0);
+        setErrorMessage("");
+        localStorage.removeItem("loginCooldown");
+        clearInterval(interval);
+      } else {
+        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+        localStorage.setItem("loginCooldown", cooldownTime); // Update storage
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [cooldownTime]);
 
   return (
     <div className="h-screen">
@@ -129,11 +196,12 @@ const Login = () => {
                   onClick={() => setErrorMessage("")}
                   type="submit"
                   className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  disabled={cooldownTime > Date.now()}
                 >
-                  Sign in
+                  {cooldownTime > Date.now() ? 'Please wait...' : 'Sign in'}
                 </button>
                 {/* <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                    Don’t have an account yet? <a href="/Signup" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                                    Don't have an account yet? <a href="/Signup" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
                                 </p> */}
               </form>
             </div>

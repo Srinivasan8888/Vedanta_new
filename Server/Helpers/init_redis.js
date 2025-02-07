@@ -3,38 +3,39 @@ import dotenv from 'dotenv';
 
 dotenv.config(); // Load environment variables from .env file
 
-const client = createClient({
-  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+let client;
+let isConnected = false;
+
+const initRedis = async () => {
+  client = createClient({
+    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  });
+
+  client.on('connect', () => {
+    console.log('Client connected to Redis...');
+  });
+
+  client.on('ready', () => {
+    console.log('Client ready to use...');
+    isConnected = true;
+  });
+
+  client.on('error', (err) => {
+    console.error('Redis error:', err.message);
+  });
+
+  client.on('end', () => {
+    console.log('Client disconnected');
+    isConnected = false;
+  });
+
+  await client.connect();
+  return client;
+};
+
+const redisPromise = initRedis().catch(err => {
+  console.error('Redis connection failed:', err);
+  process.exit(1);
 });
 
-console.log('Attempting to connect to Redis...')
-
-client.on('connect', () => {
-  console.log('Client connected to Redis...')
-})
-
-client.on('ready', () => {
-  console.log('Client connected to Redis and ready to use...')
-})
-
-client.on('error', (err) => {
-  console.error('Error connecting to Redis:', err.message)
-})
-
-client.on('end', () => {
-  console.log('Client disconnected from Redis')
-})
-
-process.on('SIGINT', () => {
-  client.quit()
-})
-
-client.on('error', (err) => {
-  console.log('Redis Client Error', err);
-});
-
-client.connect().catch(err => {
-  console.error('Failed to connect to Redis:', err.message);
-});
-
-export { client };
+export { client, redisPromise, isConnected };

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
+import { io } from "socket.io-client";
 import logo from "../../Assets/images/Vedanta-Logo.png";
 import xyma_logo from "../../Assets/images/Xyma-Logo.png";
 import Arrow from "../../Assets/images/down-arrow.png";
@@ -9,10 +10,55 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Sidebar.css"
 
+const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick }) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  return (
+    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
+      <div className="relative flex items-center">
+        <input
+          id="search"
+          name="search"
+          type="number"
+          value={searchText}
+          onChange={handleSearchChange}
+          placeholder="Search"
+          className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
+          onFocus={() => setShowSuggestions(true)}
+        />
+        
+        {showSuggestions && searchText && (
+          <ul className="absolute left-0 right-0 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
+            {filteredData.length > 0 ? (
+              filteredData.map((item, index) => (
+                <li
+                  key={index}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                  onClick={() => handleSuggestionClick(item)}
+                >
+                  {item}
+                </li>
+              ))
+            ) : (
+              <li className="p-2 text-gray-500">No results found</li>
+            )}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [iddropdown, setIddropdown] = useState([]); // Make sure this is an array
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [socket, setSocket] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [searchText, setSearchText] = useState(localStorage.getItem('searchText') || "");
+  const [filteredData, setFilteredData] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [error, setError] = useState(null); // Store error messages
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -28,8 +74,80 @@ const Sidebar = () => {
   const gotoHeatmap = () => goTo("/Heatmap");
 
   const handleLogout = async () => {
-    localStorage.clear();
-    window.location.href = "/";
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}auth/logout`, {
+        data: { refreshToken },
+        withCredentials: true
+      });
+      
+      // Clear all client-side storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Force reload to clear any cached state
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Ensure cleanup even if server request fails
+      localStorage.clear();
+      window.location.href = "/";
+    }
+  };
+  
+ 
+  useEffect(() => {
+    // Initialize WebSocket connection
+    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
+    setSocket(newSocket);
+
+    // Handle connection errors
+    newSocket.on("connect_error", (err) => {
+      console.error("WebSocket connection error:", err);
+      setError("Failed to connect to the WebSocket server.");
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("UniqueIds", (data) => {
+      setIddropdown(data);
+      setFilteredData(data);
+      console.log("Received IDs:", data);
+    });
+
+    return () => {
+      socket.off("UniqueIds");
+    };
+
+  }, [socket]);
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchText(query);
+    localStorage.setItem('searchText', query);
+
+    // Ensure the input is numeric
+    if (/^\d*$/.test(query)) {
+      const filtered = iddropdown.filter((item) =>
+        item.toString().includes(query) // Numeric filter
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
+    }
+  };
+
+  const handleSuggestionClick = (item) => {
+    setSearchText(item);
+    localStorage.setItem('searchText', item);
+    setShowSuggestions(false);
   };
 
   return (
@@ -77,36 +195,38 @@ const Sidebar = () => {
           Heatmap
         </button>
 
-        <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm">
-          <input
-            id="price"
-            name="price"
-            type="text"
-            placeholder="Search"
-            className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
-          />
-          <div className="relative flex items-center">
-            <label htmlFor="currency" className="sr-only">
-              Options
-            </label>
-            <select
-              id="currency"
-              name="currency"
-              className="h-full py-0 pl-2 text-gray-500 bg-transparent border-0 rounded-md appearance-none pr-7 focus:outline-none sm:text-sm"
-              style={{
-                width: "12px",
-                height: "19px",
-                backgroundImage: `url(${Arrow})`,
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 12px center",
-                backgroundSize: "25px",
-              }}
-            >
-              <option>Option 1</option>
-              <option>Option 2</option>
-              <option>Option 3</option>
-            </select>
-          </div>
+        <SearchInput 
+          iddropdown={iddropdown}
+          searchText={searchText}
+          handleSearchChange={handleSearchChange}
+          filteredData={filteredData}
+          handleSuggestionClick={handleSuggestionClick}
+        />
+
+        <div className="relative flex items-center">
+          <label htmlFor="currency" className="sr-only">
+            Options
+          </label>
+          <select
+            id="currency"
+            name="currency"
+            className="h-full py-0 pl-2 text-gray-500 bg-transparent border-0 rounded-md appearance-none pr-7 focus:outline-none sm:text-sm"
+            style={{
+              width: "12px",
+              height: "19px",
+              backgroundImage: `url(${Arrow})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 12px center",
+              backgroundSize: "25px",
+            }}
+          >
+            {/* Dropdown options */}
+          {filteredData.map((item, index) => (
+            <option key={index} value={item}>
+              {item}
+            </option>
+          ))}
+          </select>
         </div>
 
         <button
@@ -140,7 +260,7 @@ const Sidebar = () => {
       {/* Sidebar Overlay */}
       {/* {isSidebarOpen && (
         <div 
-          className={`fixed top-20 right-2.5 z-50 flex flex-col h-5/6 text-white duration-1000  bg-[#101010] shadow-lg w-1/4 border-2 border-white rounded-2xl`}
+          className={`fixed top-20 right-2.5 flex flex-col h-5/6 text-white duration-1000  bg-[#101010] shadow-lg w-1/4 border-2 border-white rounded-2xl`}
           onMouseEnter={() => setIsSidebarOpen(true)}
           onMouseLeave={() => setIsSidebarOpen(false)}
         >

@@ -4,17 +4,16 @@ import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
 import '../Miscellaneous/Scrollbar.css';
 
-const Bside = ({ socketData }) => {
+const BSide = ({ socketData }) => {
   const [data, setData] = useState([]);
   const previousDataRef = useRef({});
 
   useEffect(() => {
-    // console.log("socketData received in Bside:", socketData);
     if (socketData && socketData.length > 0) {
       const newData = socketData.map((item, index) => {
         const previousItem = previousDataRef.current[index] || {};
         const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
-        
+
         const updatedBusbarData = busbarData.map(([key, value]) => {
           const prevValue = previousItem[key];
           const parsedValue = parseFloat(value);
@@ -47,13 +46,11 @@ const Bside = ({ socketData }) => {
   }, [socketData]);
 
   return (
-    <div className="h-[400px] md:w-[22%] md:h-auto rounded-2xl border-[1.5px] border-white  bg-[rgba(16,16,16,0.9)] m-4 text-white font-poppins">
+    <div className="h-[400px] md:w-[22%] md:h-auto rounded-2xl border-[1.5px] border-white bg-[rgba(16,16,16,0.9)] m-4 text-white font-poppins">
       <div className="flex justify-between">
         <p className="mt-6 ml-8 text-2xl font-semibold">B Side</p>
         <div className="relative flex items-center">
-          <label htmlFor="currency" className="sr-only">
-            Options
-          </label>
+          <label htmlFor="currency" className="sr-only">Options</label>
           <select
             id="currency"
             name="currency"
@@ -89,10 +86,7 @@ const Bside = ({ socketData }) => {
                 <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">
                   <p>{key}</p>
                   <p className="ml-6">{value}</p>
-                  <p>
-                    <img src={arrow} alt="arrow" /> 
-                    {/* {" "} */}
-                  </p>
+                  <p><img src={arrow} alt="arrow" /></p>
                 </div>
                 <div className="h-[1px] mx-8 mt-3 bg-white"></div>
               </React.Fragment>
@@ -104,4 +98,4 @@ const Bside = ({ socketData }) => {
   );
 };
 
-export default Bside;
+export default BSide;

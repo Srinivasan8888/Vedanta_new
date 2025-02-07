@@ -4,18 +4,16 @@ import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
 import '../Miscellaneous/Scrollbar.css';
 
-const Aside = ({ socketData }) => {
+const ASide = ({ socketData }) => {
   const [data, setData] = useState([]);
   const previousDataRef = useRef({});
 
   useEffect(() => {
-    // console.log("socketData received in Aside:", socketData);
-    // Update data when socketData changes
     if (socketData && socketData.length > 0) {
       const newData = socketData.map((item, index) => {
         const previousItem = previousDataRef.current[index] || {};
         const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
-        
+
         const updatedBusbarData = busbarData.map(([key, value]) => {
           const prevValue = previousItem[key];
           const parsedValue = parseFloat(value);
@@ -38,12 +36,11 @@ const Aside = ({ socketData }) => {
         };
 
         return {
-          id: index, // Using index as id since there's no _id field
+          id: index,
           updatedBusbarData,
         };
       });
 
-      // console.log("Processed newData:", newData);
       setData(newData);
     }
   }, [socketData]);
@@ -53,9 +50,7 @@ const Aside = ({ socketData }) => {
       <div className="flex justify-between">
         <p className="mt-6 ml-8 text-2xl font-semibold">A Side</p>
         <div className="relative flex items-center">
-          <label htmlFor="currency" className="sr-only">
-            Options
-          </label>
+          <label htmlFor="currency" className="sr-only">Options</label>
           <select
             id="currency"
             name="currency"
@@ -91,10 +86,7 @@ const Aside = ({ socketData }) => {
                 <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">
                   <p>{key}</p>
                   <p className="ml-6">{value}</p>
-                  <p>
-                    <img src={arrow} alt="arrow" />
-                    {/* {" "} */}
-                  </p>
+                  <p><img src={arrow} alt="arrow" /></p>
                 </div>
                 <div className="h-[1px] mx-8 mt-3 bg-white"></div>
               </React.Fragment>
@@ -106,4 +98,4 @@ const Aside = ({ socketData }) => {
   );
 };
 
-export default Aside;
+export default ASide;

@@ -169,7 +169,9 @@ const Model = ({ socketData, ModelTempData }) => {
 
     if (partName) {
       setHoveredMesh(partName);
-      window.location.href = `/CollectorBar?part=${encodeURIComponent(partName)}`;
+      window.location.href = `/CollectorBar?part=${encodeURIComponent(
+        partName
+      )}`;
     }
   };
 
@@ -284,41 +286,49 @@ const Model = ({ socketData, ModelTempData }) => {
 
   return (
     <>
-  <primitive ref={group} object={scene} position={[0, -2, 0]} scale={1} onClick={handleClick} />
-  {popupPosition.show && hoveredMesh && hoveredInfo && hoveredMesh.position && (
-    <Html
-      position={[
-        hoveredMesh.position.x,
-        hoveredMesh.position.y,
-        hoveredMesh.position.z,
-      ]}
-    >
-      <div className="relative text-white pointer-events-none">
-        <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
-          <div className="w-full text-xs font-semibold text-center">
-            {hoveredInfo.name}
-          </div>
-          <div className="w-full text-base font-bold text-center">
-            {hoveredInfo.value}
-          </div>
-          <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-            <img src={up} alt="up" className="w-[17px] h-[17px]" />
-            <div className="text-white text-[11px] font-medium">
-              {hoveredInfo.maxTemp}
+      <primitive
+        ref={group}
+        object={scene}
+        position={[0, -2, 0]}
+        scale={1}
+        onClick={handleClick}
+      />
+      {popupPosition.show &&
+        hoveredMesh &&
+        hoveredInfo &&
+        hoveredMesh.position && (
+          <Html
+            position={[
+              hoveredMesh.position.x,
+              hoveredMesh.position.y,
+              hoveredMesh.position.z,
+            ]}
+          >
+            <div className="relative text-white pointer-events-none">
+              <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
+                <div className="w-full text-xs font-semibold text-center">
+                  {hoveredInfo.name}
+                </div>
+                <div className="w-full text-base font-bold text-center">
+                  {hoveredInfo.value}
+                </div>
+                <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+                  <img src={up} alt="up" className="w-[17px] h-[17px]" />
+                  <div className="text-white text-[11px] font-medium">
+                    {hoveredInfo.maxTemp}
+                  </div>
+                </div>
+                <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+                  <img src={down} alt="up" className="w-[17px] h-[17px]" />
+                  <div className="text-white text-[11px] font-medium">
+                    {hoveredInfo.minTemp}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-            <img src={down} alt="up" className="w-[17px] h-[17px]" />
-            <div className="text-white text-[11px] font-medium">
-              {hoveredInfo.minTemp}
-            </div>
-          </div>
-        </div>
-      </div>
-    </Html>
-  )}
-</>
-
+          </Html>
+        )}
+    </>
   );
 };
 
@@ -403,7 +413,7 @@ const ThreeModel = ({
   // </div>
 
   return (
-    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[73%] z-1 rounded-2xl m-4 md:h-auto relative">
+    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[73%] rounded-2xl m-4 md:h-auto relative">
       <div className="absolute flex flex-col p-4 space-y-4 md:h-full md:w-full">
         {/* Top Section */}
         <div className="flex items-center justify-between w-full">
@@ -452,22 +462,22 @@ const ThreeModel = ({
           {/* Status */}
           <div className="flex items-center gap-6">
             <p className="font-bold text-white">
-              Total Pots: <span className="text-[rgba(0,119,228)]">12</span>
-            </p>
-            <p className="font-bold text-white">
               Active: <span className="text-green-500">1</span>
             </p>
             <p className="font-bold text-white">
               Inactive: <span className="text-red-600">11</span>
+            </p>
+            <p className="font-bold text-white">
+              Total Pots: <span className="text-[rgba(0,119,228)]">12</span>
             </p>
           </div>
         </div>
 
         {/* Last Updation Section */}
         <div className="container mx-auto">
-          <div className="flex justify-end -z-10">
+          <div className="flex justify-end">
             <div className="w-[90%] md:w-fit rounded-lg grid grid-cols-2 justify-center items-center">
-              <div className="text-md font-semibold text-gray-300">
+              <div className="font-semibold text-gray-300 text-md">
                 Last Updation:
               </div>
               <div className="text-base font-semibold text-white">

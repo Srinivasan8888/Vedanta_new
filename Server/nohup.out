@@ -32,3 +32,9 @@ To see additional information in this output, start without the "--fork" option.
 about to fork child process, waiting until server is ready for connections.
 forked process: 2468649
 child process started successfully, parent exiting
+about to fork child process, waiting until server is ready for connections.
+forked process: 2542034
+child process started successfully, parent exiting
+about to fork child process, waiting until server is ready for connections.
+forked process: 2553744
+child process started successfully, parent exiting
