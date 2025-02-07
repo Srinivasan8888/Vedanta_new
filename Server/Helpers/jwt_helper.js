@@ -16,13 +16,22 @@ export const signAccessToken = (userId) => {
         issuer: "vedanta.xyma.live",
       };
       const options = {
-        expiresIn: "5m",
+        expiresIn: "2d",
+        // expiresIn: "5m",
       };
       JWT.sign(payload, secret, options, (err, token) => {
         if (err) {
           console.log(err.message);
           reject(createError.InternalServerError());
-        }
+        }console.log("Setting refresh token in Redis...");
+        client.SETEX(userId, 24 * 60 * 60, token)
+        .then(reply => {
+          console.log("Finished setting access token in Redis.");
+          resolve(token);
+        }) .catch(err => {
+          console.log("Error setting access token in Redis:", err.message);
+          reject(createError.InternalServerError());
+        });
         resolve(token);
       });
     });

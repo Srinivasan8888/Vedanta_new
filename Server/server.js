@@ -25,7 +25,25 @@ import cors from "cors";
 const app = express();
 const ports = process.env.PORT;
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = ['http://localhost:3000']; // Add other domains as needed
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization',
+    'x-client-id',
+    'x-client-ip'
+  ]
+}));
+
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended:true}));
@@ -52,10 +70,12 @@ app.get('/', verifyAccessToken, async (req, res, next) => {
    res.send('backend is running')
 })
 
-app.use('/auth', AuthRoute);
+app.use('/auth', AuthRoute, cors());
 app.use('/api/v1', InsertRoute);
 app.use('/api/v2', ApiRoute);
 
+// Add explicit OPTIONS handler for /auth/verify
+app.options('/auth/verify', cors());
 
 app.use(async (err, req, res, next) => {
     res.status(err.status || 500)
@@ -67,9 +87,9 @@ app.use(async (err, req, res, next) => {
     })
 })
 
-app.get('/', (req, res) => {
-    res.json({ message: "Backend is running" });
-})
+// app.get('/', (req, res) => {
+//     res.json({ message: "Backend is running" });
+// })
 
 app.listen(ports, () => {
     connect();

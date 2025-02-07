@@ -151,6 +151,18 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
+export const verifyToken = async (req, res, next) => {
+  try {
+    res.send({
+      success: true,
+      message: "Authorized",
+      role: req.payload.role,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
