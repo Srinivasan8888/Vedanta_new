@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from "react";
+import React, { useState , useEffect, useRef} from "react";
 import { io } from "socket.io-client";
 import logo from "../../Assets/images/Vedanta-Logo.png";
 import xyma_logo from "../../Assets/images/Xyma-Logo.png";
@@ -10,11 +10,22 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Sidebar.css"
 
-const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick }) => {
-  const [showSuggestions, setShowSuggestions] = useState(false);
+const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick, showSuggestions, setShowSuggestions }) => {
+  const containerRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30">
+    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30" ref={containerRef}>
       <div className="relative flex items-center w-full">
         <input
           id="search"
@@ -34,7 +45,10 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
                 <li
                   key={index}
                   className="p-2 cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleSuggestionClick(item)}
+                  onClick={() => {
+                    handleSuggestionClick(item);
+                    setShowSuggestions(false);
+                  }}
                 >
                   {item}
                 </li>
@@ -53,7 +67,6 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [iddropdown, setIddropdown] = useState([]); // Make sure this is an array
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [socket, setSocket] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
   const [searchText, setSearchText] = useState(localStorage.getItem('searchText') || "");
   const [filteredData, setFilteredData] = useState([]);
@@ -95,38 +108,35 @@ const Sidebar = () => {
     }
   };
   
- 
   useEffect(() => {
-    // Initialize WebSocket connection
-    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
-    setSocket(newSocket);
-
-    // Handle connection errors
-    newSocket.on("connect_error", (err) => {
-      console.error("WebSocket connection error:", err);
-      setError("Failed to connect to the WebSocket server.");
-    });
-
-    // Cleanup on component unmount
-    return () => {
-      newSocket.disconnect();
+    const fetchUniqueIds = async () => {
+      try {
+        const response = await axios.get(
+          "http://34.100.168.176:4000/api/v2/getuniqueids"
+        );
+        const ids = response.data.ids;
+        setIddropdown(ids);
+        setFilteredData(ids);
+        localStorage.setItem('cachedIds', JSON.stringify(ids));
+      } catch (error) {
+        console.error("Error fetching unique IDs:", error);
+        setError("Failed to fetch device IDs");
+        // Fallback to localStorage if available
+        const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
+        setIddropdown(cachedIds);
+        setFilteredData(cachedIds);
+      }
     };
+
+    // Load initial data from localStorage if available
+    const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
+    if (cachedIds.length > 0) {
+      setIddropdown(cachedIds);
+      setFilteredData(cachedIds);
+    }
+    
+    fetchUniqueIds();
   }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("UniqueIds", (data) => {
-      setIddropdown(data);
-      setFilteredData(data);
-      // console.log("Received IDs:", data);
-    });
-
-    return () => {
-      socket.off("UniqueIds");
-    };
-
-  }, [socket]);
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -201,6 +211,8 @@ const Sidebar = () => {
           handleSearchChange={handleSearchChange}
           filteredData={filteredData}
           handleSuggestionClick={handleSuggestionClick}
+          showSuggestions={showSuggestions}
+          setShowSuggestions={setShowSuggestions}
         />
 
         <button

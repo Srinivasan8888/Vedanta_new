@@ -60,29 +60,40 @@ const Heatmap = () => {
   }, []);
 
   useEffect(() => {
+    // Load initial data from localStorage
+    const savedASide = localStorage.getItem('HeatmapASide');
+    const savedBSide = localStorage.getItem('HeatmapBSide');
+    if (savedASide) setASideData(JSON.parse(savedASide));
+    if (savedBSide) setBSideData(JSON.parse(savedBSide));
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
 
     // Listen for ASide data
     socket.on("ASide", (data) => {
       console.log("Received ASide Data:", data);
       setASideData(data);
-      // localStorage.setItem("ASideData", JSON.stringify(data)); // Store ASide data in local storage
+      localStorage.setItem("HeatmapASide", JSON.stringify(data));
     });
 
     // Listen for BSide data
     socket.on("BSide", (data) => {
       console.log("Received BSide Data:", data);
       setBSideData(data);
-      // localStorage.setItem("BSideData", JSON.stringify(data)); // Store BSide data in local storage
+      localStorage.setItem("HeatmapBSide", JSON.stringify(data));
     });
     
     // for the 7 values for min and max in the table
     const handleData = (ASideData, BSideData) => {
       const mergedData = [
-        ...ASideData.map((data) => ({ ...data, source: "ASiderange" })), // Add source identifier
-        ...BSideData.map((data) => ({ ...data, source: "ASiderange" })),
+        ...ASideData.map((data) => ({ ...data, source: "ASiderangeExtreme" })),
+        ...BSideData.map((data) => ({ ...data, source: "BSiderangeExtreme" })),
       ];
-      setCombinedData(mergedData);
+      const filteredData = mergedData.filter(data => 
+        data.source === (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange")
+      );
+      setCombinedData(filteredData);
     };
 
     // Listen for ASiderange and BSiderange data
@@ -104,17 +115,6 @@ const Heatmap = () => {
         handleData(ASideData, BSideData);
       }
     });
-
-    // // Retrieve data from local storage if no new data is available
-    // const storedASideData = JSON.parse(localStorage.getItem("ASideData")) || [];
-    // const storedBSideData = JSON.parse(localStorage.getItem("BSideData")) || [];
-    
-    // if (ASideData.length === 0) {
-    //   setASideData(storedASideData);
-    // }
-    // if (BSideData.length === 0) {
-    //   setBSideData(storedBSideData);
-    // }
 
     // Automatically fetch data when the socket is connected or when dependencies change
     const requestData = {

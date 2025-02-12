@@ -91,65 +91,145 @@ export const allsocketData = (io) => {
 
 export const SideData = (io) => {
     const options = { fullDocument: "updateLookup" };
+    const modelMap = {
+        SensorModel1,
+        SensorModel2,
+        SensorModel3,
+        SensorModel4,
+        SensorModel5,
+        SensorModel6,
+    };
+    const modelMap2 = {
+        SensorModel7,
+        SensorModel8,
+        SensorModel9,
+        SensorModel10,
+    };
 
-    const modelMap = { SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5, SensorModel6 };
-    const modelMap2 = { SensorModel7, SensorModel8, SensorModel9, SensorModel10 };
+    // Store the last emitted data for ASide and BSide
+    let lastASideData = [];
+    let lastBSideData = [];
 
+    // Function to fetch data for a single model
+    const fetchDataForModel = async (model) => {
+        try {
+            const result = await model.aggregate([
+                { $sort: { createdAt: -1 } },
+                { $limit: 1 },
+                {
+                    $project: {
+                        _id: 0,
+                        id: 0,
+                        TIME: 0,
+                        createdAt: 0,
+                        updatedAt: 0,
+                        __v: 0,
+                        busbar: 0,
+                    },
+                },
+            ]);
+            return result[0] || {}; // Return the first document or an empty object
+        } catch (error) {
+            console.error(`Error fetching data for model:`, error);
+            return {};
+        }
+    };
+
+    // Fetch all ASide data
     const getASideData = async () => {
-        const promises = Object.values(modelMap).map((model) =>
-            model.aggregate([
-                { $sort: { createdAt: -1 } },
-                { $limit: 1 },
-                {
-                    $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
-                },
-            ])
-        );
+        const promises = Object.values(modelMap).map((model) => fetchDataForModel(model));
         const results = await Promise.all(promises);
-        return results.map(data => data[0]).filter(Boolean);
+        return results.filter(Boolean); // Filter out empty results
     };
 
+    // Fetch all BSide data
     const getBSideData = async () => {
-        const promises = Object.values(modelMap2).map((model) =>
-            model.aggregate([
-                { $sort: { createdAt: -1 } },
-                { $limit: 1 },
-                {
-                    $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
-                },
-            ])
-        );
+        const promises = Object.values(modelMap2).map((model) => fetchDataForModel(model));
         const results = await Promise.all(promises);
-        return results.map(data => data[0]).filter(Boolean);
+        return results.filter(Boolean); // Filter out empty results
     };
 
+    // Validate data to ensure it's always an array
+    const validateData = (data) => {
+        return Array.isArray(data) ? data : [];
+    };
+
+    // Helper function to compare last data with current data
+    const compareData = (lastData, currentData) => {
+        return currentData.map((currentItem) => {
+            const lastItem = lastData.find((item) => Object.keys(item).length > 0 && Object.keys(currentItem).length > 0);
+
+            const updatedEntries = Object.entries(currentItem).map(([key, currentValue]) => {
+                const lastValue = lastItem?.[key];
+                const trend =
+                    lastValue === undefined || isNaN(lastValue) || isNaN(currentValue)
+                        ? null // No trend if no previous value or invalid values
+                        : parseFloat(currentValue) > parseFloat(lastValue)
+                        ? "up"
+                        : "down";
+
+                return { key, value: currentValue, trend };
+            });
+
+            return { ...currentItem, entries: updatedEntries };
+        });
+    };
+
+    // Handle client connections
     io.on("connection", async (socket) => {
         console.log("Client connected, sending initial data");
         try {
+            // Fetch and send initial ASide and BSide data
             const [AsideData, BSideData] = await Promise.all([getASideData(), getBSideData()]);
-            socket.emit("ASide", AsideData);
-            socket.emit("BSide", BSideData);
+            lastASideData = AsideData; // Store initial data as last data
+            lastBSideData = BSideData;
+
+            socket.emit("ASideUpdate", validateData(AsideData)); // Emit ASideUpdate
+            socket.emit("BSideUpdate", validateData(BSideData)); // Emit BSideUpdate
         } catch (error) {
             console.error("Error sending initial data:", error);
         }
     });
 
-    for (const model of Object.values(modelMap)) {
+    // Watch for changes in ASide models
+    let asideTimeoutId;
+    for (const [modelName, model] of Object.entries(modelMap)) {
         model.watch([], options).on("change", async () => {
-            console.log(`[change detected]`);
-            const AData = await getASideData();
-            io.emit("ASide", AData);
+            clearTimeout(asideTimeoutId);
+            asideTimeoutId = setTimeout(async () => {
+                try {
+                    console.log(`[ASide change detected in ${modelName}]`);
+                    const AData = await getASideData();
+                    const comparedData = compareData(lastASideData, AData); // Compare last and current data
+                    lastASideData = AData; // Update last data
+                    io.emit("ASideUpdate", validateData(comparedData)); // Emit ASideUpdate with trends
+                } catch (error) {
+                    console.error(`Error updating ASide (${modelName}):`, error);
+                }
+            }, 500); // Debounce emissions
         });
     }
 
-    for (const model of Object.values(modelMap2)) {
+    // Watch for changes in BSide models
+    let bsideTimeoutId;
+    for (const [modelName, model] of Object.entries(modelMap2)) {
         model.watch([], options).on("change", async () => {
-            console.log(`[change detected]`);
-            const BData = await getBSideData();
-            io.emit("BSide", BData);
+            clearTimeout(bsideTimeoutId);
+            bsideTimeoutId = setTimeout(async () => {
+                try {
+                    console.log(`[BSide change detected in ${modelName}]`);
+                    const BData = await getBSideData();
+                    const comparedData = compareData(lastBSideData, BData); // Compare last and current data
+                    lastBSideData = BData; // Update last data
+                    io.emit("BSideUpdate", validateData(comparedData)); // Emit BSideUpdate with trends
+                } catch (error) {
+                    console.error(`Error updating BSide (${modelName}):`, error);
+                }
+            }, 500); // Debounce emissions
         });
     }
 };
+
 
 export const Avgchartdash = (io, time) => {
     const options = { fullDocument: "updateLookup" };
@@ -276,7 +356,7 @@ export const AvgtempModel = (io, time) => {
 
     // Function to set changedtime based on the time parameter
     const setChangedTime = (time) => {
-        switch(time) {
+        switch (time) {
             case "1D": return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
             case "3D": return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
             case "1W": return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
@@ -292,7 +372,7 @@ export const AvgtempModel = (io, time) => {
     const getSensorData = async (changedtime) => {
         try {
             const maxMinValues = [];
-            
+
             const fetchData = models.map(async (model) => {
                 return Promise.all(
                     nameMapping.map(async (parameter) => {
@@ -301,7 +381,7 @@ export const AvgtempModel = (io, time) => {
                             { $project: { [parameter]: 1, createdAt: 1 } },
                             { $group: { _id: null, max: { $max: `$${parameter}` }, min: { $min: `$${parameter}` } } }
                         ]);
-                        
+
                         if (data[0] && (data[0].max !== null || data[0].min !== null)) {
                             return {
                                 parameter: parameter,
@@ -573,7 +653,7 @@ export const Heatmap = (io) => {
                         TIME: 1,
                         day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
                         ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v'  && key !== 'busbar' && key !== 'id') {
+                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
                                 acc[key] = 1; // Include all other fields
                             }
                             return acc;
@@ -586,7 +666,7 @@ export const Heatmap = (io) => {
                         createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
                         TIME: 1,
                         ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v'  && key !== 'busbar' && key !== 'id') {
+                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
                                 acc[key] = { $first: `$${key}` }; // Get the first value for each field
                             }
                             return acc;
@@ -595,7 +675,7 @@ export const Heatmap = (io) => {
                 },
                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
             ]);
-    
+
             // Populate the data structure
             data.forEach((doc) => {
                 allData.timestamps.push(doc.createdAt); // Add timestamp
@@ -611,7 +691,7 @@ export const Heatmap = (io) => {
         }
         return allData;
     };
-    
+
 
     const getBSideData = async (startDate, endDate) => {
         const allData = { timestamps: [], data: {} }; // Initialize data structure
@@ -620,13 +700,13 @@ export const Heatmap = (io) => {
             const query = {
                 createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
             };
-    
+
             // Check if the model exists in modelMap2
             if (!modelMap2[modelName]) {
                 console.warn(`Model ${modelName} not found in modelMap2`);
                 continue; // Skip this iteration if the model is not found
             }
-    
+
             const data = await modelMap2[modelName].aggregate([
                 { $match: query },
                 { $sort: { createdAt: -1 } },
@@ -659,7 +739,7 @@ export const Heatmap = (io) => {
                 },
                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
             ]);
-    
+
             // Populate the data structure
             data.forEach((doc) => {
                 allData.timestamps.push(doc.createdAt); // Add timestamp
@@ -675,7 +755,7 @@ export const Heatmap = (io) => {
         }
         return allData;
     };
-    
+
 
     // WebSocket connection handler
     io.on('connection', async (socket) => {
@@ -825,16 +905,16 @@ export const collectorbar = (io) => {
             console.warn(`No model found for sensor ID: ${sensorId}`);
             return null;
         }
-    
+
         const model = modelMap[modelKey];
         if (!model) {
             console.warn(`Model ${modelKey} not found`);
             return null;
         }
-    
+
         const date = parseTimeToDate(time);
         console.log(`Fetching data for sensor ID: ${sensorId}, Model: ${modelKey}, Time: ${time}, Date: ${date}`);
-    
+
         try {
             const data = await model.aggregate([
                 { $match: { createdAt: { $gte: date } } },  // Filter by the requested time range
@@ -846,22 +926,22 @@ export const collectorbar = (io) => {
                     }
                 }
             ]);
-    
+
             console.log('Fetched data:', data);
-    
+
             // Extract the sensor values from the fetched data
             const sensorValues = data.map(entry => entry[sensorId]).filter(value => value !== undefined);
-    
+
             if (sensorValues.length === 0) {
                 console.warn(`No data found for sensor ID: ${sensorId}`);
                 return null;
             }
-    
+
             // Calculate min, max, and average values
             const minValue = Math.min(...sensorValues);
             const maxValue = Math.max(...sensorValues);
             const averageValue = sensorValues.reduce((sum, value) => sum + value, 0) / sensorValues.length;
-    
+
             return {
                 data,
                 minValue,
@@ -873,57 +953,57 @@ export const collectorbar = (io) => {
             return null;
         }
     };
-    
 
-   io.on('connection', (socket) => {
-    console.log('Client connected');
 
-    socket.on('requestedCollectorbar', async (params) => {
-        console.log('Received requestData:', params);
+    io.on('connection', (socket) => {
+        console.log('Client connected');
 
-        const { value: sensorId, date: time } = params; // 'value' is the sensor ID, 'date' is the time
-        if (!sensorId || !time) {
-            console.warn("Invalid request: Missing sensor ID or time");
-            io.emit('error', { message: "Invalid parameters: sensor ID and time are required" });
-            return;
-        }
+        socket.on('requestedCollectorbar', async (params) => {
+            console.log('Received requestData:', params);
 
-        try {
-            const result = await getCollectorBarData(sensorId, time); // Use sensor ID and time
-            if (result) {
-                socket.emit('collectorBarData', {
-                    data: result.data,
-                    minValue: result.minValue,
-                    maxValue: result.maxValue,
-                    averageValue: result.averageValue
-                });
-            } else {
-                socket.emit('error', { message: "No data found for the given sensor ID and time range" });
+            const { value: sensorId, date: time } = params; // 'value' is the sensor ID, 'date' is the time
+            if (!sensorId || !time) {
+                console.warn("Invalid request: Missing sensor ID or time");
+                io.emit('error', { message: "Invalid parameters: sensor ID and time are required" });
+                return;
             }
-        } catch (error) {
-            console.error("Error processing request:", error);
-            socket.emit('error', { message: "Failed to retrieve data" });
-        }
-    });
 
-    Object.keys(modelMap).forEach((modelKey) => {
-        const model = modelMap[modelKey];
-        if (model) {
-            model.watch([], options).on('change', async (change) => {
-                console.log(`Data changed for ${modelKey}:`, change);
-                const result = await getCollectorBarData(models[modelKey][0], "10m"); // Use the first sensor ID in the model
+            try {
+                const result = await getCollectorBarData(sensorId, time); // Use sensor ID and time
                 if (result) {
-                    io.emit('collectorBarData', {
+                    socket.emit('collectorBarData', {
                         data: result.data,
                         minValue: result.minValue,
                         maxValue: result.maxValue,
                         averageValue: result.averageValue
                     });
+                } else {
+                    socket.emit('error', { message: "No data found for the given sensor ID and time range" });
                 }
-            });
-        }
+            } catch (error) {
+                console.error("Error processing request:", error);
+                socket.emit('error', { message: "Failed to retrieve data" });
+            }
+        });
+
+        Object.keys(modelMap).forEach((modelKey) => {
+            const model = modelMap[modelKey];
+            if (model) {
+                model.watch([], options).on('change', async (change) => {
+                    console.log(`Data changed for ${modelKey}:`, change);
+                    const result = await getCollectorBarData(models[modelKey][0], "10m"); // Use the first sensor ID in the model
+                    if (result) {
+                        io.emit('collectorBarData', {
+                            data: result.data,
+                            minValue: result.minValue,
+                            maxValue: result.maxValue,
+                            averageValue: result.averageValue
+                        });
+                    }
+                });
+            }
+        });
     });
-});
 };
 
 export const latesttimetamp = (io) => {
@@ -940,30 +1020,30 @@ export const latesttimetamp = (io) => {
                 timestamps.push(data[0].createdAt);
             }
         }
-    
+
         if (timestamps.length === 0) {
             return null; // No timestamps found
         }
-    
+
         // Find the latest timestamp
         const latestTimestampUTC = new Date(Math.max(...timestamps));
-    
+
         // Convert the timestamp to Indian Standard Time (IST)
         const latestTimestampIST = convertToIST(latestTimestampUTC);
-    
+
         // Format the timestamp as "hh:mm AM/PM dd.mm.yyyy"
         const formattedTimestamp = formatDate(latestTimestampIST);
-    
+
         return formattedTimestamp;
     };
-    
+
     // Helper function to convert UTC time to IST
     const convertToIST = (date) => {
         // IST is UTC+5:30, so add 5 hours and 30 minutes to the UTC time
         const istOffset = 5.5 * 60 * 60 * 1000; // Offset in milliseconds
         return new Date(date.getTime() + istOffset);
     };
-    
+
     // Helper function to format the date
     const formatDate = (date) => {
         const hours = date.getHours();
@@ -971,12 +1051,12 @@ export const latesttimetamp = (io) => {
         const day = date.getDate();
         const month = date.getMonth() + 1; // Months are zero-based
         const year = date.getFullYear();
-    
+
         // Convert to 12-hour format and determine AM/PM
         const ampm = hours >= 12 ? 'PM' : 'AM';
         const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
         const formattedMinutes = String(minutes).padStart(2, '0'); // Ensure two digits for minutes
-    
+
         // Format the date string
         return `${formattedHours}:${formattedMinutes} ${ampm} ${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
     };
@@ -1022,7 +1102,7 @@ export const idfetch = (io) => {
                 }
             });
         }
-    
+
         return Array.from(uniqueIds); // Convert Set back to an array
     };
 
