@@ -616,6 +616,192 @@ export const Heatmaprange = (io) => {
     }
 };
 
+// export const Heatmap = (io) => {
+//     const options = { fullDocument: "updateLookup" };
+
+//     // Map of sensor models
+//     const modelMap = {
+//         SensorModel1,
+//         SensorModel2,
+//         SensorModel3,
+//         SensorModel4,
+//         SensorModel5,
+//         SensorModel6,
+//     };
+
+//     const modelMap2 = {
+//         SensorModel7,
+//         SensorModel8,
+//         SensorModel9,
+//         SensorModel10,
+//     };
+
+//     const getASideData = async (startDate, endDate) => {
+//         const allData = { timestamps: [], data: {} }; // Initialize data structure
+//         for (let i = 1; i <= 6; i++) {
+//             const modelName = `SensorModel${i}`;
+//             const query = {
+//                 createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
+//             };
+//             const data = await modelMap[modelName].aggregate([
+//                 { $match: query },
+//                 { $sort: { createdAt: -1 } },
+//                 {
+//                     $project: {
+//                         _id: 0,
+//                         createdAt: 1,
+//                         TIME: 1,
+//                         day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
+//                         ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
+//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
+//                                 acc[key] = 1; // Include all other fields
+//                             }
+//                             return acc;
+//                         }, {}),
+//                     },
+//                 },
+//                 {
+//                     $group: {
+//                         _id: "$day", // Group by the day
+//                         createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
+//                         TIME: 1,
+//                         ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
+//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
+//                                 acc[key] = { $first: `$${key}` }; // Get the first value for each field
+//                             }
+//                             return acc;
+//                         }, {}),
+//                     },
+//                 },
+//                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
+//             ]);
+
+//             // Populate the data structure
+//             data.forEach((doc) => {
+//                 allData.timestamps.push(doc.createdAt); // Add timestamp
+//                 Object.keys(doc).forEach((key) => {
+//                     if (key !== 'createdAt') {
+//                         if (!allData.data[key]) {
+//                             allData.data[key] = []; // Initialize array for each key if it doesn't exist
+//                         }
+//                         allData.data[key].push(doc[key]); // Add value to the corresponding key
+//                     }
+//                 });
+//             });
+//         }
+//         return allData;
+//     };
+
+
+//     const getBSideData = async (startDate, endDate) => {
+//         const allData = { timestamps: [], data: {} }; // Initialize data structure
+//         for (let i = 7; i <= 10; i++) {
+//             const modelName = `SensorModel${i}`;
+//             const query = {
+//                 createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
+//             };
+
+//             // Check if the model exists in modelMap2
+//             if (!modelMap2[modelName]) {
+//                 console.warn(`Model ${modelName} not found in modelMap2`);
+//                 continue; // Skip this iteration if the model is not found
+//             }
+
+//             const data = await modelMap2[modelName].aggregate([
+//                 { $match: query },
+//                 { $sort: { createdAt: -1 } },
+//                 {
+//                     $project: {
+//                         _id: 0,
+//                         createdAt: 1,
+//                         TIME: 1,
+//                         day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
+//                         ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
+//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
+//                                 acc[key] = 1; // Include all other fields
+//                             }
+//                             return acc;
+//                         }, {}),
+//                     },
+//                 },
+//                 {
+//                     $group: {
+//                         _id: "$day", // Group by the day
+//                         createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
+//                         TIME: 1,
+//                         ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
+//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
+//                                 acc[key] = { $first: `$${key}` }; // Get the first value for each field
+//                             }
+//                             return acc;
+//                         }, {}),
+//                     },
+//                 },
+//                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
+//             ]);
+
+//             // Populate the data structure
+//             data.forEach((doc) => {
+//                 allData.timestamps.push(doc.createdAt); // Add timestamp
+//                 Object.keys(doc).forEach((key) => {
+//                     if (key !== 'createdAt') {
+//                         if (!allData.data[key]) {
+//                             allData.data[key] = []; // Initialize array for each key if it doesn't exist
+//                         }
+//                         allData.data[key].push(doc[key]); // Add value to the corresponding key
+//                     }
+//                 });
+//             });
+//         }
+//         return allData;
+//     };
+
+
+//     // WebSocket connection handler
+//     io.on('connection', async (socket) => {
+//         console.log('Client connected, sending initial data');
+
+//         // Listen for client requests with parameters
+//         socket.on('requestData', async (params) => {
+//             const { value, startDate, endDate, side } = params; // Extract parameters
+//             console.log('Received requestData:', params); // Debugging
+
+//             try {
+//                 if (side === 'ASide') {
+//                     const AsideData = await getASideData(new Date(startDate), new Date(endDate));
+//                     socket.emit('ASide', AsideData); // Emit to the specific client
+//                 } else if (side === 'BSide') {
+//                     const BSideData = await getBSideData(new Date(startDate), new Date(endDate));
+//                     socket.emit('BSide', BSideData); // Emit to the specific client
+//                 }
+//             } catch (error) {
+//                 console.error('Error sending data:', error);
+//             }
+//         });
+//     });
+
+//     // Watch for changes in SensorModels (ASide)
+//     for (let i = 1; i <= 6; i++) {
+//         const modelName = `SensorModel${i}`;
+//         modelMap[modelName].watch([], options).on('change', async (change) => {
+//             console.log(`[change detected in ${modelName}]`, change);
+//             const AData = await getASideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
+//             io.emit('ASide', AData);
+//         });
+//     }
+
+//     // Watch for changes in SensorModels (BSide)
+//     for (let i = 7; i <= 10; i++) {
+//         const modelName = `SensorModel${i}`;
+//         modelMap2[modelName].watch([], options).on('change', async (change) => {
+//             console.log(`[change detected in ${modelName}]`, change);
+//             const BData = await getBSideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
+//             io.emit('BSide', BData);
+//         });
+//     }
+// };
+
+
 export const Heatmap = (io) => {
     const options = { fullDocument: "updateLookup" };
 
@@ -628,7 +814,6 @@ export const Heatmap = (io) => {
         SensorModel5,
         SensorModel6,
     };
-
     const modelMap2 = {
         SensorModel7,
         SensorModel8,
@@ -636,143 +821,125 @@ export const Heatmap = (io) => {
         SensorModel10,
     };
 
+    /**
+     * Fetch data for A-side sensors.
+     */
     const getASideData = async (startDate, endDate) => {
-        const allData = { timestamps: [], data: {} }; // Initialize data structure
-        for (let i = 1; i <= 6; i++) {
-            const modelName = `SensorModel${i}`;
-            const query = {
-                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
-            };
-            const data = await modelMap[modelName].aggregate([
-                { $match: query },
-                { $sort: { createdAt: -1 } },
-                {
-                    $project: {
-                        _id: 0,
-                        createdAt: 1,
-                        TIME: 1,
-                        day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
-                        ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-                                acc[key] = 1; // Include all other fields
-                            }
-                            return acc;
-                        }, {}),
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$day", // Group by the day
-                        createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
-                        TIME: 1,
-                        ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-                                acc[key] = { $first: `$${key}` }; // Get the first value for each field
-                            }
-                            return acc;
-                        }, {}),
-                    },
-                },
-                { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
-            ]);
-
-            // Populate the data structure
-            data.forEach((doc) => {
-                allData.timestamps.push(doc.createdAt); // Add timestamp
-                Object.keys(doc).forEach((key) => {
-                    if (key !== 'createdAt') {
-                        if (!allData.data[key]) {
-                            allData.data[key] = []; // Initialize array for each key if it doesn't exist
-                        }
-                        allData.data[key].push(doc[key]); // Add value to the corresponding key
-                    }
-                });
-            });
-        }
-        return allData;
+        return fetchData(modelMap, 1, 6, startDate, endDate);
     };
 
-
+    /**
+     * Fetch data for B-side sensors.
+     */
     const getBSideData = async (startDate, endDate) => {
-        const allData = { timestamps: [], data: {} }; // Initialize data structure
-        for (let i = 7; i <= 10; i++) {
-            const modelName = `SensorModel${i}`;
-            const query = {
-                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
-            };
+        return fetchData(modelMap2, 7, 10, startDate, endDate);
+    };
 
-            // Check if the model exists in modelMap2
-            if (!modelMap2[modelName]) {
-                console.warn(`Model ${modelName} not found in modelMap2`);
-                continue; // Skip this iteration if the model is not found
+    /**
+     * Generic function to fetch data for a range of sensor models.
+     */
+    const fetchData = async (modelMap, start, end, startDate, endDate) => {
+        const allData = { timestamps: [], data: {} }; // Initialize data structure
+
+        // Create an array of promises for parallel execution
+        const promises = [];
+        for (let i = start; i <= end; i++) {
+            const modelName = `SensorModel${i}`;
+            if (!modelMap[modelName]) {
+                console.warn(`Model ${modelName} not found in modelMap`);
+                continue;
             }
 
-            const data = await modelMap2[modelName].aggregate([
-                { $match: query },
-                { $sort: { createdAt: -1 } },
-                {
-                    $project: {
-                        _id: 0,
-                        createdAt: 1,
-                        TIME: 1,
-                        day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
-                        ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-                                acc[key] = 1; // Include all other fields
-                            }
-                            return acc;
-                        }, {}),
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$day", // Group by the day
-                        createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
-                        TIME: 1,
-                        ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
-                            if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-                                acc[key] = { $first: `$${key}` }; // Get the first value for each field
-                            }
-                            return acc;
-                        }, {}),
-                    },
-                },
-                { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
-            ]);
+            const query = {
+                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+            };
 
-            // Populate the data structure
-            data.forEach((doc) => {
-                allData.timestamps.push(doc.createdAt); // Add timestamp
-                Object.keys(doc).forEach((key) => {
-                    if (key !== 'createdAt') {
-                        if (!allData.data[key]) {
-                            allData.data[key] = []; // Initialize array for each key if it doesn't exist
-                        }
-                        allData.data[key].push(doc[key]); // Add value to the corresponding key
-                    }
-                });
-            });
+            promises.push(
+                modelMap[modelName].aggregate([
+                    { $match: query },
+                    { $sort: { createdAt: -1 } },
+                    {
+                        $project: {
+                            _id: 0,
+                            createdAt: 1,
+                            day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                            ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
+                                if (
+                                    key !== '_id' &&
+                                    key !== 'createdAt' &&
+                                    key !== 'updatedAt' &&
+                                    key !== '__v' &&
+                                    key !== 'busbar' &&
+                                    key !== 'id'
+                                ) {
+                                    acc[key] = 1;
+                                }
+                                return acc;
+                            }, {}),
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$day",
+                            createdAt: { $first: "$createdAt" },
+                            ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
+                                if (
+                                    key !== '_id' &&
+                                    key !== 'createdAt' &&
+                                    key !== 'updatedAt' &&
+                                    key !== '__v' &&
+                                    key !== 'busbar' &&
+                                    key !== 'id'
+                                ) {
+                                    acc[key] = { $first: `$${key}` };
+                                }
+                                return acc;
+                            }, {}),
+                        },
+                    },
+                    { $sort: { createdAt: -1 } },
+                ])
+            );
         }
+
+        // Execute all queries in parallel
+        const results = await Promise.all(promises);
+
+        // Process results
+        results.flat().forEach((doc) => {
+            allData.timestamps.push(doc.createdAt);
+            Object.keys(doc).forEach((key) => {
+                if (key !== 'createdAt') {
+                    if (!allData.data[key]) {
+                        allData.data[key] = [];
+                    }
+                    allData.data[key].push(doc[key]);
+                }
+            });
+        });
+
         return allData;
     };
 
-
-    // WebSocket connection handler
+    /**
+     * WebSocket connection handler
+     */
     io.on('connection', async (socket) => {
         console.log('Client connected, sending initial data');
 
         // Listen for client requests with parameters
         socket.on('requestData', async (params) => {
-            const { value, startDate, endDate, side } = params; // Extract parameters
-            console.log('Received requestData:', params); // Debugging
+            const { value, startDate, endDate, side } = params;
+            console.log('Received requestData:', params);
 
             try {
+                let data;
                 if (side === 'ASide') {
-                    const AsideData = await getASideData(new Date(startDate), new Date(endDate));
-                    socket.emit('ASide', AsideData); // Emit to the specific client
+                    data = await getASideData(new Date(startDate), new Date(endDate));
+                    socket.emit('ASide', data); // Emit to the specific client
                 } else if (side === 'BSide') {
-                    const BSideData = await getBSideData(new Date(startDate), new Date(endDate));
-                    socket.emit('BSide', BSideData); // Emit to the specific client
+                    data = await getBSideData(new Date(startDate), new Date(endDate));
+                    socket.emit('BSide', data); // Emit to the specific client
                 }
             } catch (error) {
                 console.error('Error sending data:', error);
@@ -780,23 +947,35 @@ export const Heatmap = (io) => {
         });
     });
 
-    // Watch for changes in SensorModels (ASide)
+    /**
+     * Watch for changes in SensorModels (ASide)
+     */
     for (let i = 1; i <= 6; i++) {
         const modelName = `SensorModel${i}`;
+        if (!modelMap[modelName]) continue;
+
         modelMap[modelName].watch([], options).on('change', async (change) => {
             console.log(`[change detected in ${modelName}]`, change);
-            const AData = await getASideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
-            io.emit('ASide', AData);
+
+            // Only emit the changed document instead of re-fetching all data
+            const updatedDoc = change.fullDocument;
+            io.emit('ASideUpdate', { modelName, updatedDoc });
         });
     }
 
-    // Watch for changes in SensorModels (BSide)
+    /**
+     * Watch for changes in SensorModels (BSide)
+     */
     for (let i = 7; i <= 10; i++) {
         const modelName = `SensorModel${i}`;
+        if (!modelMap2[modelName]) continue;
+
         modelMap2[modelName].watch([], options).on('change', async (change) => {
             console.log(`[change detected in ${modelName}]`, change);
-            const BData = await getBSideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
-            io.emit('BSide', BData);
+
+            // Only emit the changed document instead of re-fetching all data
+            const updatedDoc = change.fullDocument;
+            io.emit('BSideUpdate', { modelName, updatedDoc });
         });
     }
 };
@@ -1086,47 +1265,47 @@ export const latesttimetamp = (io) => {
     });
 };
 
-export const idfetch = (io) => {
-    const models = [
-        SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
-        SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
-    ];
+// export const idfetch = (io) => {
+//     const models = [
+//         SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
+//         SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+//     ];
 
-    const getUniqueIds = async () => {
-        const uniqueIds = new Set(); // Use a Set to store unique IDs
-        for (const model of models) {
-            const data = await model.find().select({ id: 1 }); // Fetch only the 'id' field
-            data.forEach(item => {
-                if (item.id) {
-                    uniqueIds.add(item.id); // Add ID to the Set
-                }
-            });
-        }
+//     const getUniqueIds = async () => {
+//         const uniqueIds = new Set(); // Use a Set to store unique IDs
+//         for (const model of models) {
+//             const data = await model.find().select({ id: 1 }); // Fetch only the 'id' field
+//             data.forEach(item => {
+//                 if (item.id) {
+//                     uniqueIds.add(item.id); // Add ID to the Set
+//                 }
+//             });
+//         }
 
-        return Array.from(uniqueIds); // Convert Set back to an array
-    };
+//         return Array.from(uniqueIds); // Convert Set back to an array
+//     };
 
-    io.on('connection', async (socket) => {
-        console.log("Client connected, fetching unique IDs");
-        try {
-            const uniqueIds = await getUniqueIds();
-            console.log("Unique IDs:", uniqueIds);
-            io.emit("UniqueIds", uniqueIds); // Emit the unique IDs immediately upon connection
-        } catch (error) {
-            console.error("Error fetching unique IDs:", error);
-        }
-    });
+//     io.on('connection', async (socket) => {
+//         console.log("Client connected, fetching unique IDs");
+//         try {
+//             const uniqueIds = await getUniqueIds();
+//             console.log("Unique IDs:", uniqueIds);
+//             io.emit("UniqueIds", uniqueIds); // Emit the unique IDs immediately upon connection
+//         } catch (error) {
+//             console.error("Error fetching unique IDs:", error);
+//         }
+//     });
 
-    // Watch for changes in each model to update the unique IDs
-    models.forEach(model => {
-        model.watch([], { fullDocument: "updateLookup" }).on('change', async (change) => {
-            console.log(`[change detected in ${model.modelName}]`, change);
-            try {
-                const uniqueIds = await getUniqueIds();
-                io.emit("UniqueIds", uniqueIds); // Emit the updated unique IDs
-            } catch (error) {
-                console.error("Error fetching unique IDs on change:", error);
-            }
-        });
-    });
-};
+//     // Watch for changes in each model to update the unique IDs
+//     models.forEach(model => {
+//         model.watch([], { fullDocument: "updateLookup" }).on('change', async (change) => {
+//             console.log(`[change detected in ${model.modelName}]`, change);
+//             try {
+//                 const uniqueIds = await getUniqueIds();
+//                 io.emit("UniqueIds", uniqueIds); // Emit the updated unique IDs
+//             } catch (error) {
+//                 console.error("Error fetching unique IDs on change:", error);
+//             }
+//         });
+//     });
+// };

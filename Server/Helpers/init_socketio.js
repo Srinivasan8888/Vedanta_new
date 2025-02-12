@@ -9,7 +9,7 @@ import {
   SideData, Avgchartdash, AvgtempModel, Heatmap, Heatmaprange,
   collectorbar,
   latesttimetamp,
-  idfetch
+  // idfetch
 } from '../API/Controller/Socket.Controller.js';
 
 import { verifyAccessToken } from './jwt_helper.js';
@@ -40,7 +40,7 @@ Heatmap(io)
 Heatmaprange(io)
 collectorbar(io)
 latesttimetamp(io)
-idfetch(io)
+// idfetch(io)
 
 
 // verifyAccessToken(allsocketData(io))

@@ -111,9 +111,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchUniqueIds = async () => {
       try {
-        const response = await axios.get(
-          "http://34.100.168.176:4000/api/v2/getuniqueids"
-        );
+        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`);
         const ids = response.data.ids;
         setIddropdown(ids);
         setFilteredData(ids);

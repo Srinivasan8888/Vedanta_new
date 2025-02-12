@@ -3912,5 +3912,33 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
   }
 };
 
+export const getUniqueIds = async (req, res) => {
+  const models = [
+    SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
+    SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+  ];
 
-export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph };
+  try {
+    const uniqueIds = new Set();
+    
+    // Query all models sequentially
+    for (const model of models) {
+      const data = await model.find().select({ id: 1 }).lean();
+      data.forEach(item => item.id && uniqueIds.add(item.id));
+    }
+
+    const uniqueIdsArray = Array.from(uniqueIds);
+    
+    if (uniqueIdsArray.length === 0) {
+      return res.status(404).json({ error: "No IDs found" });
+    }
+
+    return res.status(200).json({ ids: uniqueIdsArray });
+    
+  } catch (error) {
+    console.error("Error fetching unique IDs:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph, getUniqueIds };

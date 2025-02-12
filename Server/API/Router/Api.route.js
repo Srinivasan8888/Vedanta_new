@@ -16,6 +16,7 @@ router.get('/getAverageChart', verifyAccessToken, ApiController.fetchSensorDataB
 router.get('/getIntervalChart', verifyAccessToken, ApiController.fetchSensorDataByintervalgraph)
 router.get('/getDateChart', verifyAccessToken, ApiController.fetchSensorDataByDategraph)
 router.get('/getLimitChart', verifyAccessToken, ApiController.fetchSensorDataBylimitgraph)
+router.get('/getuniqueids',  ApiController.getUniqueIds)
 
 
 export default router;
