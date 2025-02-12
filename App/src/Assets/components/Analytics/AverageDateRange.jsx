@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../Axios/AxiosInterceptor";
 import "./CSS/AnalyticsDateRange.css";
 
 const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
@@ -33,7 +33,7 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
       const busBarVariable = `sensormodel${selectedBusBar}`;
       const apidate = async () => {
         try {
-          const response = await axios.get(
+          const response = await API.get(
             `${process.env.REACT_APP_SERVER_URL}api/v2/getAverageChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}&average=${average}`
           );
           const data = response.data;

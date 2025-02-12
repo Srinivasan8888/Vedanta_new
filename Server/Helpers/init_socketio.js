@@ -12,6 +12,8 @@ import {
   idfetch
 } from '../API/Controller/Socket.Controller.js';
 
+import { verifyAccessToken } from './jwt_helper.js';
+
 const httpServer = http.createServer()
 const io = new Server(httpServer, {
   cors: {
@@ -39,6 +41,18 @@ Heatmaprange(io)
 collectorbar(io)
 latesttimetamp(io)
 idfetch(io)
+
+
+// verifyAccessToken(allsocketData(io))
+// verifyAccessToken(SideData(io))
+// verifyAccessToken(Avgchartdash(io))
+// verifyAccessToken(AvgtempModel(io))
+// verifyAccessToken(Heatmap(io))
+// verifyAccessToken(Heatmaprange(io))
+// verifyAccessToken(collectorbar(io))
+// verifyAccessToken(latesttimetamp(io))
+// verifyAccessToken(idfetch(io))
+
 
 httpServer.listen(process.env.WS_PORT, () => {
   console.log(`WS_Server is running on port ${process.env.WS_PORT}`);

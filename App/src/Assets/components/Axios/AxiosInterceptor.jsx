@@ -3,13 +3,9 @@ import axios from "axios";
 const API = axios.create({
   baseURL: process.env.REACT_APP_SERVER_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': process.env.REACT_APP_CLIENT_URL
-  }
 });
 
-// request interceptor
+// Request Interceptor
 API.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
@@ -23,52 +19,47 @@ API.interceptors.request.use(
   }
 );
 
-// response interceptor
+// Response Interceptor
+let retryCount = 0; // Global retry counter to prevent infinite retries
+
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401) {
-      const errorMessage = error.response.data.error.message;
+    if (error.response?.status === 401 && !originalRequest._retry && retryCount < 3) {
+      originalRequest._retry = true;
+      retryCount++;
 
-      if (errorMessage === "jwt expired" && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        try {
-          const { data } = await axios.post(
-            `${process.env.REACT_APP_SERVER_URL}/auth/refresh-token`,
-            {
-              refreshToken: localStorage.getItem("refreshToken"),
-            }
-          );
-
-          localStorage.setItem("accessToken", data.newAccessToken);
-          localStorage.setItem("refreshToken", data.newRefreshToken);
-
-          originalRequest.headers.Authorization = `Bearer ${data.newAccessToken}`;
-          return API(originalRequest);
-        } catch (refreshError) {
-          console.error(
-            "Refresh token failed - response interceptor",
-            refreshError
-          );
-          if (!window.location.pathname.includes("/")) {
-            window.location.href = "/";
-          }
-          return Promise.reject(refreshError);
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) {
+          console.error("Refresh token is missing.");
+          localStorage.clear();
+          window.location.href = process.env.REACT_APP_LOGIN_URL || "/";
+          return Promise.reject(error);
         }
-      } else if (errorMessage === "Session expired") {
+
+        const { data } = await axios.post(
+          `${process.env.REACT_APP_SERVER_URL}/auth/refresh-token`,
+          { refreshToken },
+          { timeout: 5000 } // 5-second timeout
+        );
+
+        localStorage.setItem("accessToken", data.newAccessToken);
+        localStorage.setItem("refreshToken", data.newRefreshToken);
+
+        originalRequest.headers.Authorization = `Bearer ${data.newAccessToken}`;
+        retryCount = 0; // Reset retry counter after successful refresh
+        return API(originalRequest);
+      } catch (refreshError) {
+        console.error("Refresh token failed:", refreshError);
         localStorage.clear();
-
-        alert("Another device logged in with your credentials!");
-        if (!window.location.pathname.includes("/")) {
-          window.location.href = "/";
-        }
-
-        return Promise.reject(error);
+        window.location.href = process.env.REACT_APP_LOGIN_URL || "/";
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

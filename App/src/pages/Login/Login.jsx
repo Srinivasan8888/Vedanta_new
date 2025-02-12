@@ -40,18 +40,23 @@ const Login = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Restore cooldown on page load
-    const storedCooldown = localStorage.getItem("loginCooldown");
-    if (storedCooldown) {
-      const remaining = Math.max(0, (parseInt(storedCooldown) - Date.now()) / 1000);
-      if (remaining > 0) {
-        setCooldownTime(parseInt(storedCooldown));
-        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
-      } else {
+    if (!cooldownTime) return;
+  
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((cooldownTime - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setCooldownTime(0);
+        setErrorMessage("");
         localStorage.removeItem("loginCooldown");
+        clearInterval(interval);
+      } else {
+        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+        localStorage.setItem("loginCooldown", cooldownTime);
       }
-    }
-  }, []);
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [cooldownTime]);
 
   const Loginuser = async (event) => {
     event.preventDefault();

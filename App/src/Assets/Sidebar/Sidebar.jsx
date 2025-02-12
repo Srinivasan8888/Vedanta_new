@@ -14,8 +14,8 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   return (
-    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
-      <div className="relative flex items-center">
+    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30">
+      <div className="relative flex items-center w-full">
         <input
           id="search"
           name="search"
@@ -28,7 +28,7 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
         />
         
         {showSuggestions && searchText && (
-          <ul className="absolute left-0 right-0 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
+          <ul className="absolute left-0 right-0 z-40 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
                 <li
@@ -119,7 +119,7 @@ const Sidebar = () => {
     socket.on("UniqueIds", (data) => {
       setIddropdown(data);
       setFilteredData(data);
-      console.log("Received IDs:", data);
+      // console.log("Received IDs:", data);
     });
 
     return () => {
@@ -195,39 +195,13 @@ const Sidebar = () => {
           Heatmap
         </button>
 
-        <SearchInput 
+        <SearchInput
           iddropdown={iddropdown}
           searchText={searchText}
           handleSearchChange={handleSearchChange}
           filteredData={filteredData}
           handleSuggestionClick={handleSuggestionClick}
         />
-
-        <div className="relative flex items-center">
-          <label htmlFor="currency" className="sr-only">
-            Options
-          </label>
-          <select
-            id="currency"
-            name="currency"
-            className="h-full py-0 pl-2 text-gray-500 bg-transparent border-0 rounded-md appearance-none pr-7 focus:outline-none sm:text-sm"
-            style={{
-              width: "12px",
-              height: "19px",
-              backgroundImage: `url(${Arrow})`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 12px center",
-              backgroundSize: "25px",
-            }}
-          >
-            {/* Dropdown options */}
-          {filteredData.map((item, index) => (
-            <option key={index} value={item}>
-              {item}
-            </option>
-          ))}
-          </select>
-        </div>
 
         <button
           className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"

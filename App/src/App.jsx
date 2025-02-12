@@ -13,6 +13,7 @@ import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 import CollectorBar from "./pages/CollectorBar/CollectorBar";
 
+
 function App() {
   return (
     <div className="App">
@@ -21,15 +22,15 @@ function App() {
           <Route index element={<Login />} />
           <Route path="/admin_xyma_signup" element={<Signup />} />
           <Route path="/" element={<ProtectedRoute />}>
-            <Route path="/Dashboard" element={<Dashboard />} />
-            {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}{" "}
-            <Route path="/CollectorBar" element={<CollectorBar />} />
-            <Route path="/Analytics" element={<Analytics />} />
-            <Route path="/Report" element={<Report />} />
-            <Route path="/Settings" element={<Settings />} />
-            <Route path="/Heatmap" element={<Heatmap />} />
-            <Route path="/Test" element={<Test />} />
-            <Route path="*" element={<NoPage />} />
+              <Route path="/Dashboard" element={<Dashboard />} />
+              {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}{" "}
+              <Route path="/CollectorBar" element={<CollectorBar />} />
+              <Route path="/Analytics" element={<Analytics />} />
+              <Route path="/Report" element={<Report />} />
+              <Route path="/Settings" element={<Settings />} />
+              <Route path="/Heatmap" element={<Heatmap />} />
+              <Route path="/Test" element={<Test />} />
+              <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

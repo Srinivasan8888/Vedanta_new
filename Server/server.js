@@ -24,16 +24,8 @@ import cors from "cors";
 
 const app = express();
 const ports = process.env.PORT;
-
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = ['http://localhost:3000']; // Add other domains as needed
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: '*', // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: [

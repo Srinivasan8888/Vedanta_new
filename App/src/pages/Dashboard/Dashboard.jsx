@@ -7,91 +7,120 @@ import Aside from "../../Assets/components/Dashboard/Aside";
 import Bside from "../../Assets/components/Dashboard/Bside";
 import DashboardChart from "../../Assets/components/Dashboard/DashboardChart";
 import io from "socket.io-client";
-
-
+import isEqual from "lodash/isEqual";
 
 const Dashboard = () => {
   const [socket, setSocket] = useState(null);
-  const [AsideData, setAsidedata] = useState([]);
-  const [BsideData, setBsidedata] = useState([]);
-  const [ModelData, setModelData] = useState([]);
-  const [latesttimestamp, setLatestTimestamp] = useState([]);
-  const [AvgData, setAvgData] = useState([]);
-  const [ModelTempData, setModelTempData] = useState([]);
-  const [lastButtonClicked, setLastButtonClicked] = useState(null);
-  const [error, setError] = useState(null); // Store error messages
-  
+  const [AsideData, setAsidedata] = useState([]); // Data for A Side
+  const [BsideData, setBsidedata] = useState([]); // Data for B Side
+  const [ModelData, setModelData] = useState([]); // Data for 3D Model
+  const [latesttimestamp, setLatestTimestamp] = useState([]); // Latest timestamp
+  const [AvgData, setAvgData] = useState([]); // Average temperature data
+  const [ModelTempData, setModelTempData] = useState([]); // Model temperature data
+  const [lastButtonClicked, setLastButtonClicked] = useState(null); // Last button clicked in chart
+  const [error, setError] = useState(null); // Error handling
+
+  // Initialize WebSocket connection
   useEffect(() => {
-    // Initialize WebSocket connection
     const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
     setSocket(newSocket);
-  
+
     // Handle connection errors
     newSocket.on("connect_error", (err) => {
       console.error("WebSocket connection error:", err);
       setError("Failed to connect to the WebSocket server.");
     });
-  
+
     // Cleanup on component unmount
     return () => {
       newSocket.disconnect();
     };
   }, []);
-  
+
+  // Listen for WebSocket events
   useEffect(() => {
     if (!socket) return;
+
+    // Handle "ASide" event
     
-    socket.on("ASide", (data) => {
-      // Handle object format with data array
-      console.log("recevied Aside Data", data)
-      setAsidedata(data);
+  socket.on("ASideUpdate", (data) => {
+    console.log("Received ASide Data:", data);
+    const validData = Array.isArray(data) ? data : [];
+    setAsidedata((prevData) => {
+      if (!isEqual(validData, prevData)) { // Update state only if data has changed
+        return validData;
+      }
+      return prevData;
     });
-    
-    socket.on("BSide", (data) => {
-      // Handle object format with data array
-      console.log("recevied Bside Data", data)
-      setBsidedata(data);
+  });
+
+    // Handle "BSide" event
+    socket.on("BSideUpdate", (data) => {
+      console.log("Received BSide Data:", data);
+      const validData = Array.isArray(data) ? data : [];
+      setBsidedata((prevData) => {
+        if (!isEqual(validData, prevData)) { // Update state only if data has changed
+          return validData;
+        }
+        return prevData;
+      });
     });
-    
+
+    // Handle "LatestTimestamp" event
     socket.on("LatestTimestamp", (data) => {
+      // console.log("Received LatestTimestamp:", data);
       setLatestTimestamp(data);
     });
 
+    // Handle "AllData" event
     socket.on("AllData", (data) => {
+      // console.log("Received All Model Data:", data);
       if (Array.isArray(data)) {
-        setModelData(data);
-        // console.log("Received All Model Data:", data);
+        setModelData(data); // Update state only if data is an array
+      } else {
+        console.warn("Invalid AllData received:", data);
       }
     });
 
+    // Handle "Avgtempdata" event
     socket.on("Avgtempdata", (data) => {
-      // console.log("data for avg temp", data);
+      // console.log("Received Avgtempdata:", data);
       if (data) {
-        setAvgData(data);
+        setAvgData(data); // Update state only if data is valid
+      } else {
+        console.warn("Invalid Avgtempdata received:", data);
       }
     });
 
+    // Handle "AvgModeltemp" event
     socket.on("AvgModeltemp", (data) => {
-      // console.error("AvgModeltemp data not received:", data);
-      setModelTempData(data);
+      // console.log("Received AvgModeltemp:", data);
+      if (data) {
+        setModelTempData(data); // Update state only if data is valid
+      } else {
+        console.warn("Invalid AvgModeltemp received:", data);
+      }
     });
 
-    
+    // Cleanup listeners on component unmount
     return () => {
-      socket.off("ASide");
-      socket.off("BSide");
+      // socket.off("ASide");
+      // socket.off("BSide");
+      socket.off("ASideUpdate");
+      socket.off("BSideUpdate");
       socket.off("LatestTimestamp");
       socket.off("AllData");
       socket.off("Avgtempdata");
       socket.off("AvgModeltemp");
       socket.disconnect();
-    };    
+    };
   }, [socket]);
 
+  // Handle button clicks in the DashboardChart
   const handleChartClick = (buttonId) => {
-    // console.log("Button clicked in DashboardChart:", buttonId);
-    socket.emit("ButtonClick", buttonId);
-    setLastButtonClicked(buttonId);
+    console.log("Button clicked in DashboardChart:", buttonId);
+    socket.emit("ButtonClick", buttonId); // Emit button click event to backend
+    setLastButtonClicked(buttonId); // Update last button clicked
   };
 
   return (
@@ -99,16 +128,24 @@ const Dashboard = () => {
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
       style={{ backgroundImage: `url(${bg})` }}
     >
-      <Sidebar style={{ zIndex: 9999, position: 'relative' }} />
-      
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Top Section: 3D Model and A Side */}
       <div className="md:h-[45%] md:flex gap-5">
-        <ThreeScene socketData={ModelData} ModelTempData={ModelTempData} lastButtonClicked={lastButtonClicked} latesttimestamp={latesttimestamp}/>
+        <ThreeScene
+          socketData={ModelData}
+          ModelTempData={ModelTempData}
+          lastButtonClicked={lastButtonClicked}
+          latesttimestamp={latesttimestamp}
+        />
         {/* <Notifications /> */}
         <Aside socketData={AsideData} />
       </div>
+
+      {/* Bottom Section: Chart and B Side */}
       <div className="md:h-[45%] md:flex gap-5">
         <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
-
         <Bside socketData={BsideData} />
       </div>
     </div>

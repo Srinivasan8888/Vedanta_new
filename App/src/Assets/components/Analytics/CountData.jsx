@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import API from "../Axios/AxiosInterceptor";
 import "./CSS/AnalyticsDateRange.css";
 
 const CountData = ({ selectedBusBar, setFetchedData }) => {
@@ -24,7 +24,7 @@ const CountData = ({ selectedBusBar, setFetchedData }) => {
       const busBarVariable = `sensormodel${selectedBusBar}`;
       const apidate = async () => {
         try {
-          const response = await axios.get(
+          const response = await API.get(
             `${process.env.REACT_APP_SERVER_URL}api/v2/getLimitChart?key=${busBarVariable}&&limit=${limit}`
           );
           const data = response.data;

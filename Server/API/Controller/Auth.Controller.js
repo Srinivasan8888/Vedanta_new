@@ -156,7 +156,6 @@ export const verifyToken = async (req, res, next) => {
     res.send({
       success: true,
       message: "Authorized",
-      role: req.payload.role,
     });
   } catch (error) {
     next(error);

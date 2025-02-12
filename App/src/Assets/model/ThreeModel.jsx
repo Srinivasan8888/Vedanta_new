@@ -340,6 +340,15 @@ const ThreeModel = ({
 }) => {
   const controlsRef = useRef();
 
+  useEffect(() => {
+    // Zoom animation on mount
+    if (controlsRef.current) {
+      controlsRef.current.reset() // Reset any existing transformations
+      controlsRef.current.dollyTo(12, false) // Set initial zoomed-out position
+      controlsRef.current.dollyTo(-12, true) // Animate zoom-in
+    }
+  }, [])
+
   // useEffect(() => {
   //   Log the socket data if needed
   //   console.log("Socket data in ThreeModel:", socketData);
