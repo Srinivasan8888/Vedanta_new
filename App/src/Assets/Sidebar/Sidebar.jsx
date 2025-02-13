@@ -68,7 +68,7 @@ const Sidebar = () => {
   const [iddropdown, setIddropdown] = useState([]); // Make sure this is an array
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [searchText, setSearchText] = useState(localStorage.getItem('searchText') || "");
+  const [searchText, setSearchText] = useState(localStorage.getItem('id') || "");
   const [filteredData, setFilteredData] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState(null); // Store error messages
@@ -139,7 +139,7 @@ const Sidebar = () => {
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchText(query);
-    localStorage.setItem('searchText', query);
+    localStorage.setItem('id', query);
 
     // Ensure the input is numeric
     if (/^\d*$/.test(query)) {
@@ -154,7 +154,7 @@ const Sidebar = () => {
 
   const handleSuggestionClick = (item) => {
     setSearchText(item);
-    localStorage.setItem('searchText', item);
+    localStorage.setItem('id', item);
     setShowSuggestions(false);
   };
 

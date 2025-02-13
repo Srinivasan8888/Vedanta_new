@@ -20,20 +20,51 @@ const Dashboard = () => {
   const [lastButtonClicked, setLastButtonClicked] = useState(null); // Last button clicked in chart
   const [error, setError] = useState(null); // Error handling
 
-  // Initialize WebSocket connection
-  useEffect(() => {
-    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
-    setSocket(newSocket);
 
-    // Handle connection errors
-    newSocket.on("connect_error", (err) => {
-      console.error("WebSocket connection error:", err);
-      setError("Failed to connect to the WebSocket server.");
-    });
+  useEffect(() => {
+    let currentUserId = localStorage.getItem("id"); // Initial userId
+    const accessToken = localStorage.getItem("accessToken");
+
+    // Function to create a new socket connection
+    const createSocket = (userId) => {
+      const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
+        auth: {
+          accessToken,
+          userId,
+        },
+      });
+
+      // Handle connection errors
+      newSocket.on("connect_error", (err) => {
+        console.error("WebSocket connection error:", err);
+        setError("Failed to connect to the WebSocket server.");
+      });
+
+      return newSocket;
+    };
+
+    // Create the initial socket connection
+    const initialSocket = createSocket(currentUserId);
+    setSocket(initialSocket);
+
+    // Periodically check for userId updates
+    const intervalId = setInterval(() => {
+      const newUserId = localStorage.getItem("id");
+      if (newUserId !== currentUserId) {
+        console.log("UserId changed. Reconnecting socket...");
+        currentUserId = newUserId;
+
+        // Disconnect the old socket and create a new one
+        initialSocket.disconnect();
+        const updatedSocket = createSocket(newUserId);
+        setSocket(updatedSocket);
+      }
+    }, 500); // Check every 1/2 seconds
 
     // Cleanup on component unmount
     return () => {
-      newSocket.disconnect();
+      clearInterval(intervalId);
+      initialSocket.disconnect();
     };
   }, []);
 

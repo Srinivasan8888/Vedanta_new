@@ -17,6 +17,7 @@ const Heatmap = () => {
   const [combinedTableData, setCombinedTableData] = useState([]); 
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
+  const [potId, setPotId] = useState('');
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -43,19 +44,49 @@ const Heatmap = () => {
   };
 
   useEffect(() => {
-    // Initialize WebSocket connection
-    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL);
-    setSocket(newSocket);
+    let currentUserId = localStorage.getItem("id"); // Initial userId
+    const accessToken = localStorage.getItem("accessToken");
 
-    // Handle connection errors
-    newSocket.on("connect_error", (err) => {
-      console.error("WebSocket connection error:", err);
-      setError("Failed to connect to the WebSocket server.");
-    });
+    // Function to create a new socket connection
+    const createSocket = (userId) => {
+      const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
+        auth: {
+          accessToken,
+          userId,
+        },
+      });
+
+      // Handle connection errors
+      newSocket.on("connect_error", (err) => {
+        console.error("WebSocket connection error:", err);
+        setError("Failed to connect to the WebSocket server.");
+      });
+
+      return newSocket;
+    };
+
+    // Create the initial socket connection
+    const initialSocket = createSocket(currentUserId);
+    setSocket(initialSocket);
+
+    // Periodically check for userId updates
+    const intervalId = setInterval(() => {
+      const newUserId = localStorage.getItem("id");
+      if (newUserId !== currentUserId) {
+        console.log("UserId changed. Reconnecting socket...");
+        currentUserId = newUserId;
+
+        // Disconnect the old socket and create a new one
+        initialSocket.disconnect();
+        const updatedSocket = createSocket(newUserId);
+        setSocket(updatedSocket);
+      }
+    }, 500); // Check every 1/2 seconds
 
     // Cleanup on component unmount
     return () => {
-      newSocket.disconnect();
+      clearInterval(intervalId);
+      initialSocket.disconnect();
     };
   }, []);
 
@@ -150,6 +181,25 @@ const Heatmap = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setInterval(() => {
+    const handleStorageChange = () => {
+      const id = window.localStorage.getItem('id');
+      setPotId(id || '');
+    };
+
+    // Initial load
+    handleStorageChange();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };}, [500]);
+  }, []);
+  
+
   return (
     <div
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
@@ -161,9 +211,10 @@ const Heatmap = () => {
         <div className="md:h-[40%] h-[336px] grid grid-rows-2  md:w-full rounded-tr-lg rounded-tl-lg ">
           <div className="md:h-[100%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
-              <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
-                Collector Bar
-              </p>
+              <div className="flex justify-between mb-2 text-2xl font-semibold md:h-[40%]">
+                <p>Collector Bar</p>
+                <p>{potId || 'N/A'}</p>
+              </div>
               <div className="flex justify-between md:h-[60%] px-4">
                 <p>
                   <Switcher10 onValueChange10={handleSwitcherValueChange10} />
@@ -203,7 +254,7 @@ const Heatmap = () => {
                 </div>
 
                 <p>
-                  <Switcher9 onValueChange={handleSwitcherValueChange} />
+                <Switcher9 value={switcherValue} onChange={handleSwitcherValueChange} />
                 </p>
               </div>
             </div>

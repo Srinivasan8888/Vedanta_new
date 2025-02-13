@@ -339,87 +339,36 @@ const ThreeModel = ({
   latesttimestamp,
 }) => {
   const controlsRef = useRef();
+  const [potId, setPotId] = useState('');
 
   useEffect(() => {
-    // Zoom animation on mount
-    if (controlsRef.current) {
-      controlsRef.current.reset() // Reset any existing transformations
-      controlsRef.current.dollyTo(12, false) // Set initial zoomed-out position
-      controlsRef.current.dollyTo(-12, true) // Animate zoom-in
-    }
-  }, [])
+    setInterval(() => {
+    const handleStorageChange = () => {
+      const id = window.localStorage.getItem('id');
+      setPotId(id || '');
+    };
+
+    // Initial load
+    handleStorageChange();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };}, [500]);
+  }, []);
 
   // useEffect(() => {
-  //   Log the socket data if needed
-  //   console.log("Socket data in ThreeModel:", socketData);
-  //   console.log("ModelTempData data in ThreeModel:", ModelTempData);
-
-  // }, [ModelTempData]);
-
-  // useEffect(() => {
-  //   if (lastButtonClicked) {
-  //      console.log("Last button clicked in ThreeModel:", lastButtonClicked);
+  //   // Zoom animation on mount
+  //   if (controlsRef.current) {
+  //     controlsRef.current.reset() // Reset any existing transformations
+  //     controlsRef.current.dollyTo(12, false) // Set initial zoomed-out position
+  //     controlsRef.current.dollyTo(-12, true) // Animate zoom-in
   //   }
-  // }, [lastButtonClicked]);
+  // }, [])
 
-  //   <div className="flex w-full gap-4">
-  //   <button
-  //     type="button"
-  //     className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
-  //   >
-  //     <svg
-  //       xmlns="http://www.w3.org/2000/svg"
-  //       fill="none"
-  //       viewBox="0 0 24 24"
-  //       strokeWidth={1.5}
-  //       stroke="currentColor"
-  //       className="size-6"
-  //     >
-  //       <path
-  //         strokeLinecap="round"
-  //         strokeLinejoin="round"
-  //         d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-  //       />
-  //     </svg>
-  //   </button>
-  //   <p className="flex items-center justify-center text-2xl font-semibold text-white ">
-  //     1604
-  //   </p>
-  //   <button
-  //     type="button"
-  //     className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 m-2"
-  //   >
-  //     <svg
-  //       xmlns="http://www.w3.org/2000/svg"
-  //       fill="none"
-  //       viewBox="0 0 24 24"
-  //       strokeWidth={1.5}
-  //       stroke="currentColor"
-  //       className="size-6"
-  //     >
-  //       <path
-  //         strokeLinecap="round"
-  //         strokeLinejoin="round"
-  //         d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-  //       />
-  //     </svg>
-  //   </button>
-  // </div>
-
-  // <div className="flex md:w-[40%] md:gap-4  md:h-[12%]">
-  //   <div className="grid w-full    rounded-lg bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-  //     <p className="mt-3">Total Pots</p>
-  //     <span className="pb-2 font-semibold">1</span>
-  //   </div>
-  //   <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-  //     <p className="mt-3">Active</p>
-  //     <span className="pb-2 font-semibold">1</span>
-  //   </div>
-  //   <div className="grid  w-full rounded-lg  bg-[rgba(16,16,16,0.7)] text-white border-[1.5px] border-white">
-  //     <p className="mt-3">Inactive</p>
-  //     <span className="pb-2 font-semibold">0</span>
-  //   </div>
-  // </div>
+  
 
   return (
     <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[73%] rounded-2xl m-4 md:h-auto relative">
@@ -447,7 +396,7 @@ const ThreeModel = ({
                 />
               </svg>
             </button> */}
-            <p className="text-2xl font-semibold text-white">1604</p>
+            <p className="text-2xl font-semibold text-white">{potId || 'N/A'}</p>
             {/* <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"

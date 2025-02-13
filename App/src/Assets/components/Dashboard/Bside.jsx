@@ -62,7 +62,7 @@ const BSide = ({ socketData }) => {
               backgroundRepeat: "no-repeat",
               backgroundSize: "25px",
               appearance: "none",
-            }}
+            }} disabled
           >
             <option>Option 1</option>
             <option>Option 2</option>

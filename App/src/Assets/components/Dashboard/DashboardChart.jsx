@@ -11,6 +11,8 @@ import { Chart as ChartJS, registerables } from 'chart.js';
 ChartJS.register(...registerables, annotationPlugin);
 
 const DashboardChart = ({ socketData = [], onChartClick }) => {
+  
+  const [potId, setPotId] = useState('');
   const [isBarChart, setIsBarChart] = useState(false);
   const [chartData, setChartData] = useState({
     labels: [],
@@ -302,6 +304,24 @@ const dangerLinePlugin = {
 };
 ChartJS.register(dangerLinePlugin);
 
+  useEffect(() => {
+    setInterval(() => {
+    const handleStorageChange = () => {
+      const id = window.localStorage.getItem('id');
+      setPotId(id || '');
+    };
+
+    // Initial load
+    handleStorageChange();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };}, [500]);
+  }, []);
+
 // ... existing code ...
   
   return (
@@ -310,7 +330,7 @@ ChartJS.register(dangerLinePlugin);
         <div className="h-[180px] md:h-[75%] w-[100%]">
           <div className="flex flex-col px-4 mt-4 md:flex-row md:justify-around">
             <p className="mt-2 mb-3 text-xl font-semibold text-center md:text-left md:mb-0 md:mt-0">
-              CBTA1
+            {potId || 'N/A'}
             </p>
 
             <div className="flex flex-row justify-center gap-4 mt-1 md:flex-row md:gap-5 md:mx-10 md:space-y-0 ">

@@ -28,7 +28,7 @@ def generate_sensor_data():
     avg_temperature = statistics.mean(temperatures)
     
     data = {
-        'id': '1604',  # Static ID as requested
+        'id': '1605',  # Static ID as requested
         'Avgtemp': f'{avg_temperature:.2f}',  # Average temperature
         'time': datetime.now().isoformat() + 'Z'  # Current time in ISO 8601 format
     }

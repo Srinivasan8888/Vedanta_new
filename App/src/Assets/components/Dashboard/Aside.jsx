@@ -63,6 +63,7 @@ const ASide = ({ socketData }) => {
               backgroundSize: "25px",
               appearance: "none",
             }}
+            disabled
           >
             <option>Option 1</option>
             <option>Option 2</option>
