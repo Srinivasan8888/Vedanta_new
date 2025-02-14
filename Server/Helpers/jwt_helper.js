@@ -23,16 +23,21 @@ export const signAccessToken = (userId) => {
       if (err) {
         console.log(err.message);
         reject(createError.InternalServerError());
-      } console.log("Setting refresh token in Redis...");
-      client.SETEX(userId, 24 * 60 * 60, token)
+      }
+      
+      // Use user-specific key for storage
+      const redisKey = `accessToken:${userId}`;
+      console.log("Setting access token in Redis...");
+      
+      client.SETEX(redisKey, 24 * 60 * 60, token)
         .then(reply => {
           console.log("Finished setting access token in Redis.");
           resolve(token);
-        }).catch(err => {
+        })
+        .catch(err => {
           console.log("Error setting access token in Redis:", err.message);
           reject(createError.InternalServerError());
         });
-      resolve(token);
     });
   });
 };
@@ -40,7 +45,7 @@ export const signAccessToken = (userId) => {
 export const verifyAccessToken = async (req, res, next) => {
   try {
     // Authorization header check
-    const authHeader = req.headers["authorization"];
+    const authHeader = req.headers?.["authorization"];
     if (!authHeader) {
       return next(createError.Unauthorized("Missing authorization header"));
     }
@@ -74,7 +79,7 @@ export const verifyAccessToken = async (req, res, next) => {
     });
 
     // Validate audience claim
-    const userId = payload.aud;
+    const userId = payload.audience; // Use 'audience' instead of 'aud'
     if (!userId) {
       return next(createError.Unauthorized("Invalid audience claim"));
     }
@@ -82,12 +87,12 @@ export const verifyAccessToken = async (req, res, next) => {
     // Redis token validation
     const redisKey = `accessToken:${userId}`;
     const storedToken = await client.GET(redisKey).catch((err) => {
-      console.error("Redis error:", err.message);
+      // console.error("Redis error:", err.message);
       throw createError.InternalServerError("Session validation failed");
     });
 
     if (token !== storedToken) {
-      console.error("Token mismatch:", { userId, token, storedToken });
+      // console.error("Token mismatch:", { userId, token, storedToken });
       return next(createError.Unauthorized("Session expired or invalid"));
     }
 
@@ -95,7 +100,7 @@ export const verifyAccessToken = async (req, res, next) => {
     req.payload = payload;
     next();
   } catch (error) {
-    console.error("Token verification error:", error.message);
+    // console.error("Token verification error:", error.message);
     if (!error.status) {
       error = createError.InternalServerError("Token verification failed");
     }

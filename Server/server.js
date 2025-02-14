@@ -49,13 +49,6 @@ const connect = async () => {
     }      
 };
 
-// mongoose.connection.on('connected', () => {
-//     console.log('Connected to MongoDB!');
-// });
-
-// mongoose.connection.on('disconnected', () => {
-//     console.log('Mongodb disconnected...');
-// });
 
 app.get('/', verifyAccessToken, async (req, res, next) => {
     console.log(req.headers['authorization'])

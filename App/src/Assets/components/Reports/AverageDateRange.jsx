@@ -43,7 +43,12 @@ const AverageDateRange = () => {
         const apidate = async () => {
           if (selected !== null) {
             try {
-              const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
+              const accessToken = localStorage.getItem('accessToken');
+              const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              });
               console.log(response);
               const data = response.data;
               console.log(data);

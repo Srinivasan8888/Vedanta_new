@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import bg from "../../Assets/images/bg.png";
 import Sidebar from "../../Assets/Sidebar/Sidebar.jsx";
@@ -17,6 +17,7 @@ const Heatmap = () => {
   const [combinedTableData, setCombinedTableData] = useState([]); 
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
+  const socketRef = useRef(null);  // Add this ref to track current socket
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -43,59 +44,63 @@ const Heatmap = () => {
   };
 
   useEffect(() => {
-    let currentUserId = localStorage.getItem("id"); // Initial userId
+    let currentUserId = localStorage.getItem("id");
     const accessToken = localStorage.getItem("accessToken");
 
-    // Function to create a new socket connection
     const createSocket = (userId) => {
       const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
-        auth: {
-          accessToken,
-          userId,
-        },
+        auth: { accessToken, userId },
       });
 
-      // Handle connection errors
       newSocket.on("connect_error", (err) => {
         console.error("WebSocket connection error:", err);
         setError("Failed to connect to the WebSocket server.");
       });
 
+      socketRef.current = newSocket;  // Update ref with new socket
       return newSocket;
     };
 
-    // Create the initial socket connection
     const initialSocket = createSocket(currentUserId);
     setSocket(initialSocket);
 
-    // Periodically check for userId updates
     const intervalId = setInterval(() => {
       const newUserId = localStorage.getItem("id");
       if (newUserId !== currentUserId) {
         console.log("UserId changed. Reconnecting socket...");
         currentUserId = newUserId;
 
-        // Disconnect the old socket and create a new one
-        initialSocket.disconnect();
+        // Disconnect using ref instead of initialSocket
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+        
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
       }
-    }, 500); // Check every 1/2 seconds
+    }, 500);
 
-    // Cleanup on component unmount
     return () => {
       clearInterval(intervalId);
-      initialSocket.disconnect();
+      // Disconnect using ref instead of initialSocket
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 
-
+  
   useEffect(() => {
     // Load initial data from localStorage
     const savedASide = localStorage.getItem('HeatmapASide');
     const savedBSide = localStorage.getItem('HeatmapBSide');
+    const savedASiderange = localStorage.getItem('HeatmapASiderange');
+    const savedBSiderange = localStorage.getItem('HeatmapBSiderange');
+    
     if (savedASide) setASideData(JSON.parse(savedASide));
     if (savedBSide) setBSideData(JSON.parse(savedBSide));
+    if (savedASiderange) setCombinedData(JSON.parse(savedASiderange));
+    if (savedBSiderange) setCombinedData(JSON.parse(savedBSiderange));
   }, []);
 
   useEffect(() => {
@@ -135,6 +140,7 @@ const Heatmap = () => {
       console.log("Received ASiderange Data:", data);
       if (Array.isArray(data)) {
         ASideData = data; // Store ASiderange data
+        localStorage.setItem("HeatmapASiderange", JSON.stringify(data));
         handleData(ASideData, BSideData);
       }
     });
@@ -143,6 +149,7 @@ const Heatmap = () => {
       console.log("Received BSiderange Data:", data);
       if (Array.isArray(data)) {
         BSideData = data; // Store BSiderange data
+        localStorage.setItem("HeatmapBSiderange", JSON.stringify(data));
         handleData(ASideData, BSideData);
       }
     });

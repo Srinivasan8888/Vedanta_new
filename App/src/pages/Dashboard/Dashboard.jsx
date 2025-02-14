@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import bg from "../../Assets/images/bg.png";
-import ThreeScene from "../../Assets/model/ThreeModel.jsx";
+import ThreeScene from "../../Assets/components/model/ThreeModel.jsx";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import Notifications from "../../Assets/components/Dashboard/Notifications";
 import Aside from "../../Assets/components/Dashboard/Aside";
@@ -20,51 +20,51 @@ const Dashboard = () => {
   const [lastButtonClicked, setLastButtonClicked] = useState(null); // Last button clicked in chart
   const [error, setError] = useState(null); // Error handling
 
+  const socketRef = useRef(null);  // Add this ref to track current socket
 
   useEffect(() => {
-    let currentUserId = localStorage.getItem("id"); // Initial userId
+    let currentUserId = localStorage.getItem("id");
     const accessToken = localStorage.getItem("accessToken");
 
-    // Function to create a new socket connection
     const createSocket = (userId) => {
       const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
-        auth: {
-          accessToken,
-          userId,
-        },
+        auth: { accessToken, userId },
       });
 
-      // Handle connection errors
       newSocket.on("connect_error", (err) => {
         console.error("WebSocket connection error:", err);
         setError("Failed to connect to the WebSocket server.");
       });
 
+      socketRef.current = newSocket;  // Update ref with new socket
       return newSocket;
     };
 
-    // Create the initial socket connection
     const initialSocket = createSocket(currentUserId);
     setSocket(initialSocket);
 
-    // Periodically check for userId updates
     const intervalId = setInterval(() => {
       const newUserId = localStorage.getItem("id");
       if (newUserId !== currentUserId) {
         console.log("UserId changed. Reconnecting socket...");
         currentUserId = newUserId;
 
-        // Disconnect the old socket and create a new one
-        initialSocket.disconnect();
+        // Disconnect using ref instead of initialSocket
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+        
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
       }
-    }, 500); // Check every 1/2 seconds
+    }, 500);
 
-    // Cleanup on component unmount
     return () => {
       clearInterval(intervalId);
-      initialSocket.disconnect();
+      // Disconnect using ref instead of initialSocket
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 

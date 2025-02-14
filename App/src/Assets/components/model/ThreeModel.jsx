@@ -7,8 +7,8 @@ import {
   Html,
 } from "@react-three/drei";
 import * as THREE from "three";
-import down from "../../Assets/images/red-arrow.png";
-import up from "../../Assets/images/green-arrow.png";
+import down from "../../images/red-arrow.png";
+import up from "../../images/green-arrow.png";
 
 const Model = ({ socketData, ModelTempData }) => {
   // console.log("Socket Data:", socketData);
