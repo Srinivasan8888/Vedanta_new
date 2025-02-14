@@ -17,7 +17,6 @@ const Heatmap = () => {
   const [combinedTableData, setCombinedTableData] = useState([]); 
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
-  const [potId, setPotId] = useState('');
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -90,6 +89,7 @@ const Heatmap = () => {
     };
   }, []);
 
+
   useEffect(() => {
     // Load initial data from localStorage
     const savedASide = localStorage.getItem('HeatmapASide');
@@ -118,8 +118,8 @@ const Heatmap = () => {
     // for the 7 values for min and max in the table
     const handleData = (ASideData, BSideData) => {
       const mergedData = [
-        ...ASideData.map((data) => ({ ...data, source: "ASiderangeExtreme" })),
-        ...BSideData.map((data) => ({ ...data, source: "BSiderangeExtreme" })),
+        ...ASideData.map((data) => ({ ...data, source: "ASiderange" })),
+        ...BSideData.map((data) => ({ ...data, source: "BSiderange" })),
       ];
       const filteredData = mergedData.filter(data => 
         data.source === (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange")
@@ -132,7 +132,7 @@ const Heatmap = () => {
     let BSideData = [];
 
     socket.on("ASiderange", (data) => {
-      // console.log("Received ASiderange Data:", data);
+      console.log("Received ASiderange Data:", data);
       if (Array.isArray(data)) {
         ASideData = data; // Store ASiderange data
         handleData(ASideData, BSideData);
@@ -140,7 +140,7 @@ const Heatmap = () => {
     });
 
     socket.on("BSiderange", (data) => {
-      // console.log("Received BSiderange Data:", data);
+      console.log("Received BSiderange Data:", data);
       if (Array.isArray(data)) {
         BSideData = data; // Store BSiderange data
         handleData(ASideData, BSideData);
@@ -181,25 +181,6 @@ const Heatmap = () => {
     }
   }, []);
 
-  useEffect(() => {
-    setInterval(() => {
-    const handleStorageChange = () => {
-      const id = window.localStorage.getItem('id');
-      setPotId(id || '');
-    };
-
-    // Initial load
-    handleStorageChange();
-    
-    // Listen for storage changes
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };}, [500]);
-  }, []);
-  
-
   return (
     <div
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
@@ -211,10 +192,9 @@ const Heatmap = () => {
         <div className="md:h-[40%] h-[336px] grid grid-rows-2  md:w-full rounded-tr-lg rounded-tl-lg ">
           <div className="md:h-[100%]">
             <div className="flex flex-col justify-between h-full px-10 py-4">
-              <div className="flex justify-between mb-2 text-2xl font-semibold md:h-[40%]">
-                <p>Collector Bar</p>
-                <p>{potId || 'N/A'}</p>
-              </div>
+              <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
+                Collector Bar
+              </p>
               <div className="flex justify-between md:h-[60%] px-4">
                 <p>
                   <Switcher10 onValueChange10={handleSwitcherValueChange10} />
@@ -254,7 +234,7 @@ const Heatmap = () => {
                 </div>
 
                 <p>
-                <Switcher9 value={switcherValue} onChange={handleSwitcherValueChange} />
+                  <Switcher9 onValueChange={handleSwitcherValueChange} />
                 </p>
               </div>
             </div>

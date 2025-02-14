@@ -116,6 +116,11 @@ const Sidebar = () => {
         setIddropdown(ids);
         setFilteredData(ids);
         localStorage.setItem('cachedIds', JSON.stringify(ids));
+        
+        if (ids.length > 0 && !localStorage.getItem('id')) {
+          localStorage.setItem('id', ids[0]);
+          setSearchText(ids[0]);
+        }
       } catch (error) {
         console.error("Error fetching unique IDs:", error);
         setError("Failed to fetch device IDs");

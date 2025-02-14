@@ -99,7 +99,6 @@ export const verifyAccessToken = async (req, res, next) => {
     if (!error.status) {
       error = createError.InternalServerError("Token verification failed");
     }
-    next(error);
   }
 };
 

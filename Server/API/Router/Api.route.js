@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/getAside', verifyAccessToken, ApiController.Aside);
 router.get('/getBside', verifyAccessToken, ApiController.Bside);
 router.get('/getallsensor', verifyAccessToken, ApiController.getallsensor);
-router.get('/getcbname', verifyAccessToken, ApiController.cbname);
+router.get('/getcbname', ApiController.cbname);
 router.get('/getAverageExcel', verifyAccessToken, ApiController.fetchSensorDataByaverage)
 router.get('/getIntervalExcel', verifyAccessToken, ApiController.fetchSensorDataByinterval)
 router.get('/getDateExcel', verifyAccessToken, ApiController.fetchSensorDataByDate)
