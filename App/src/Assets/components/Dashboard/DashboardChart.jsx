@@ -83,6 +83,7 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
     onChartClick(buttonId);
   };
 
+  
   // const userData = {
   //   labels: temp.map((data) => data.month),
   //   datasets: [
@@ -308,7 +309,7 @@ ChartJS.register(dangerLinePlugin);
     setInterval(() => {
     const handleStorageChange = () => {
       const id = window.localStorage.getItem('id');
-      setPotId(id || '');
+      setPotId(id);
     };
 
     // Initial load

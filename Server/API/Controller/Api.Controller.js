@@ -1,15 +1,15 @@
 // const { verifyRefreshToken } = require("../../Helpers/jwt_helper")
 
-import SensorModel1 from '../Models/SensorModel1.js';
-import SensorModel2 from '../Models/SensorModel2.js';
-import SensorModel3 from '../Models/SensorModel3.js';
-import SensorModel4 from '../Models/SensorModel4.js';
-import SensorModel5 from '../Models/SensorModel5.js';
-import SensorModel6 from '../Models/SensorModel6.js';
-import SensorModel7 from '../Models/SensorModel7.js';
-import SensorModel8 from '../Models/SensorModel8.js';
-import SensorModel9 from '../Models/SensorModel9.js';
-import SensorModel10 from '../Models/SensorModel10.js';
+import SensorModel1 from '../Models/sensorModel1.js';
+import SensorModel2 from '../Models/sensorModel2.js';
+import SensorModel3 from '../Models/sensorModel3.js';
+import SensorModel4 from '../Models/sensorModel4.js';
+import SensorModel5 from '../Models/sensorModel5.js';
+import SensorModel6 from '../Models/sensorModel6.js';
+import SensorModel7 from '../Models/sensorModel7.js';
+import SensorModel8 from '../Models/sensorModel8.js';
+import SensorModel9 from '../Models/sensorModel9.js';
+import SensorModel10 from '../Models/sensorModel10.js';
 
 
 export const Aside = async (req, res) => {
@@ -139,6 +139,8 @@ export const cbname = async (req, res) => {
 };
 
 export const fetchSensorDataByaverage = async (req, res) => {
+  const userId = req.headers['x-user-id'];
+  // console.log("userId form api", userId)
   const { key, startDate, endDate, average } = req.query; const modelMap = {
     model1: SensorModel1,
     model2: SensorModel2,
@@ -235,6 +237,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
             {
               $match: {
                 createdAt: { $gte: date1, $lt: date2 },
+                id: userId
               },
             },
             {
@@ -290,7 +293,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel2.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -339,7 +342,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel3.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -392,7 +395,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel4.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -437,7 +440,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel5.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -486,7 +489,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel6.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -543,7 +546,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel7.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -619,7 +622,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel8.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -671,7 +674,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel9.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -719,7 +722,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel10.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -804,7 +807,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel1.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -857,7 +860,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel2.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -905,7 +908,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel3.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -957,7 +960,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel4.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1001,7 +1004,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel5.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1049,7 +1052,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel6.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1105,7 +1108,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel7.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1181,7 +1184,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel8.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1233,7 +1236,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel9.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1281,7 +1284,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
           SensorModel10.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1340,18 +1343,6 @@ export const fetchSensorDataByaverage = async (req, res) => {
           ])
         ]);
 
-        // Log the results of each aggregation
-        console.log("Grouped Data from SensorModel1:", allGroupedData[0]);
-        console.log("Grouped Data from SensorModel2:", allGroupedData[1]);
-        console.log("Grouped Data from SensorModel3:", allGroupedData[2]);
-        console.log("Grouped Data from SensorModel4:", allGroupedData[3]);
-        console.log("Grouped Data from SensorModel5:", allGroupedData[4]);
-        console.log("Grouped Data from SensorModel6:", allGroupedData[5]);
-        console.log("Grouped Data from SensorModel7:", allGroupedData[6]);
-        console.log("Grouped Data from SensorModel8:", allGroupedData[7]);
-        console.log("Grouped Data from SensorModel9:", allGroupedData[8]);
-        console.log("Grouped Data from SensorModel10:", allGroupedData[9]);
-
         const combinedGroupedData = allGroupedData.flat();
 
         if (combinedGroupedData.length === 0) {
@@ -1382,7 +1373,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
       const groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lt: date2 },
+            createdAt: { $gte: date1, $lt: date2 }, id: userId
           },
         },
         {
@@ -1412,7 +1403,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
       const groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lt: date2 },
+            createdAt: { $gte: date1, $lt: date2 }, id: userId
           },
         },
         {
@@ -1468,6 +1459,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
 
 export const fetchSensorDataByinterval = async (req, res) => {
   const { key, startDate, endDate, average } = req.query;
+  const userId = req.headers['x-user-id'];
 
   const modelMap = {
     model1: SensorModel1,
@@ -1562,7 +1554,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel1.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1616,7 +1608,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel2.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1654,7 +1646,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel3.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1696,7 +1688,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel4.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1730,7 +1722,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel5.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1768,7 +1760,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel6.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1826,7 +1818,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel7.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1887,13 +1879,14 @@ export const fetchSensorDataByinterval = async (req, res) => {
                 CBT9B2: 1,
                 CBT10B1: 1,
                 CBT10B2: 1,
+                TIME: 1
               },
             },
           ]),
           SensorModel8.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1935,7 +1928,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel9.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -1978,7 +1971,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel10.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 },
+                createdAt: { $gte: date1, $lt: date2 }, id: userId
               },
             },
             {
@@ -2041,7 +2034,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel1.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2086,7 +2079,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel2.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2122,7 +2115,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel3.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2161,7 +2154,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel4.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2197,7 +2190,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel5.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2235,7 +2228,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel6.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2282,7 +2275,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel7.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2333,7 +2326,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel8.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2372,7 +2365,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel9.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2411,7 +2404,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
           SensorModel10.aggregate([
             {
               $match: {
-                createdAt: { $gte: date1, $lt: date2 }, // Filter by date range
+                createdAt: { $gte: date1, $lt: date2 }, id: userId // Filter by date range
               },
             },
             {
@@ -2484,7 +2477,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
       const groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lt: date2 },
+            createdAt: { $gte: date1, $lt: date2 }, id: userId
           },
         },
         {
@@ -2514,7 +2507,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
       const groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lt: date2 },
+            createdAt: { $gte: date1, $lt: date2 }, id: userId
           },
         },
         {
@@ -2572,7 +2565,7 @@ export const fetchSensorDataByinterval = async (req, res) => {
 
 export const fetchSensorDataByDate = async (req, res) => {
   const { key, startDate, endDate } = req.query;
-
+  const userId = req.headers['x-user-id'];
   // Log the incoming parameters for debugging
   console.log("Received parameters:", { key, startDate, endDate });
 
@@ -2673,7 +2666,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel1.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2701,7 +2694,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel2.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2721,7 +2714,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel3.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2743,7 +2736,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel4.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2761,7 +2754,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel5.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2781,7 +2774,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel6.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2811,7 +2804,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel7.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2845,7 +2838,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel8.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2867,7 +2860,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel9.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2890,7 +2883,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         SensorModel10.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2943,7 +2936,7 @@ export const fetchSensorDataByDate = async (req, res) => {
         const groupedData = await model.aggregate([
           {
             $match: {
-              createdAt: { $gte: date1, $lt: date2 },
+              createdAt: { $gte: date1, $lt: date2 }, id: userId
             },
           },
           {
@@ -2967,7 +2960,7 @@ export const fetchSensorDataByDate = async (req, res) => {
 
 export const fetchSensorDataBylimit = async (req, res) => {
   const { key, limit } = req.query;
-
+  const userId = req.headers['x-user-id'];
   const modelMap = {
     model1: SensorModel1,
     model2: SensorModel2,
@@ -3379,9 +3372,13 @@ export const fetchSensorDataBylimit = async (req, res) => {
   }
 };
 
+
+
+// for analytics page
 export const fetchSensorDataByaveragegraph = async (req, res) => {
   const { key, startDate, endDate, average } = req.query;
-
+  const userId = req.headers['x-user-id'];
+  // console.log("userId", userId);
   // Map keys to their respective models
   const modelMap = {
     sensormodel1: SensorModel1,
@@ -3416,7 +3413,8 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
       groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lte: date2 },
+            createdAt: { $gte: date1, $lte: date2 }, 
+            id: userId
           },
         },
         {
@@ -3469,7 +3467,7 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
       groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lte: date2 },
+            createdAt: { $gte: date1, $lte: date2 }, id: userId
           },
         },
         {
@@ -3522,7 +3520,7 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
       groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lte: date2 },
+            createdAt: { $gte: date1, $lte: date2 }, id: userId
           },
         },
         {
@@ -3601,7 +3599,9 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
 
 export const fetchSensorDataByintervalgraph = async (req, res) => {
   const { key, startDate, endDate, average } = req.query;
-
+  const userId = req.headers['x-user-id'];
+   console.log("userId for interval data", userId);
+//  console.log("Checking for userid ", userId);
   // Map keys to their respective models
   const modelMap = {
     sensormodel1: SensorModel1,
@@ -3720,9 +3720,131 @@ export const fetchSensorDataByintervalgraph = async (req, res) => {
   }
 };
 
+
+// export const fetchSensorDataByintervalgraph = async (req, res) => {
+//   const { key, startDate, endDate, average } = req.query;
+//   const userId = req.headers['x-user-id'];
+//   // Map keys to their respective models
+//   const modelMap = {
+//     sensormodel1: SensorModel1,
+//     sensormodel2: SensorModel2,
+//     sensormodel3: SensorModel3,
+//     sensormodel4: SensorModel4,
+//     sensormodel5: SensorModel5,
+//     sensormodel6: SensorModel6,
+//     sensormodel7: SensorModel7,
+//     sensormodel8: SensorModel8,
+//     sensormodel9: SensorModel9,
+//     sensormodel10: SensorModel10,
+//   };
+
+//   try {
+//     const date1 = new Date(startDate);
+//     const date2 = new Date(endDate);
+
+//     // Log dates for debugging
+//     console.log("Start Date:", date1);
+//     console.log("End Date:", date2);
+
+//     // Get the model based on the key
+//     const model = modelMap[key];
+//     if (!model) {
+//       return res.status(404).json({ error: "Invalid key. Key must be between sensormodel1 and sensormodel10." });
+//     }
+
+//     // Log the model being used
+//     console.log("Using model:", key);
+
+//     // Fetch data based on the average type (Hour, Day, or Minute)
+//     let groupedData;
+//     const matchStage = {
+//       createdAt: { $gte: date1, $lte: date2 }, id: userId
+//     };
+
+//     // Log the match stage
+//     console.log("Match Stage:", matchStage);
+
+//     const groupStage = {
+//       _id: {
+//         $dateToString: {
+//           format: average === "Minute" ? "%Y-%m-%dT%H:%M:00" : average === "Hour" ? "%Y-%m-%dT%H:00:00" : "%Y-%m-%d",
+//           date: "$createdAt",
+//         },
+//       },
+//       ...Object.keys(model.schema.paths).reduce((acc, field) => {
+//         if (field !== "_id" && field !== "createdAt" && field !== "TIME" && field !== "busbar" && field !== "id" && field !== "__v" && field !== "updatedAt") {
+//           acc[field] = {
+//             $avg: {
+//               $cond: {
+//                 if: {
+//                   $and: [
+//                     { $ne: [`$${field}`, null] }, // Skip null values
+//                     { $ne: [`$${field}`, ""] }, // Skip empty strings
+//                     { $regexMatch: { input: `$${field}`, regex: /^-?\d+(\.\d+)?$/ } }, // Check if the value is a valid number string
+//                   ],
+//                 },
+//                 then: { $toDouble: `$${field}` }, // Convert to double if valid
+//                 else: null, // Skip invalid values
+//               },
+//             },
+//           };
+//         }
+//         return acc;
+//       }, {}),
+//     };
+
+//     // Log the group stage
+//     console.log("Group Stage:", groupStage);
+
+//     const projectStage = {
+//       _id: 0,
+//       timestamp: "$_id",
+//       ...Object.keys(model.schema.paths).reduce((acc, field) => {
+//         if (field !== "_id" && field !== "createdAt" && field !== "TIME" && field !== "busbar" && field !== "id" && field !== "__v" && field !== "updatedAt") {
+//           acc[field] = 1;
+//         }
+//         return acc;
+//       }, {}),
+//     };
+
+//     // Log the project stage
+//     console.log("Project Stage:", projectStage);
+
+//     groupedData = await model.aggregate([
+//       { $match: matchStage },
+//       { $group: groupStage },
+//       { $project: projectStage },
+//       { $sort: { timestamp: 1 } },
+//     ]);
+
+//     // Log the grouped data for debugging
+//     console.log("Grouped Data:", groupedData);
+
+//     if (groupedData.length === 0) {
+//       return res.status(404).json({ error: "No data found for the given date range." });
+//     }
+
+//     // Format data for charting
+//     const chartData = {
+//       labels: groupedData.map((entry) => entry.timestamp), // x-axis labels (timestamps)
+//       datasets: Object.keys(groupedData[0])
+//         .filter((key) => key !== "timestamp") // Exclude the timestamp field
+//         .map((field) => ({
+//           label: field, // Sensor field name (e.g., CBT1A1, CBT1A2)
+//           data: groupedData.map((entry) => entry[field]), // y-axis data
+//         })),
+//     };
+
+//     return res.status(200).json(chartData);
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 export const fetchSensorDataByDategraph = async (req, res) => {
   const { key, startDate, endDate } = req.query;
-
+  const userId = req.headers['x-user-id'];
   // Map keys to their respective models
   const modelMap = {
     sensormodel1: SensorModel1,
@@ -3756,7 +3878,8 @@ export const fetchSensorDataByDategraph = async (req, res) => {
 
     // Fetch all raw data within the date range
     const rawData = await model.find({
-      createdAt: { $gte: date1, $lte: date2 }, // Filter data between startDate and endDate
+      createdAt: { $gte: date1, $lte: date2 }, 
+      id: userId// Filter data between startDate and endDate
     }).sort({ createdAt: 1 }); // Sort by createdAt in ascending order
 
     // Log the raw data for debugging
@@ -3792,6 +3915,7 @@ export const fetchSensorDataByDategraph = async (req, res) => {
 
 export const fetchSensorDataBylimitgraph = async (req, res) => {
   const { key, limit } = req.query;
+  const userId = req.headers['x-user-id'];
 
   const modelMap = {
     sensormodel1: SensorModel1,
@@ -3846,6 +3970,7 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
           // Define the aggregation pipeline
           const projectStage = {
             _id: 0,
+           
             timestamp: "$TIME", // Use the TIME field as the timestamp
             ...Object.keys(model.schema.paths).reduce((acc, field) => {
               if (
@@ -3864,6 +3989,7 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
           };
 
           const groupedData = await model.aggregate([
+            { $match : { id: userId,}},
             { $sort: { TIME: -1 } }, // Sort by TIME in descending order
             { $limit: limitNumber }, // Apply limit
             { $project: projectStage }, // Project only required fields
@@ -3912,6 +4038,7 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
   }
 };
 
+// for different parciter
 export const getUniqueIds = async (req, res) => {
   const models = [
     SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
@@ -3920,7 +4047,7 @@ export const getUniqueIds = async (req, res) => {
 
   try {
     const uniqueIds = new Set();
-    
+
     // Query all models sequentially
     for (const model of models) {
       const data = await model.find().select({ id: 1 }).lean();
@@ -3928,13 +4055,13 @@ export const getUniqueIds = async (req, res) => {
     }
 
     const uniqueIdsArray = Array.from(uniqueIds);
-    
+
     if (uniqueIdsArray.length === 0) {
       return res.status(404).json({ error: "No IDs found" });
     }
 
     return res.status(200).json({ ids: uniqueIdsArray });
-    
+
   } catch (error) {
     console.error("Error fetching unique IDs:", error);
     res.status(500).json({ error: "Internal Server Error" });

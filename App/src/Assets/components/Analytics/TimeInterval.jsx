@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import API from "../Axios/AxiosInterceptor";
 import "./CSS/AnalyticsDateRange.css";
+import API from "../Axios/AxiosInterceptor";
 
 const TimeInterval = ({ selectedBusBar, setFetchedData }) => {
   const [startDate, setStartDate] = useState(null);
@@ -39,7 +39,7 @@ const TimeInterval = ({ selectedBusBar, setFetchedData }) => {
       const apidate = async () => {
         try {
           const response = await API.get(
-            `${process.env.REACT_APP_SERVER_URL}v2/getIntervalChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}&average=${average}`
+            `${process.env.REACT_APP_SERVER_URL}api/v2/getAverageChart?key=${busBarVariable}&startDate=${startDate}&endDate=${endDate}&average=${average}`
           );
           const data = response.data;
           setFetchedData(data);
@@ -51,6 +51,7 @@ const TimeInterval = ({ selectedBusBar, setFetchedData }) => {
       apidate();
     }
   };
+  
   return (
     <div className="md:h-[100%] h-[380px]">
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">

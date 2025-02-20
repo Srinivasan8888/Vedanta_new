@@ -62,24 +62,24 @@ const Analytics = () => {
             )}
           </div>
 
-          <div className="md:w-[40%] md:h-[100%] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto backdrop-blur scrollbar-custom md:flex md:flex-row text-white p-4">
-            <div className="md:w-[60%] md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)]">
-              <div className="text-white text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex">
+          <div className="md:w-[40%] w-full h-auto md:h-[100%] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto backdrop-blur scrollbar-custom md:flex md:flex-row text-white p-2 md:p-4">
+            <div className="md:w-[60%] w-full md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)] pb-4">
+              <div className="text-white text-[18px] md:text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex py-2">
                 Side A
               </div>
               <div className="flex justify-center">
-                <div className="grid items-center justify-center grid-cols-3 gap-5 pl-1">
+                <div className="grid items-center justify-center grid-cols-2 gap-2 px-1 md:grid-cols-3 md:gap-5">
                   {[1, 2, 3, 4, 5, 6].map((busBarNumber) => (
                     <button
                       key={busBarNumber}
-                      className={`w-32 h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
+                      className={`w-20 h-16 md:w-32 md:h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
                         selectedBusBar === busBarNumber
-                          ? "border-4 border-white" // Increase border size for selected BusBar
-                          : "border border-white" // Default border size
+                          ? "border-4 border-white"
+                          : "border border-white"
                       }`}
                       onClick={() => handleBusBarClick(busBarNumber)}
                     >
-                      <span className="text-white text-base font-medium font-['Poppins']">
+                      <span className="text-white text-sm md:text-base font-medium font-['Poppins']">
                         BusBar {busBarNumber}
                       </span>
                     </button>
@@ -88,23 +88,23 @@ const Analytics = () => {
               </div>
             </div>
 
-            <div className="md:w-[40%] md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)] ml-4">
-              <div className="text-white text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex">
+            <div className="md:w-[40%] w-full md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)] mt-2 md:mt-0 md:ml-4 pb-4 ">
+              <div className="text-white text-[18px] md:text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex py-2">
                 Side B
               </div>
               <div className="flex justify-center">
-                <div className="grid justify-around grid-cols-2 gap-5 ml-3">
+                <div className="grid justify-around grid-cols-2 gap-2 ml-1 md:grid-cols-2 md:gap-5 md:ml-3">
                   {[7, 8, 9, 10].map((busBarNumber) => (
                     <button
                       key={busBarNumber}
-                      className={`w-32 h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
+                      className={`w-20 h-16 md:w-32 md:h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
                         selectedBusBar === busBarNumber
-                          ? "border-4 border-white" // Increase border size for selected BusBar
-                          : "border border-white" // Default border size
+                          ? "border-4 border-white"
+                          : "border border-white"
                       }`}
                       onClick={() => handleBusBarClick(busBarNumber)}
                     >
-                      <span className="text-white text-base font-medium font-['Poppins']">
+                      <span className="text-white text-sm md:text-base font-medium font-['Poppins']">
                         BusBar {busBarNumber}
                       </span>
                     </button>

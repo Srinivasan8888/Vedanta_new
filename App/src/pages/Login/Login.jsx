@@ -25,6 +25,7 @@ const Login = () => {
     
     const token = localStorage.getItem("accessToken");
     const token2 = localStorage.getItem("refreshToken");
+    
     // const token3 = document.cookie
     //   .split("; ")
     //   .find((row) => row.startsWith("accessToken="));
@@ -86,6 +87,7 @@ const Login = () => {
       const { accessToken, refreshToken } = response.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem('id', "1604" );
       document.cookie = `accessToken=${accessToken}; path=/; secure`;
       document.cookie = `refreshToken=${refreshToken}; path=/; secure`;
 

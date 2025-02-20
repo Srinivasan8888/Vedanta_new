@@ -9,8 +9,9 @@ import { IoNotifications } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Sidebar.css"
+import API from "../components/Axios/AxiosInterceptor";
 
-const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick, showSuggestions, setShowSuggestions }) => {
+const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick, showSuggestions, setShowSuggestions, refreshUniqueIds }) => {
   const containerRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -35,7 +36,10 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
           onChange={handleSearchChange}
           placeholder="Search"
           className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
-          onFocus={() => setShowSuggestions(true)}
+          onFocus={() => {
+            refreshUniqueIds();
+            setShowSuggestions(true);
+          }}
         />
         
         {showSuggestions && searchText && (
@@ -63,7 +67,7 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
   );
 };
 
-const Sidebar = () => {
+const Sidebar = (props) => {
   const navigate = useNavigate();
   const [iddropdown, setIddropdown] = useState([]); // Make sure this is an array
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -88,57 +92,69 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // Call the onLogout prop to disconnect sockets
+      if (props.onLogout) {
+        props.onLogout();
+      }
+
       const refreshToken = localStorage.getItem('refreshToken');
-      await axios.delete(`${process.env.REACT_APP_SERVER_URL}auth/logout`, {
-        data: { refreshToken },
-        withCredentials: true
-      });
+      // const accessToken = localStorage.getItem('accessToken');
+
+      // Make logout request first
+      const response = await axios.delete(
+        `${process.env.REACT_APP_SERVER_URL}auth/logout`, 
+        {
+          data: { refreshToken },
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
       
-      // Clear all client-side storage
+      // Clear storage only after successful response
+      if (response.status === 200) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace(`/`);
+        
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Force reload to clear any cached state
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Ensure cleanup even if server request fails
-      localStorage.clear();
-      window.location.href = "/";
+      document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.replace(`/`);
     }
   };
   
-  useEffect(() => {
-    const fetchUniqueIds = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`);
-        const ids = response.data.ids;
-        setIddropdown(ids);
-        setFilteredData(ids);
-        localStorage.setItem('cachedIds', JSON.stringify(ids));
-        
-        if (ids.length > 0 && !localStorage.getItem('id')) {
-          localStorage.setItem('id', ids[0]);
-          setSearchText(ids[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching unique IDs:", error);
-        setError("Failed to fetch device IDs");
-        // Fallback to localStorage if available
-        const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
-        setIddropdown(cachedIds);
-        setFilteredData(cachedIds);
+  const refreshUniqueIds = async () => {
+    try {
+      const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`);
+      const ids = response.data.ids;
+      setIddropdown(ids);
+      setFilteredData(ids);
+      localStorage.setItem('cachedIds', JSON.stringify(ids));
+      
+      if (ids.length > 0 && !localStorage.getItem('id')) {
+        localStorage.setItem('id', ids[0]);
+        setSearchText(ids[0]);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching unique IDs:", error);
+      setError("Failed to fetch device IDs");
+      const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
+      setIddropdown(cachedIds);
+      setFilteredData(cachedIds);
+    }
+  };
 
-    // Load initial data from localStorage if available
+  useEffect(() => {
     const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
     if (cachedIds.length > 0) {
       setIddropdown(cachedIds);
       setFilteredData(cachedIds);
     }
-    
-    fetchUniqueIds();
+    refreshUniqueIds();
   }, []);
 
   const handleSearchChange = (e) => {
@@ -216,6 +232,7 @@ const Sidebar = () => {
           handleSuggestionClick={handleSuggestionClick}
           showSuggestions={showSuggestions}
           setShowSuggestions={setShowSuggestions}
+          refreshUniqueIds={refreshUniqueIds}
         />
 
         <button

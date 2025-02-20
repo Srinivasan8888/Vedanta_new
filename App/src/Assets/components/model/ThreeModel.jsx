@@ -340,6 +340,7 @@ const ThreeModel = ({
 }) => {
   const controlsRef = useRef();
   const [potId, setPotId] = useState('');
+  // console.log("Model data", socketData);
 
   useEffect(() => {
     setInterval(() => {

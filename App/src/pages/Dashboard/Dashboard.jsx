@@ -56,6 +56,7 @@ const Dashboard = () => {
         
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
+        console.log("id finding=",newUserId);
       }
     }, 500);
 
@@ -150,9 +151,11 @@ const Dashboard = () => {
   // Handle button clicks in the DashboardChart
   const handleChartClick = (buttonId) => {
     console.log("Button clicked in DashboardChart:", buttonId);
-    socket.emit("ButtonClick", buttonId); // Emit button click event to backend
-    setLastButtonClicked(buttonId); // Update last button clicked
+    socket.emit("ButtonClick", buttonId || "1W");
+    setLastButtonClicked(buttonId);
   };
+
+  
 
   return (
     <div
@@ -160,7 +163,11 @@ const Dashboard = () => {
       style={{ backgroundImage: `url(${bg})` }}
     >
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar onLogout={() => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+      }} />
 
       {/* Top Section: 3D Model and A Side */}
       <div className="md:h-[45%] md:flex gap-5">
@@ -170,6 +177,7 @@ const Dashboard = () => {
           lastButtonClicked={lastButtonClicked}
           latesttimestamp={latesttimestamp}
         />
+       
         {/* <Notifications /> */}
         <Aside socketData={AsideData} />
       </div>

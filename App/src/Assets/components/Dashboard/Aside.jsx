@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import sort from "../../images/down-arrow.png";
 import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
-import '../Miscellaneous/Scrollbar.css';
+import '../miscellaneous/Scrollbar.css';
 
 const ASide = ({ socketData }) => {
   const [data, setData] = useState([]);
@@ -86,7 +86,7 @@ const ASide = ({ socketData }) => {
               <React.Fragment key={key}>
                 <div className="flex mt-5 ml-10 text-base font-light justify-evenly font-poppins">
                   <p>{key}</p>
-                  <p className="ml-6">{value}</p>
+                  <p className="ml-6">{value} °C</p>
                   <p><img src={arrow} alt="arrow" /></p>
                 </div>
                 <div className="h-[1px] mx-8 mt-3 bg-white"></div>

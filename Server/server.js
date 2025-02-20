@@ -32,7 +32,8 @@ app.use(cors({
     'Content-Type', 
     'Authorization',
     'x-client-id',
-    'x-client-ip'
+    'x-client-ip',
+    'x-user-id'
   ]
 }));
 
@@ -55,10 +56,16 @@ app.get('/', verifyAccessToken, async (req, res, next) => {
    res.send('backend is running')
 })
 
-app.use('/auth', AuthRoute, cors());
+app.use('/auth', AuthRoute);
 app.use('/api/v1', InsertRoute);
 app.use('/api/v2', ApiRoute);
-
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok',
+        db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        timestamp: Date.now()
+    });
+});
 // Add explicit OPTIONS handler for /auth/verify
 app.options('/auth/verify', cors());
 

@@ -48,6 +48,7 @@ const Heatmap = () => {
     const accessToken = localStorage.getItem("accessToken");
 
     const createSocket = (userId) => {
+      
       const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
         auth: { accessToken, userId },
       });
@@ -66,6 +67,8 @@ const Heatmap = () => {
 
     const intervalId = setInterval(() => {
       const newUserId = localStorage.getItem("id");
+     
+
       if (newUserId !== currentUserId) {
         console.log("UserId changed. Reconnecting socket...");
         currentUserId = newUserId;
@@ -77,6 +80,7 @@ const Heatmap = () => {
         
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
+        console.log("id finding=",newUserId);
       }
     }, 500);
 
@@ -193,16 +197,21 @@ const Heatmap = () => {
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
       style={{ backgroundImage: `url(${bg})` }}
     >
-      <Sidebar />
+      <Sidebar onLogout={() => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+      }} />
 
-      <div className="flex  bg-[rgba(16,16,16,0.75)] h-[840px] md:h-[87%] m-4 rounded-lg border border-white flex-col text-white">
-        <div className="md:h-[40%] h-[336px] grid grid-rows-2  md:w-full rounded-tr-lg rounded-tl-lg ">
-          <div className="md:h-[100%]">
-            <div className="flex flex-col justify-between h-full px-10 py-4">
+      
+      <div className="flex  bg-[rgba(16,16,16,0.75)]  md:h-[87%] m-4 rounded-lg border border-white flex-col  text-white">
+        <div className="md:h-[40%] h-[1140px] grid grid-row md:grid-col  md:w-full rounded-tr-lg rounded-tl-lg ">
+          <div className="md:h-[100%] h-[130px]">
+            <div className="flex flex-col px-10 py-4 md:h-full md:justify-between">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
                 Collector Bar
               </p>
-              <div className="flex justify-between md:h-[60%] px-4">
+              <div className="flex flex-col md:flex-row justify-between md:h-[60%] px-4 h-[400px]">
                 <p>
                   <Switcher10 onValueChange10={handleSwitcherValueChange10} />
                 </p>
@@ -215,7 +224,7 @@ const Heatmap = () => {
                   name="startdate"
                   value={startDate}
                   onChange={handleDateChange}
-                  className="w-[9%] h-[75%] text-md  text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+                  className=" md:w-[9%] h-[75%] text-md  text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
                 />
 
                 <p className="mt-3 text-lg">To</p>
@@ -226,12 +235,12 @@ const Heatmap = () => {
                   name="enddate"
                   value={endDate}
                   onChange={handleDateChange}
-                  className="w-[9%] h-[75%] text-md text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
+                  className="md:w-[9%] h-[75%] text-md text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
                 />
                 <p className="mt-3 text-lg">Current Date</p>
 
-                <div className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg w-[9%] h-[75%] items-center justify-center flex flex-col">
-                  <p className="text-xl font-semibold">
+                <div className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg mb-5 h-10 md:mb-0 md:w-[9%] md:h-[75%] items-center justify-center flex flex-col">
+                  <p className="text-xl font-semibold ">
                     {new Date().toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
@@ -244,31 +253,33 @@ const Heatmap = () => {
                   <Switcher9 onValueChange={handleSwitcherValueChange} />
                 </p>
               </div>
+              
             </div>
-          </div>
-          <div className="md:h-[90%]">
-            <div className="flex flex-col justify-between h-full px-10 py-4">
+          </div> 
+           <div className="md:h-[90%] h-[180px]">
+            <div className="flex flex-col justify-between md:h-full h-[520px] px-10 py-4 ">
               <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
                 {switcherValue === "max" ? "Extreme Max" : "Extreme Min"}
               </p>
 
-              <div className="flex justify-between md:h-[60%] px-4 gap-6">
+              <div className="flex flex-col md:flex-row  justify-between w-auto md:w-auto md:h-[60%] px-4 gap-6">
                 {combinedData.length > 0 ? (
                   combinedData.map((data, index) => (
                     <div
                       key={index}
-                      className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg w-[9%] h-[100%] items-center justify-center flex flex-col"
+                      className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg md:w-[9%] h-[100%] items-center justify-center flex flex-col"
                     >
-                      <p className="text-xl text-[rgb(39,129,255)] font-semibold">
+                      <p className=" text-sm md:text-xl text-[rgb(39,129,255)] font-semibold">
                         {data.value || "N/A"}
                       </p>
                       <p>
                       {switcherValue === "max" ? "Max of" : "Min of"}{" "}
-                        <span className="text-white">
+                        <span className="text-sm text-white md:text-md">
                           {data.key || "Data"}
                         </span>
                       </p>
                     </div>
+                    
                   ))
                 ) : (
                   <>
@@ -283,7 +294,7 @@ const Heatmap = () => {
             </div>
           </div>
         </div>
-        <div className="md:h-[60%] h-[504px] flexmd:w-full rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
+        <div className="md:h-[60%] flex rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
         <HeatmapTable
             data={switcherValue10 === "ASide" ? ASideData : BSideData}
           />

@@ -1,13 +1,13 @@
-import SensorModel1 from "../Models/SensorModel1.js";
-import SensorModel2 from "../Models/SensorModel2.js";
-import SensorModel3 from "../Models/SensorModel3.js";
-import SensorModel4 from "../Models/SensorModel4.js";
-import SensorModel5 from "../Models/SensorModel5.js";
-import SensorModel6 from "../Models/SensorModel6.js";
-import SensorModel7 from "../Models/SensorModel7.js";
-import SensorModel8 from "../Models/SensorModel8.js";
-import SensorModel9 from "../Models/SensorModel9.js";
-import SensorModel10 from "../Models/SensorModel10.js";
+import SensorModel1 from "../Models/sensorModel1.js";
+import SensorModel2 from "../Models/sensorModel2.js";
+import SensorModel3 from "../Models/sensorModel3.js";
+import SensorModel4 from "../Models/sensorModel4.js";
+import SensorModel5 from "../Models/sensorModel5.js";
+import SensorModel6 from "../Models/sensorModel6.js";
+import SensorModel7 from "../Models/sensorModel7.js";
+import SensorModel8 from "../Models/sensorModel8.js";
+import SensorModel9 from "../Models/sensorModel9.js";
+import SensorModel10 from "../Models/sensorModel10.js";
 import AverageModel from "../Models/AverageModel.js";
 
 export const createSensor1 = async (req, res) => {

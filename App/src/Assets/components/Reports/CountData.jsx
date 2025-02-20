@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as XLSX from 'xlsx/xlsx.mjs';
-import axios from "axios";
+import API from "../Axios/AxiosInterceptor";
 
 const CountData = () => {
   const [selectedDrop, setSelecteddrop] = useState("");
@@ -22,7 +22,7 @@ const CountData = () => {
 
     try {
       let limit = selectedDrop === "custom" ? customLimit : selectedDrop;
-      const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getLimit?key=All-Data&limit=${limit}`);
+      const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getLimit?key=All-Data&limit=${limit}`);
       const data = response.data;
 
       if (!data || data.length === 0) {

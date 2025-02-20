@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Dropdown from "./Dropdown";
 import * as XLSX from 'xlsx/xlsx.mjs';
+import API from "../Axios/AxiosInterceptor";
 
 const AverageDateRange = () => {
     const [selected, setSelected] = useState("");
@@ -44,11 +45,12 @@ const AverageDateRange = () => {
           if (selected !== null) {
             try {
               const accessToken = localStorage.getItem('accessToken');
-              const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`, {
-                headers: {
-                  'Authorization': `Bearer ${accessToken}`
-                }
-              });
+              // const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`, {
+              //   headers: {
+              //     'Authorization': `Bearer ${accessToken}`
+              //   }
+              // });
+              const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getAverageExcel?key=${selected}&startDate=${startDate}&endDate=${endDate}&average=${average}`);
               console.log(response);
               const data = response.data;
               console.log(data);

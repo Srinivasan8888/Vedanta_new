@@ -260,11 +260,11 @@ const CollectorBar = () => {
 
   return (
     <div
-      className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1100px]"
+      className="relative w-screen overflow-y-hidden bg-fixed bg-center bg-cover md:h-screen md:bg-center h-[1500px]"
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Sidebar />
-      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] h-[800px] m-4 rounded-lg border border-white flex-col">
+      <div className="flex bg-[rgba(16,16,16,0.5)] md:h-[87%] h-[1400px] m-4 rounded-lg border border-white flex-col">
         <div className="flex flex-col bg-black rounded-tl-lg rounded-tr-lg md:h-16 md:w-full md:flex-row">
           <select
             className="ml-5 text-white text-3xl font-bold font-['Inter'] bg-transparent border-b border-white focus:outline-none"
@@ -287,141 +287,150 @@ const CollectorBar = () => {
           </select>
         </div>
 
-        <div className="flex md:h-full">
+        <div className="flex flex-col md:h-full md:flex-row">
           <div className=" md:w-[80%] md:h-[100%] p-4">
-            <div className="md:w-[100%] md:h-[10%] bg-[#101010]/80 rounded-lg shadow-[0px_8px_21.5px_0px_rgba(0,0,0,0.33)] flex justify-between">
+            <div className="md:w-[100%] md:h-[10%] bg-[#101010]/80 rounded-lg shadow-[0px_8px_21.5px_0px_rgba(0,0,0,0.33)] flex md:flex-row flex-col justify-between">
+            
               <div className="flex items-center mx-auto">
-                <div className="text-white text-[26px] flex justify-between font-semibold font-['Inter'] mr-10">
+                <div className="text-white md:text-[26px] flex justify-between font-semibold font-['Inter'] mr-10">
                   Max Value
                 </div>
-                <div className="text-[#0084fe] text-3xl font-bold font-['Inter'] ml-4">
+                <div className="text-[#0084fe] md:text-3xl font-bold font-['Inter'] ml-4">
                   {maxValue}°C
                 </div>
               </div>
+              
               <div className="flex items-center mx-auto">
-                <div className="text-white text-[26px] flex justify-between font-medium font-['Inter'] mr-10">
+                <div className="text-white md:text-[26px] flex justify-between font-medium font-['Inter'] mr-10">
                   Min Value
                 </div>
-                <div className="text-[#0084fe] ml-4 text-3xl font-bold font-['Inter']">
+                <div className="text-[#0084fe] ml-4 md:text-3xl font-bold font-['Inter']">
                   {minValue}°C
                 </div>
               </div>
+              
               <div className="flex items-center mx-auto">
-                <div className="text-white text-[26px] flex justify-between font-medium font-['Inter'] mr-10">
+                <div className="text-white md:text-[26px] flex justify-between font-medium font-['Inter'] mr-10">
                   Avg Value
                 </div>
-                <div className="text-[#0084fe] ml-4 text-3xl font-bold font-['Inter']">
+                <div className="text-[#0084fe] ml-4 md:text-3xl font-bold font-['Inter']">
                   {avgValue}°C
                 </div>
               </div>
+              
             </div>
 
-            <div className="md:w-[100%] md:h-[88%] 2xl:h-[88%]  bg-[#101010]/80 rounded-2xl backdrop-blur-blur mt-4">
-              <div className="md:h-[10%] flex md:w-full">
+            <div className="md:w-[100%] md:h-[88%] 2xl:h-[88%]  bg-[#101010]/80 rounded-2xl backdrop-blur-blur mt-4 h-[600px]">
+              <div className="md:h-[10%] flex md:w-full flex-col md:flex-row">
                 <div className="flex   md:w-[10%] items-center justify-around text-white">
                   <div className="text-white text-xl font-bold font-['Inter']">
                     TI
                   </div>
                 </div>
-                <div className="flex   md:w-[50%] items-center justify-around">
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "30Min" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("30Min")}
-                  >
-                    30Min
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "1H" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("1H")}
-                  >
-                    1H
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "12H" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("12H")}
-                  >
-                    12H
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "1D" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("1D")}
-                  >
-                    1D
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "1W" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("1W")}
-                  >
-                    1W
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "1M" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("1M")}
-                  >
-                    1M
-                  </button>
-                  <button
-                    className={`text-blue-700 ${
-                      activeButton === "6M" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonClick("6M")}
-                  >
-                    6M
-                  </button>
-                </div>
-                <div className="flex md:w-[10%] items-center justify-evenly" />
-                <div className="flex md:w-[30%] items-center justify-evenly">
-                  <button
-                    disabled
-                    className={`text-blue-700 ${
-                      selectedButton === "I" ? "bg-blue-700 text-white " : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonSelect("I")}
-                  >
-                    I
-                  </button>
-                  <button
-                    disabled
-                    className={`text-blue-700 ${
-                      selectedButton === "II" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonSelect("II")}
-                  >
-                    II
-                  </button>
-                  <button
-                    disabled
-                    className={`text-blue-700 ${
-                      selectedButton === "III" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonSelect("III")}
-                  >
-                    III
-                  </button>
-                  <button
-                    disabled
-                    className={`text-blue-700 ${
-                      selectedButton === "IV" ? "bg-blue-700 text-white" : ""
-                    } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
-                    onClick={() => handleButtonSelect("IV")}
-                  >
-                    IV
-                  </button>
-                </div>
+
+                  {/* timeseries button */}
+                  <div className="flex md:flex-row flex-wrap md:w-[50%] items-center justify-around">
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "30Min" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("30Min")}
+                    >
+                      30Min
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "1H" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("1H")}
+                    >
+                      1H
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "12H" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("12H")}
+                    >
+                      12H
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "1D" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("1D")}
+                    >
+                      1D
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "1W" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("1W")}
+                    >
+                      1W
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "1M" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("1M")}
+                    >
+                      1M
+                    </button>
+                    <button
+                      className={`text-blue-700 ${
+                        activeButton === "6M" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonClick("6M")}
+                    >
+                      6M
+                    </button>
+                  </div>
+                  
+                  
+                  <div className="flex md:w-[10%] items-center justify-evenly" />
+                   {/* chart series button yet to be defined */}
+                  <div className="flex md:w-[30%] items-center justify-evenly">
+                    <button
+                      disabled
+                      className={`text-blue-700 ${
+                        selectedButton === "I" ? "bg-blue-700 text-white " : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonSelect("I")}
+                    >
+                      I
+                    </button>
+                    <button
+                      disabled
+                      className={`text-blue-700 ${
+                        selectedButton === "II" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonSelect("II")}
+                    >
+                      II
+                    </button>
+                    <button
+                      disabled
+                      className={`text-blue-700 ${
+                        selectedButton === "III" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonSelect("III")}
+                    >
+                      III
+                    </button>
+                    <button
+                      disabled
+                      className={`text-blue-700 ${
+                        selectedButton === "IV" ? "bg-blue-700 text-white" : ""
+                      } border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+                      onClick={() => handleButtonSelect("IV")}
+                    >
+                      IV
+                    </button>
+                  </div>
               </div>
-              <div className=" md:h-[85%]">
+              <div className=" md:h-[85%] h-[420px]">
                 <div className="w-full h-full">
                   <Chartline
                     chartData={userData}
@@ -433,9 +442,9 @@ const CollectorBar = () => {
             </div>
           </div>
 
-          <div className="md:w-[25%] md:h-[96%] m-4 bg-[#101010]/75 rounded-2xl backdrop-blur-blur text-white p-4">
-            <div className="md:h-[8%]  bg-[#101010]/90 rounded-lg border border-white flex items-center justify-evenly">
-              <div className="text-white text-lg font-semibold font-['Poppins']">
+           <div className="md:w-[25%] md:h-[96%] m-4 bg-[#101010]/75 rounded-2xl backdrop-blur-blur text-white p-4">
+            <div className="md:h-[8%]  bg-[#101010]/90 rounded-lg border border-white flex items-center justify-evenly h-[60px] mb-8 md:mb-0">
+              <div className="text-white text-lg font-semibold font-['Poppins'] ">
                 Unit Preference
               </div>
               <div className="md:h-[76%] md:w-[40%] my-8 bg-[#101010]/90 rounded-lg flex items-center justify-evenly">
@@ -478,22 +487,22 @@ const CollectorBar = () => {
                     (K)
                   </div>
                 </div> */}
-              </div>
+               </div>
             </div>
 
             <div className="md:h-[76%] md:my-8 2xl:my- bg-[#101010]/90 rounded-lg border border-white overflow-x-scroll  scrollbar-custom ">
               <CollectorBarTable data={collectorbar} />
             </div>
 
-            <div className="md:h-[8%]  bg-[#101010]/90 rounded-lg border border-white flex items-center justify-evenly">
+            <div className="md:h-[8%]  bg-[#101010]/90 rounded-lg border border-white flex items-center justify-evenly mt-8 md:mt-0 h-[60px]">
               <div className="text-white text-lg font-semibold font-['Poppins']">
                 Last Update
               </div>
-              <div className="text-white text-[15px] font-medium font-['Poppins']">
+              <div className="text-white text-[15px] font-medium font-['Poppins'] ">
                 09/01/2025,17:54:30
               </div>
             </div>
-          </div>
+          </div>   
         </div>
       </div>
     </div>
