@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.7eac49f7.css",
-    "main.js": "/static/js/main.dc239740.js",
+    "main.css": "/static/css/main.76e0afcf.css",
+    "main.js": "/static/js/main.fdddc814.js",
     "static/js/453.0a96b997.chunk.js": "/static/js/453.0a96b997.chunk.js",
     "static/media/bg.png": "/static/media/bg.562da04c23da4c6128a3.png",
     "static/media/loginbg.png": "/static/media/loginbg.ac7db92a7c5cf7ecceaf.png",
@@ -9,12 +9,12 @@
     "static/media/Poppins-Regular.ttf": "/static/media/Poppins-Regular.35d26b781dc5fda684cc.ttf",
     "static/media/Vedanta-Logo.png": "/static/media/Vedanta-Logo.0411bd0fdb07b2eadec7.png",
     "index.html": "/index.html",
-    "main.7eac49f7.css.map": "/static/css/main.7eac49f7.css.map",
-    "main.dc239740.js.map": "/static/js/main.dc239740.js.map",
+    "main.76e0afcf.css.map": "/static/css/main.76e0afcf.css.map",
+    "main.fdddc814.js.map": "/static/js/main.fdddc814.js.map",
     "453.0a96b997.chunk.js.map": "/static/js/453.0a96b997.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.7eac49f7.css",
-    "static/js/main.dc239740.js"
+    "static/css/main.76e0afcf.css",
+    "static/js/main.fdddc814.js"
   ]
 }

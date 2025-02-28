@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 // import ThreeScene from "./Assets/components/Model/ThreeScene";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Login/Login";
@@ -17,23 +17,26 @@ import CollectorBar from "./pages/CollectorBar/CollectorBar";
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route index element={<Login />} />
           <Route path="/admin_xyma_signup" element={<Signup />} />
-          <Route path="/" element={<ProtectedRoute />}>
-              <Route path="/Dashboard" element={<Dashboard />} />
-              {/* <Route path="/Model3D" element={<ThreeSceen />} /> */}{" "}
-              <Route path="/CollectorBar" element={<CollectorBar />} />
-              <Route path="/Analytics" element={<Analytics />} />
-              <Route path="/Report" element={<Report />} />
-              <Route path="/Settings" element={<Settings />} />
-              <Route path="/Heatmap" element={<Heatmap />} />
-              <Route path="/Test" element={<Test />} />
-              <Route path="*" element={<NoPage />} />
+          
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/Dashboard" element={<Dashboard />} />
+            <Route path="/CollectorBar" element={<CollectorBar />} />
+            <Route path="/Analytics" element={<Analytics />} />
+            <Route path="/Report" element={<Report />} />
+            <Route path="/Settings" element={<Settings />} />
+            <Route path="/Heatmap" element={<Heatmap />} />
+            <Route path="/Test" element={<Test />} />
           </Route>
+
+          {/* 404 route - should be last */}
+          <Route path="*" element={<NoPage />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }

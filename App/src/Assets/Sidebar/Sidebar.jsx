@@ -36,7 +36,7 @@ const SearchInput = ({
 
   return (
     <div
-      className="hidden md:flex md:w-[30%] lg:w-[25%] xl:w-[22%] 2xl:w-[20%] rounded-xl border border-white 
+      className="flex md:w-[30%] lg:w-[25%] xl:w-[22%] 2xl:w-[20%] rounded-xl border border-white 
                bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[14px] lg:text-[16px] xl:text-[18px] 
                2xl:text-[22px] font-medium items-center justify-center backdrop-blur-sm z-30"
       ref={containerRef}
@@ -218,17 +218,46 @@ const Sidebar = (props) => {
             />
           </div>
           
-          <div>
-          <SearchInput
-          iddropdown={iddropdown}
-          searchText={searchText}
-          handleSearchChange={handleSearchChange}
-          filteredData={filteredData}
-          handleSuggestionClick={handleSuggestionClick}
-          showSuggestions={showSuggestions}
-          setShowSuggestions={setShowSuggestions}
-          refreshUniqueIds={refreshUniqueIds}
-        />
+          <div className="flex-1 mx-2">
+            <div className="rounded-xl border border-white bg-[rgba(14,14,14,0.75)] backdrop-blur-sm z-30">
+              <div className="relative flex items-center w-full">
+                <input
+                  id="search"
+                  name="search"
+                  type="number"
+                  value={searchText}
+                  onChange={handleSearchChange}
+                  placeholder="Search"
+                  className="w-full h-full bg-transparent text-white placeholder:text-[10px] focus:outline-none 
+                           rounded-xl py-1.5 pl-3 pr-10 text-[14px]"
+                  onFocus={() => {
+                    refreshUniqueIds();
+                    setShowSuggestions(true);
+                  }}
+                />
+                {showSuggestions && searchText && (
+                  <ul className="absolute left-0 right-0 z-50 overflow-y-auto text-black bg-white border 
+                              border-gray-300 shadow-lg top-full max-h-[30vh] rounded-xl text-[14px]">
+                    {filteredData.length > 0 ? (
+                      filteredData.map((item, index) => (
+                        <li
+                          key={index}
+                          className="p-2 cursor-pointer hover:bg-gray-200"
+                          onClick={() => {
+                            handleSuggestionClick(item);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {item}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="p-2 text-gray-500">No results found</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex items-end w-[16%] p-4">
