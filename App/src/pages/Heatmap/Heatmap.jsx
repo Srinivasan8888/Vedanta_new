@@ -207,12 +207,12 @@ const Heatmap = () => {
         <div className="grid-row md:grid-col grid h-[1100px] rounded-tl-lg rounded-tr-lg md:h-[40%] md:w-full">
           <div className="h-[10px] md:h-[100%]">
             <div className="flex h-[480px] flex-col px-10 py-4 md:h-full md:justify-between">
-              <p className="mb-2 flex justify-start text-2xl font-semibold md:h-[40%]">
+              <p className="mb-2 flex justify-start text-2xl font-semibold md:h-[40%] xl:h-[20%] xl:mb-0">
                 Collector Bar
               </p>
-              <div className="flex h-[100%] w-[100%] flex-col md:flex-row xl:h-[40%] xl:flex-row">
+              <div className="flex h-[100%] w-[100%] flex-col md:flex-row xl:h-[100%] xl:flex-row">
                 <div className="flex w-[100%] flex-col items-center justify-evenly md:w-[40%] md:flex-col custom-md-air:flex-col xl:w-[30%] xl:flex-row">
-                  <p>
+                <p>
                     <Switcher10 onValueChange10={handleSwitcherValueChange10} />
                   </p>
                   <p className="flex mt-3 text-xl font-semibold">Select Date</p>
@@ -228,7 +228,7 @@ const Heatmap = () => {
                       name="startdate"
                       value={startDate}
                       onChange={handleDateChange}
-                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%] xl:h-[55%]"
                     />
 
                     <p className="mt-3 text-lg">To</p>
@@ -239,12 +239,12 @@ const Heatmap = () => {
                       name="enddate"
                       value={endDate}
                       onChange={handleDateChange}
-                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%] xl:h-[55%]"
                     />
                   </div>
 
                   <div className="mt-4 flex w-[100%] flex-col items-center justify-evenly md:mt-0 md:h-[50%] md:flex-row md:gap-4 xl:h-[100%] xl:w-[50%]">
-                    <div className="mb-5 flex h-10 flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)] md:mb-0 md:h-[85%] md:w-[50%] xl:w-[40%]">
+                    <div className="mb-5 flex h-10 flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)] md:mb-0 md:h-[85%] xl:h-[55%] md:w-[50%] xl:w-[40%]">
                       {" "}
                       <p className="text-xl font-semibold">
                         {new Date().toLocaleDateString("en-GB", {
@@ -261,57 +261,7 @@ const Heatmap = () => {
                   </div>
                 </div>
 
-                {/* <div className="flex flex-col  xl:flex-row h-[100%] w-[100%] xl:h-[30%]">
-                <div className="flex-col flex border w-[100%] items-center justify-evenly md:w-[40%] md:flex-col custom-md-air:flex-col xl:w-[30%] xl:flex-row">
-                  <p>
-                    <Switcher10 onValueChange10={handleSwitcherValueChange10} />
-                  </p>
-                  <p className="flex mt-3 text-xl font-semibold">Select Date</p>
-                </div>
-
-                <div className="flex w-[80%] flex-row md:h-[100%] md:flex-col md:gap-5 xl:flex-row xl:gap-0">
-                  <div className="flex w-[60%] items-center justify-between md:h-[40%] md:w-[100%] xl:h-[100%] xl:w-[55%] xl:gap-10">
-                    <p className="mt-3 text-lg">From</p>
-
-                    <input
-                      type="date"
-                      id="startdate"
-                      name="startdate"
-                      value={startDate}
-                      onChange={handleDateChange}
-                      className="text-md custom-datepicker h-[90%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
-                    />
-
-                    <p className="mt-3 text-lg">To</p>
-
-                    <input
-                      type="date"
-                      id="enddate"
-                      name="enddate"
-                      value={endDate}
-                      onChange={handleDateChange}
-                      className="text-md custom-datepicker h-[90%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
-                    />
-                  </div>
-
-                  <div className="flex w-[90%] items-center justify-evenly md:h-[40%] md:gap-4 xl:h-[100%] xl:w-[50%]">
-                    <div className="mb-5 flex h-10 flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)] md:mb-0 md:h-[85%] md:w-[50%] xl:w-[40%]">
-                      {" "}
-                      <p className="text-xl font-semibold">
-                        {new Date().toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-
-                    <p>
-                      <Switcher9 onValueChange={handleSwitcherValueChange} />
-                    </p>
-                  </div>
-                </div>
-              </div> */}
+                
               </div>
             </div>
           </div>
