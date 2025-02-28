@@ -68,18 +68,57 @@
 // export default ProtectedRoute;
 
 // export default ProtectedRoute;
-import React from 'react';
+// import React from 'react';
+// import { Navigate, Outlet } from 'react-router-dom';
+
+// const ProtectedRoute = () => {
+//   const token = localStorage.getItem('accessToken');
+//   const token2 = localStorage.getItem('refreshToken');
+
+//   if(token && token2 ) {
+//     return <Outlet />
+//   }else {
+//     return <Navigate to={"/"}/>;
+//   }
+// }
+
+// export default ProtectedRoute;
+
+
+import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import API from '../Axios/AxiosInterceptor';
 
 const ProtectedRoute = () => {
-  const token = localStorage.getItem('accessToken');
-  const token2 = localStorage.getItem('refreshToken');
+  const [isValidToken, setIsValidToken] = useState(true);
 
-  if(token && token2 ) {
-    return <Outlet />
-  }else {
-    return <Navigate to={"/"}/>;
+  useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        const response = await API.get(`${process.env.REACT_APP_SERVER_URL}auth/access-token`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
+        
+        if (!response.ok) {
+          localStorage.clear();
+          setIsValidToken(false);
+        }
+      } catch (error) {
+        localStorage.clear();
+        setIsValidToken(false);
+      }
+    };
+
+    const interval = setInterval(verifyToken, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (localStorage.getItem('accessToken') && localStorage.getItem('refreshToken')) {
+    return isValidToken ? <Outlet /> : <Navigate to="/" />;
   }
-}
+  return <Navigate to="/" />;
+};
 
 export default ProtectedRoute;
