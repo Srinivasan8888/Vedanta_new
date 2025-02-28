@@ -101,9 +101,8 @@ const ProtectedRoute = () => {
           }
         });
         
-        if (!response.ok) {
-          localStorage.clear();
-          setIsValidToken(false);
+        if (response.status !== 200) {
+          throw new Error('Token validation failed');
         }
       } catch (error) {
         localStorage.clear();
@@ -111,7 +110,8 @@ const ProtectedRoute = () => {
       }
     };
 
-    const interval = setInterval(verifyToken, 2000);
+    verifyToken();
+    const interval = setInterval(verifyToken, 300000); // 5 minutes
     return () => clearInterval(interval);
   }, []);
 
