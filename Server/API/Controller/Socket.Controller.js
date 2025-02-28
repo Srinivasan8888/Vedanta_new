@@ -868,7 +868,7 @@ export const Heatmaprange = (io) => {
 
         // Sort combined data by value and limit to 7 entries
         combinedData.sort((a, b) => (a.value - b.value) * sortOrder);
-        const top7Data = combinedData.slice(0, 7);
+        const top7Data = combinedData.slice(0, 8);
 
         return top7Data; // Return only the top 7 values
     };

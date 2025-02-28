@@ -13,11 +13,11 @@ const Heatmap = () => {
   const [switcherValue10, setSwitcherValue10] = useState("ASide");
   const [ASideData, setASideData] = useState([]); // Store ASide data
   const [BSideData, setBSideData] = useState([]); // Store BSide data
-  const [combinedData, setCombinedData] = useState([]); 
-  const [combinedTableData, setCombinedTableData] = useState([]); 
+  const [combinedData, setCombinedData] = useState([]);
+  const [combinedTableData, setCombinedTableData] = useState([]);
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
-  const socketRef = useRef(null);  // Add this ref to track current socket
+  const socketRef = useRef(null); // Add this ref to track current socket
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -37,7 +37,6 @@ const Heatmap = () => {
 
   // console.log("Combined Table Data:", ASideData);
 
-
   const handleSwitcherValueChange10 = (newValue) => {
     setSwitcherValue10(newValue);
     // console.log("Switcher Value10 of side:", newValue);
@@ -48,7 +47,6 @@ const Heatmap = () => {
     const accessToken = localStorage.getItem("accessToken");
 
     const createSocket = (userId) => {
-      
       const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
         auth: { accessToken, userId },
       });
@@ -58,7 +56,7 @@ const Heatmap = () => {
         setError("Failed to connect to the WebSocket server.");
       });
 
-      socketRef.current = newSocket;  // Update ref with new socket
+      socketRef.current = newSocket; // Update ref with new socket
       return newSocket;
     };
 
@@ -67,7 +65,6 @@ const Heatmap = () => {
 
     const intervalId = setInterval(() => {
       const newUserId = localStorage.getItem("id");
-     
 
       if (newUserId !== currentUserId) {
         console.log("UserId changed. Reconnecting socket...");
@@ -77,10 +74,10 @@ const Heatmap = () => {
         if (socketRef.current) {
           socketRef.current.disconnect();
         }
-        
+
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
-        console.log("id finding=",newUserId);
+        console.log("id finding=", newUserId);
       }
     }, 500);
 
@@ -93,14 +90,13 @@ const Heatmap = () => {
     };
   }, []);
 
-  
   useEffect(() => {
     // Load initial data from localStorage
-    const savedASide = localStorage.getItem('HeatmapASide');
-    const savedBSide = localStorage.getItem('HeatmapBSide');
-    const savedASiderange = localStorage.getItem('HeatmapASiderange');
-    const savedBSiderange = localStorage.getItem('HeatmapBSiderange');
-    
+    const savedASide = localStorage.getItem("HeatmapASide");
+    const savedBSide = localStorage.getItem("HeatmapBSide");
+    const savedASiderange = localStorage.getItem("HeatmapASiderange");
+    const savedBSiderange = localStorage.getItem("HeatmapBSiderange");
+
     if (savedASide) setASideData(JSON.parse(savedASide));
     if (savedBSide) setBSideData(JSON.parse(savedBSide));
     if (savedASiderange) setCombinedData(JSON.parse(savedASiderange));
@@ -123,15 +119,17 @@ const Heatmap = () => {
       setBSideData(data);
       localStorage.setItem("HeatmapBSide", JSON.stringify(data));
     });
-    
+
     // for the 7 values for min and max in the table
     const handleData = (ASideData, BSideData) => {
       const mergedData = [
         ...ASideData.map((data) => ({ ...data, source: "ASiderange" })),
         ...BSideData.map((data) => ({ ...data, source: "BSiderange" })),
       ];
-      const filteredData = mergedData.filter(data => 
-        data.source === (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange")
+      const filteredData = mergedData.filter(
+        (data) =>
+          data.source ===
+          (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange"),
       );
       setCombinedData(filteredData);
     };
@@ -197,95 +195,163 @@ const Heatmap = () => {
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
       style={{ backgroundImage: `url(${bg})` }}
     >
-      <Sidebar onLogout={() => {
-        if (socketRef.current) {
-          socketRef.current.disconnect();
-        }
-      }} />
+      <Sidebar
+        onLogout={() => {
+          if (socketRef.current) {
+            socketRef.current.disconnect();
+          }
+        }}
+      />
 
-      
-      <div className="flex  bg-[rgba(16,16,16,0.75)]  md:h-[87%] m-4 rounded-lg border border-white flex-col  text-white">
-        <div className="md:h-[40%] h-[1140px] grid grid-row md:grid-col  md:w-full rounded-tr-lg rounded-tl-lg ">
-          <div className="md:h-[100%] h-[130px]">
-            <div className="flex flex-col px-10 py-4 md:h-full md:justify-between">
-              <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
+      <div className="m-4 flex flex-col rounded-lg border border-white bg-[rgba(16,16,16,0.75)] text-white md:h-[87%]">
+        <div className="grid-row md:grid-col grid h-[1100px] rounded-tl-lg rounded-tr-lg md:h-[40%] md:w-full">
+          <div className="h-[10px] md:h-[100%]">
+            <div className="flex h-[480px] flex-col px-10 py-4 md:h-full md:justify-between">
+              <p className="mb-2 flex justify-start text-2xl font-semibold md:h-[40%]">
                 Collector Bar
               </p>
-              <div className="flex flex-col md:flex-row justify-between md:h-[60%] px-4 h-[400px]">
-                <p>
-                  <Switcher10 onValueChange10={handleSwitcherValueChange10} />
-                </p>
-                <p className="flex mt-3 text-xl font-semibold">Select Date</p>
-                <p className="mt-3 text-lg">From</p>
-
-                <input
-                  type="date"
-                  id="startdate"
-                  name="startdate"
-                  value={startDate}
-                  onChange={handleDateChange}
-                  className=" md:w-[9%] h-[75%] text-md  text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
-                />
-
-                <p className="mt-3 text-lg">To</p>
-
-                <input
-                  type="date"
-                  id="enddate"
-                  name="enddate"
-                  value={endDate}
-                  onChange={handleDateChange}
-                  className="md:w-[9%] h-[75%] text-md text-white bg-[rgba(0,0,0,0.6)]  border border-gray-200 rounded-md shadow-sm p-1 custom-datepicker"
-                />
-                <p className="mt-3 text-lg">Current Date</p>
-
-                <div className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg mb-5 h-10 md:mb-0 md:w-[9%] md:h-[75%] items-center justify-center flex flex-col">
-                  <p className="text-xl font-semibold ">
-                    {new Date().toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
+              <div className="flex h-[100%] w-[100%] flex-col md:flex-row xl:h-[40%] xl:flex-row">
+                <div className="flex w-[100%] flex-col items-center justify-evenly md:w-[40%] md:flex-col custom-md-air:flex-col xl:w-[30%] xl:flex-row">
+                  <p>
+                    <Switcher10 onValueChange10={handleSwitcherValueChange10} />
                   </p>
+                  <p className="flex mt-3 text-xl font-semibold">Select Date</p>
                 </div>
 
-                <p>
-                  <Switcher9 onValueChange={handleSwitcherValueChange} />
-                </p>
+                <div className="flex w-[100%] flex-col md:h-[100%] md:flex-col md:gap-4 md:space-x-4 xl:flex-row">
+                  <div className="flex w-[100%] flex-col items-center justify-between md:h-[60%] md:w-[100%] md:flex-row xl:h-[100%] xl:w-[55%] xl:gap-10">
+                    <p className="mt-3 text-lg">From</p>
+
+                    <input
+                      type="date"
+                      id="startdate"
+                      name="startdate"
+                      value={startDate}
+                      onChange={handleDateChange}
+                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                    />
+
+                    <p className="mt-3 text-lg">To</p>
+
+                    <input
+                      type="date"
+                      id="enddate"
+                      name="enddate"
+                      value={endDate}
+                      onChange={handleDateChange}
+                      className="text-md custom-datepicker h-[100%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                    />
+                  </div>
+
+                  <div className="mt-4 flex w-[100%] flex-col items-center justify-evenly md:mt-0 md:h-[50%] md:flex-row md:gap-4 xl:h-[100%] xl:w-[50%]">
+                    <div className="mb-5 flex h-10 flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)] md:mb-0 md:h-[85%] md:w-[50%] xl:w-[40%]">
+                      {" "}
+                      <p className="text-xl font-semibold">
+                        {new Date().toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+
+                    <p>
+                      <Switcher9 onValueChange={handleSwitcherValueChange} />
+                    </p>
+                  </div>
+                </div>
+
+                {/* <div className="flex flex-col  xl:flex-row h-[100%] w-[100%] xl:h-[30%]">
+                <div className="flex-col flex border w-[100%] items-center justify-evenly md:w-[40%] md:flex-col custom-md-air:flex-col xl:w-[30%] xl:flex-row">
+                  <p>
+                    <Switcher10 onValueChange10={handleSwitcherValueChange10} />
+                  </p>
+                  <p className="flex mt-3 text-xl font-semibold">Select Date</p>
+                </div>
+
+                <div className="flex w-[80%] flex-row md:h-[100%] md:flex-col md:gap-5 xl:flex-row xl:gap-0">
+                  <div className="flex w-[60%] items-center justify-between md:h-[40%] md:w-[100%] xl:h-[100%] xl:w-[55%] xl:gap-10">
+                    <p className="mt-3 text-lg">From</p>
+
+                    <input
+                      type="date"
+                      id="startdate"
+                      name="startdate"
+                      value={startDate}
+                      onChange={handleDateChange}
+                      className="text-md custom-datepicker h-[90%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                    />
+
+                    <p className="mt-3 text-lg">To</p>
+
+                    <input
+                      type="date"
+                      id="enddate"
+                      name="enddate"
+                      value={endDate}
+                      onChange={handleDateChange}
+                      className="text-md custom-datepicker h-[90%] items-center rounded-md border border-gray-200 bg-[rgba(0,0,0,0.6)] p-1 text-white shadow-sm md:w-[40%]"
+                    />
+                  </div>
+
+                  <div className="flex w-[90%] items-center justify-evenly md:h-[40%] md:gap-4 xl:h-[100%] xl:w-[50%]">
+                    <div className="mb-5 flex h-10 flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)] md:mb-0 md:h-[85%] md:w-[50%] xl:w-[40%]">
+                      {" "}
+                      <p className="text-xl font-semibold">
+                        {new Date().toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+
+                    <p>
+                      <Switcher9 onValueChange={handleSwitcherValueChange} />
+                    </p>
+                  </div>
+                </div>
+              </div> */}
               </div>
-              
             </div>
-          </div> 
-           <div className="md:h-[90%] h-[180px]">
-            <div className="flex flex-col justify-between md:h-full h-[520px] px-10 py-4 ">
-              <p className="flex justify-start mb-2 text-2xl font-semibold md:h-[40%]">
+          </div>
+
+          <div className="h-[40px] md:h-[90%]">
+            <div className="flex h-[330px] flex-col justify-between px-10 md:h-[100%]">
+              <p className="mb-2 flex justify-start text-2xl font-semibold md:h-[40%]">
                 {switcherValue === "max" ? "Extreme Max" : "Extreme Min"}
               </p>
 
-              <div className="flex flex-col md:flex-row  justify-between w-auto md:w-auto md:h-[60%] px-4 gap-6">
+              <div className="grid grid-cols-2 gap-4 px-4 md:h-[100%] md:grid-cols-4 md:grid-rows-2 xl:h-[75%] xl:grid-cols-8 xl:grid-rows-1">
                 {combinedData.length > 0 ? (
                   combinedData.map((data, index) => (
                     <div
                       key={index}
-                      className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg md:w-[9%] h-[100%] items-center justify-center flex flex-col"
+                      className="flex h-full flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)]"
                     >
-                      <p className=" text-sm md:text-xl text-[rgb(39,129,255)] font-semibold">
+                      <p className="text-sm font-semibold text-[rgb(39,129,255)] md:text-xl">
                         {data.value || "N/A"}
                       </p>
                       <p>
-                      {switcherValue === "max" ? "Max of" : "Min of"}{" "}
+                        {switcherValue === "max" ? "Max of" : "Min of"}{" "}
                         <span className="text-sm text-white md:text-md">
                           {data.key || "Data"}
                         </span>
                       </p>
                     </div>
-                    
                   ))
                 ) : (
                   <>
-                    {[...Array(7)].map((_, index) => (
-                      <div key={index} className="bg-[rgba(16,16,16,0.8)] border border-white rounded-lg w-[9%] h-[100%] items-center justify-center flex flex-col">
-                        <div className="text-xl text-[rgb(39,129,255)] font-semibold">No Data Available</div>
+                    {[...Array(8)].map((_, index) => (
+                      <div className="flex h-full flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)]">
+                        <div
+                          key={index}
+                          className="flex h-full w-[40%] items-center justify-center rounded-lg"
+                        >
+                          <div className="text-xl font-semibold text-[rgb(39,129,255)]">
+                            No Data Available
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </>
@@ -294,8 +360,9 @@ const Heatmap = () => {
             </div>
           </div>
         </div>
-        <div className="md:h-[60%] flex rounded-br-lg rounded-bl-lg  overflow-x-auto overflow-y-auto  scrollbar-custom mx-8">
-        <HeatmapTable
+
+        <div className="scrollbar-custom mx-8 flex overflow-x-auto overflow-y-auto rounded-bl-lg rounded-br-lg md:mt-4 md:h-[60%]">
+          <HeatmapTable
             data={switcherValue10 === "ASide" ? ASideData : BSideData}
           />
         </div>

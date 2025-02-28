@@ -64,9 +64,9 @@ const RangeDate = () => {
   };
   return (
     <>
-      <div className="md:w-[50%] w-[100%]">
+      <div className="xl:w-[50%] w-[100%]">
       <div className="md:h-[16%] flex flex-row justify-center items-end md:text-3xl md:font-semibold md:mt-0 mt-4">
-          Select Date
+      Select Date
         </div>
         <div className="flex flex-col md:h-[60%] gap-10 justify-center mx-16">
         <div className="flex flex-col items-center justify-between mt-10 md:flex-row">

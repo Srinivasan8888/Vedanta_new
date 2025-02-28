@@ -80,9 +80,9 @@ const TimeInterval = () => {
   };
   return (
     <>
-      <div className="md:w-[50%] w-[100%] md:mb-0 ">
-        <div className="md:h-[16%] flex flex-row justify-center items-end md:text-3xl md:font-semibold md:mt-0 mt-4">
-          Select Time Interval
+      <div className="xl:w-[50%] w-[100%] md:mb-0 ">
+      <div className="md:h-[16%] flex flex-row justify-center items-end md:text-3xl md:font-semibold md:mt-0 mt-4">
+      Select Time Interval
         </div>
         <div className="flex flex-col md:h-[40%] gap-10 justify-center mx-16">
           <div className="flex flex-col items-center justify-between mt-10 md:flex-row">
@@ -121,7 +121,7 @@ const TimeInterval = () => {
         <div className="flex md:h-[10%] text-lg font-bold justify-center item-center pt-10">
           Get 1 data for every-
         </div>
-        <div className="flex md:h-[10%] space-x-20 items-center justify-center md:mt-0 mt-4">
+        <div className="flex md:h-[10%] space-x-20 items-center justify-center xl:mt-0 mt-4">
           <div className="flex items-center mb-4">
             <input
               id="radio-2"

@@ -12,6 +12,8 @@ module.exports ={
     extend: {
       screens: {
         "custom-md": "769px", // Custom md breakpoint
+        "custom-md-air": "820px", // Custom md breakpoint
+        "custom-1.5xl": "1440px", // Custom md breakpoint
       },
       colors: {
         primary: {

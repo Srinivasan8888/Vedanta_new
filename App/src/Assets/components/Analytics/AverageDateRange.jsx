@@ -86,11 +86,11 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
         </div>
       </div> */}
 
-      <div className="flex md:flex-row flex-col gap-4 mt-2 md:mt-0 items-center justify-center w-full md:gap-2 md:h-[25%] md:space-x-10">
+      <div className="flex md:flex-row flex-col gap-4 mt-2 md:mt-0 items-center justify-center w-full lg:gap-2 md:h-[25%] lg:space-x-10 ">
         <div className="flex items-center space-x-2">
           <label
             htmlFor="startdate"
-            className="text-sm font-medium text-white whitespace-nowrap"
+            className="text-sm font-medium text-white whitespace-nowrap md:hidden lg:flex"
           >
             From
           </label>
@@ -107,7 +107,7 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
         <div className="flex items-center space-x-2">
           <label
             htmlFor="enddate"
-            className="text-sm font-medium text-white whitespace-nowrap"
+            className="flex text-sm font-medium text-white whitespace-nowrap md:hidden lg:flex"
           >
             To
           </label>
@@ -183,7 +183,7 @@ const AverageDateRange = ({ selectedBusBar, setFetchedData }) => {
       </div>
 
       <div className="bg-[rgba(16,16,16,1)] border-2 border-white md:h-[20%] h-[15%] w-[60%] md:w-[30%] rounded-lg flex items-center justify-center md:mb-0 mx-auto" onClick={fetchdatagraph}>
-        <button className="flex items-center justify-center">Plot Graph</button>
+        <button className="flex justify-center items-center">Plot Graph</button>
       </div>
     </div>
   );

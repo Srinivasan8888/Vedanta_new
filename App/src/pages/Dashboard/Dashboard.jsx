@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [lastButtonClicked, setLastButtonClicked] = useState(null); // Last button clicked in chart
   const [error, setError] = useState(null); // Error handling
 
-  const socketRef = useRef(null);  // Add this ref to track current socket
+  const socketRef = useRef(null); // Add this ref to track current socket
 
   useEffect(() => {
     let currentUserId = localStorage.getItem("id");
@@ -36,7 +36,7 @@ const Dashboard = () => {
         setError("Failed to connect to the WebSocket server.");
       });
 
-      socketRef.current = newSocket;  // Update ref with new socket
+      socketRef.current = newSocket; // Update ref with new socket
       return newSocket;
     };
 
@@ -53,10 +53,10 @@ const Dashboard = () => {
         if (socketRef.current) {
           socketRef.current.disconnect();
         }
-        
+
         const updatedSocket = createSocket(newUserId);
         setSocket(updatedSocket);
-        console.log("id finding=",newUserId);
+        console.log("id finding=", newUserId);
       }
     }, 500);
 
@@ -74,24 +74,26 @@ const Dashboard = () => {
     if (!socket) return;
 
     // Handle "ASide" event
-    
-  socket.on("ASideUpdate", (data) => {
-    console.log("Received ASide Data:", data);
-    const validData = Array.isArray(data) ? data : [];
-    setAsidedata((prevData) => {
-      if (!isEqual(validData, prevData)) { // Update state only if data has changed
-        return validData;
-      }
-      return prevData;
+
+    socket.on("ASideUpdate", (data) => {
+      console.log("Received ASide Data:", data);
+      const validData = Array.isArray(data) ? data : [];
+      setAsidedata((prevData) => {
+        if (!isEqual(validData, prevData)) {
+          // Update state only if data has changed
+          return validData;
+        }
+        return prevData;
+      });
     });
-  });
 
     // Handle "BSide" event
     socket.on("BSideUpdate", (data) => {
       console.log("Received BSide Data:", data);
       const validData = Array.isArray(data) ? data : [];
       setBsidedata((prevData) => {
-        if (!isEqual(validData, prevData)) { // Update state only if data has changed
+        if (!isEqual(validData, prevData)) {
+          // Update state only if data has changed
           return validData;
         }
         return prevData;
@@ -155,38 +157,39 @@ const Dashboard = () => {
     setLastButtonClicked(buttonId);
   };
 
-  
-
   return (
     <div
-      className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
+      className="relative w-screen bg-fixed bg-center bg-cover xl:h-screen md:bg-center"
       style={{ backgroundImage: `url(${bg})` }}
     >
       {/* Sidebar */}
-      <Sidebar onLogout={() => {
-        if (socketRef.current) {
-          socketRef.current.disconnect();
-        }
-      }} />
+      <Sidebar
+        onLogout={() => {
+          if (socketRef.current) {
+            socketRef.current.disconnect();
+          }
+        }}
+      />
+      <>
+      <div className="xl:h-[45%] w-full lg:w-full xl:w-full 2xl:w-full xl:flex gap-5">
+          <ThreeScene
+            socketData={ModelData}
+            ModelTempData={ModelTempData}
+            lastButtonClicked={lastButtonClicked}
+            latesttimestamp={latesttimestamp}
+          /> 
 
-      {/* Top Section: 3D Model and A Side */}
-      <div className="md:h-[45%] md:flex gap-5">
-        <ThreeScene
-          socketData={ModelData}
-          ModelTempData={ModelTempData}
-          lastButtonClicked={lastButtonClicked}
-          latesttimestamp={latesttimestamp}
-        />
-       
-        {/* <Notifications /> */}
-        <Aside socketData={AsideData} />
-      </div>
+          {/* <Notifications /> */}
+           <Aside socketData={AsideData} />
+        </div>
 
-      {/* Bottom Section: Chart and B Side */}
-      <div className="md:h-[45%] md:flex gap-5">
-        <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
-        <Bside socketData={BsideData} />
-      </div>
+        {/* Bottom Section: Chart and B Side */}
+        <div className="xl:h-[45%] w-full lg:w-fit xl:w-full 2xl:w-full xl:flex gap-5">
+          <DashboardChart socketData={AvgData} onChartClick={handleChartClick}/>
+          
+          <Bside socketData={BsideData} />
+        </div>
+      </>
     </div>
   );
 };

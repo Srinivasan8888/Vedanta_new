@@ -15,7 +15,6 @@ import './Helpers/init_socketio.js';
 
 import cors from "cors";
 
-
 // client.SET('foo', 'bar')
 // client.GET('foo', (err,value) => {
 //     if(err) console.log(err.message)
@@ -25,8 +24,8 @@ import cors from "cors";
 const app = express();
 const ports = process.env.PORT;
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow all origins
-  credentials: true,
+    // origin: [`http://34.100.168.176:3000`,  `http://locahost:3000`, ], // 
+  origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: [
     'Content-Type', 

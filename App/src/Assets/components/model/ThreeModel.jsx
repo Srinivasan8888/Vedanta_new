@@ -372,7 +372,7 @@ const ThreeModel = ({
   
 
   return (
-    <div className="h-[500px] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm md:w-[73%] rounded-2xl m-4 md:h-auto relative">
+    <div className="h-[500px] md:w-[95%] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm lg:w-[96%] xl:w-[73%] 2xl:w-[73%]  2x:w-auto rounded-2xl m-4 lg:h-auto relative">
       <div className="absolute flex flex-col p-4 space-y-4 md:h-full md:w-full">
         {/* Top Section */}
         <div className="flex items-center justify-between w-full">

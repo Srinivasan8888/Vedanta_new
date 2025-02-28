@@ -6,43 +6,51 @@ import Interval from "../../images/Interval.png";
 
 const ReportsButton = ({ selectedButton, setSelectedButton }) => {
   return (
-    <div className="bg-[rgba(16,16,16,0.6)] md:w-[20%] md:h-[92%] h-[270px] md:m-8 rounded-xl border border-white backdrop-blur-sm justify-center items-center mt-4 grid grid-cols-2 md:grid-row gap-4 md:gap-0 p-4 m-4 md:p-0 md:grid-cols-none">
+    <div className="lg:grid-row m-4 mt-4 grid h-[270px] grid-cols-2 items-center justify-center gap-4 rounded-xl border border-white bg-[rgba(16,16,16,0.6)] p-4 backdrop-blur-sm md:m-8 md:h-[92%] xl:h-[90%] lg:h-[70%] xl:grid-cols-none md:p-0 xl:w-[20%] xl:gap-0">
       {" "}
       <button
-        className={`bg-[rgb(16,16,16)] rounded-xl border h-[100%] md:h-40 md:w-60 focus:ring-2 focus:ring-white flex flex-col justify-center items-center${
+        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center${
           selectedButton === 0 ? "ring-2" : ""
         }`}
         onClick={() => setSelectedButton("Average")}
       >
-        <img src={Average} className="w-6 h-6 md:w-5 md:h-auto md:mt-0" />
-        <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg">Average Data</div>
+        <img src={Average} className="w-6 h-6 md:mt-0 md:h-auto md:w-5" />
+        <div className="mt-4 text-sm text-white font-regular md:text-lg md:font-medium">
+          Average Data
+        </div>
       </button>
       <button
-        className={`bg-[rgb(16,16,16)] rounded-xl  md:h-40 md:w-60 border   h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center${
+        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center${
           selectedButton === 1 ? "ring-2" : ""
         }`}
         onClick={() => setSelectedButton("Time")}
       >
-        <img src={Interval} className="w-6 h-6 md:w-8 md:h-auto md:mt-0" />
-        <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg ">Interval Data</div>
+        <img src={Interval} className="w-6 h-6 md:mt-0 md:h-auto md:w-8" />
+        <div className="mt-4 text-sm text-white font-regular md:text-lg md:font-medium">
+          Interval Data
+        </div>
       </button>
       <button
-        className={`bg-[rgb(16,16,16)] rounded-xl  md:h-40 md:w-60 border  h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
+        className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
           selectedButton === 2 ? "ring-2" : ""
         }`}
         onClick={() => setSelectedButton("Range")}
       >
-        <img src={Dateimg} className="w-6 h-6 md:h-auto md:mt-0" />
-        <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg">Date Picker</div>
+        <img src={Dateimg} className="w-6 h-6 md:mt-0 md:h-auto" />
+        <div className="mt-4 text-sm text-white font-regular md:text-lg md:font-medium">
+          Date Picker
+        </div>
       </button>
       <button
-        className={`bg-[rgb(16,16,16)] rounded-xl  md:h-40 md:w-60 border  h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
+        className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
           selectedButton === 3 ? "ring-2" : ""
         }`}
         onClick={() => setSelectedButton("Count")}
       >
-        <img src={Count} className="w-6 h-6 md:h-auto md:mt-0" />
-        <div className="mt-4 text-sm text-white font-regular md:font-medium md:text-lg">Count-wise Data</div>
+        <img src={Count} className="w-6 h-6 md:mt-0 md:h-auto" />
+        <div className="mt-4 text-sm text-white font-regular md:text-lg md:font-medium">
+          Count-wise Data
+        </div>
       </button>
     </div>
   );

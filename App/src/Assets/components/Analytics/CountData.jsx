@@ -42,7 +42,7 @@ const CountData = ({ selectedBusBar, setFetchedData }) => {
   };
 
   return (
-    <div className="h-[280px]">
+    <div className="md:h-[100%] h-[280px]">
       <div className="md:h-[11%] flex justify-center text-xl font-semibold mt-2">
         Select Count
       </div>

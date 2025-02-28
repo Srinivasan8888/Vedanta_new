@@ -326,26 +326,26 @@ ChartJS.register(dangerLinePlugin);
 // ... existing code ...
   
   return (
-    <div className="h-[460px] md:h-auto md:w-[73%] bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
+    <div className="h-[490px] lg:w-[96.8%] pt-2 xl:pt-0 xl:h-[90%] 2xl:h-auto lg:mt-2 xl:w-[73%]  2xl:w-[73%] 2xl:pt-1 bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
       {/* <div className="w-full h-full backdrop-blur-sm"> */}
         <div className="h-[180px] md:h-[75%] w-[100%]">
-          <div className="flex flex-col px-4 mt-4 md:flex-row md:justify-around">
-            <p className="mt-2 mb-3 text-xl font-semibold text-center md:text-left md:mb-0 md:mt-0">
+          <div className="flex flex-col px-4 mt-4 xl:mt-0 md:flex-row md:justify-around">
+            <p className="mt-2 mb-3 text-xl font-semibold text-center xl:text-base md:text-left md:mb-0 md:mt-0 ">
             {potId || 'N/A'}
             </p>
 
             <div className="flex flex-row justify-center gap-4 mt-1 md:flex-row md:gap-5 md:mx-10 md:space-y-0 ">
-              <p className="text-sm md:text-base">
+              <p className="text-sm md:text-base xl:text-base">
                 Max Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)]"> {socketData.maxAvgTemp ? `${socketData.maxAvgTemp}°C` : 'NaN'}</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {socketData.maxAvgTemp ? `${socketData.maxAvgTemp}°C` : 'NaN'}</span>
               </p>
-              <p className="text-sm md:text-base">
+              <p className="text-sm md:text-base xl:text-base">
                 Min Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)]"> {socketData.minAvgTemp ? `${socketData.minAvgTemp}°C` : 'NaN'}</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {socketData.minAvgTemp ? `${socketData.minAvgTemp}°C` : 'NaN'}</span>
               </p>
-              <p className="text-sm md:text-base">
+              <p className="text-sm md:text-base xl:text-base">
                 Avg Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)]"> {((socketData.minAvgTemp + socketData.maxAvgTemp) / 2).toFixed(2)}°C</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {((socketData.minAvgTemp + socketData.maxAvgTemp) / 2).toFixed(2)}°C</span>
               </p>
             </div>
 
@@ -353,7 +353,7 @@ ChartJS.register(dangerLinePlugin);
               <Switcher13 toggleChartType={toggleChartType} />
               <button
                 type="button"
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-xs md:text-sm xl:text-xs 2xl:text-sm px-3 md:px-4 xl:px-3 2xl:px-4 py-1.5 md:py-2 xl:py-1.5 2xl:py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               >
                 Export
               </button>
@@ -368,12 +368,12 @@ ChartJS.register(dangerLinePlugin);
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 mt-4 md:mt-1 md:justify-around">
+          <div className="flex flex-wrap justify-center gap-2 pb-2 md:mt-1 md:justify-around">
             <button
               type="button"
               id="1D"
               onClick={handleClick}
-              className="w-28 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
             >
               1 Day
             </button>
@@ -381,7 +381,7 @@ ChartJS.register(dangerLinePlugin);
               type="button"
               id="3D"
               onClick={handleClick}
-              className="w-28 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
             >
               3 Days
             </button>
@@ -389,15 +389,15 @@ ChartJS.register(dangerLinePlugin);
               type="button"
               id="1W"
               onClick={handleClick}
-              className="w-28 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
             >
-              1 week
+              1 Week
             </button>
             <button
               type="button"
               id="1M"
               onClick={handleClick}
-              className="w-28 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
             >
               1 Month
             </button>
@@ -405,7 +405,7 @@ ChartJS.register(dangerLinePlugin);
               type="button"
               id="6M"
               onClick={handleClick}
-              className="w-28 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 col-span-2 md:col-span-1"
+              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
             >
               6 Months
             </button>

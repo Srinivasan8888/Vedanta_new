@@ -34,7 +34,7 @@ const HeatmapTable = ({ data }) => {
     (finalData.data && Object.keys(finalData.data).length === 0);
 
   return (
-    <div className="relative overflow-x-auto rounded-lg shadow-md scrollbar-custom">
+    <div className="overflow-x-auto relative w-full rounded-lg shadow-md scrollbar-custom">
       <table className="w-full text-sm font-normal text-white md:text-lg font-poppins">
         <thead className="sticky top-0 bg-[rgb(16,16,16)] z-10 rounded-lg">
           <tr>
@@ -53,10 +53,10 @@ const HeatmapTable = ({ data }) => {
         </thead>
         <tbody>
           {noDataAvailable ? (
-            <tr className="border-b border-white bg-[rgb(16,16,16)]">
+            <tr className="border-b border-white bg-[rgb(16,16,16)] w-full">
               <td
                 colSpan={headers.length}
-                className="px-2 md:px-6 py-2 md:py-4 text-center font-medium text-white border border-white bg-[rgb(16,16,16)]"
+                className="px-2 md:px-6 py-2 md:py-4 text-center font-medium text-white border border-white bg-[rgb(16,16,16)] "
               >
                 No data available
               </td>

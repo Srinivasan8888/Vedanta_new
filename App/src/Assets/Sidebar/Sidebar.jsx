@@ -1,4 +1,4 @@
-import React, { useState , useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import logo from "../../Assets/images/Vedanta-Logo.png";
 import xyma_logo from "../../Assets/images/Xyma-Logo.png";
@@ -8,10 +8,19 @@ import { IoMdLogOut, IoMdSettings } from "react-icons/io";
 import { IoNotifications } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Sidebar.css"
+import "./Sidebar.css";
 import API from "../components/Axios/AxiosInterceptor";
 
-const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick, showSuggestions, setShowSuggestions, refreshUniqueIds }) => {
+const SearchInput = ({
+  iddropdown,
+  searchText,
+  handleSearchChange,
+  filteredData,
+  handleSuggestionClick,
+  showSuggestions,
+  setShowSuggestions,
+  refreshUniqueIds,
+}) => {
   const containerRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -26,7 +35,12 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
   }, []);
 
   return (
-    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30" ref={containerRef}>
+    <div
+      className="hidden md:flex md:w-[30%] lg:w-[25%] xl:w-[22%] 2xl:w-[20%] rounded-xl border border-white 
+               bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[14px] lg:text-[16px] xl:text-[18px] 
+               2xl:text-[22px] font-medium items-center justify-center backdrop-blur-sm z-30"
+      ref={containerRef}
+    >
       <div className="relative flex items-center w-full">
         <input
           id="search"
@@ -35,15 +49,21 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
           value={searchText}
           onChange={handleSearchChange}
           placeholder="Search"
-          className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
+          className="w-full h-full bg-transparent text-white placeholder:md:text-[10px] 
+                   lg:placeholder:text-[12px] xl:placeholder:text-[14px] focus:outline-none 
+                   rounded-xl py-1.5 pl-5 pr-16 md:pl-4 md:pr-12 lg:pl-5 lg:pr-14 xl:pl-6 xl:pr-16"
           onFocus={() => {
             refreshUniqueIds();
             setShowSuggestions(true);
           }}
         />
-        
+
         {showSuggestions && searchText && (
-          <ul className="absolute left-0 right-0 z-40 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
+          <ul
+            className="absolute left-0 right-0 z-50 overflow-y-auto text-black bg-white border 
+                        border-gray-300 shadow-lg top-full max-h-[30vh] rounded-xl text-[14px] 
+                        lg:text-[16px] xl:text-[18px]"
+          >
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
                 <li
@@ -72,7 +92,9 @@ const Sidebar = (props) => {
   const [iddropdown, setIddropdown] = useState([]); // Make sure this is an array
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [searchText, setSearchText] = useState(localStorage.getItem('id') || "");
+  const [searchText, setSearchText] = useState(
+    localStorage.getItem("id") || ""
+  );
   const [filteredData, setFilteredData] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState(null); // Store error messages
@@ -97,59 +119,61 @@ const Sidebar = (props) => {
         props.onLogout();
       }
 
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem("refreshToken");
       // const accessToken = localStorage.getItem('accessToken');
 
       // Make logout request first
       const response = await axios.delete(
-        `${process.env.REACT_APP_SERVER_URL}auth/logout`, 
+        `${process.env.REACT_APP_SERVER_URL}auth/logout`,
         {
           data: { refreshToken },
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
+
       // Clear storage only after successful response
       if (response.status === 200) {
         localStorage.clear();
         sessionStorage.clear();
         window.location.replace(`/`);
-        
       }
     } catch (error) {
       console.error("Logout error:", error);
       localStorage.clear();
       sessionStorage.clear();
-      document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie =
+        "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.replace(`/`);
     }
   };
-  
+
   const refreshUniqueIds = async () => {
     try {
-      const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`);
+      const response = await API.get(
+        `${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`
+      );
       const ids = response.data.ids;
       setIddropdown(ids);
       setFilteredData(ids);
-      localStorage.setItem('cachedIds', JSON.stringify(ids));
-      
-      if (ids.length > 0 && !localStorage.getItem('id')) {
-        localStorage.setItem('id', ids[0]);
+      localStorage.setItem("cachedIds", JSON.stringify(ids));
+
+      if (ids.length > 0 && !localStorage.getItem("id")) {
+        localStorage.setItem("id", ids[0]);
         setSearchText(ids[0]);
       }
     } catch (error) {
       console.error("Error fetching unique IDs:", error);
       setError("Failed to fetch device IDs");
-      const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
+      const cachedIds = JSON.parse(localStorage.getItem("cachedIds") || "[]");
       setIddropdown(cachedIds);
       setFilteredData(cachedIds);
     }
   };
 
   useEffect(() => {
-    const cachedIds = JSON.parse(localStorage.getItem('cachedIds') || '[]');
+    const cachedIds = JSON.parse(localStorage.getItem("cachedIds") || "[]");
     if (cachedIds.length > 0) {
       setIddropdown(cachedIds);
       setFilteredData(cachedIds);
@@ -160,12 +184,12 @@ const Sidebar = (props) => {
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchText(query);
-    localStorage.setItem('id', query);
+    localStorage.setItem("id", query);
 
     // Ensure the input is numeric
     if (/^\d*$/.test(query)) {
-      const filtered = iddropdown.filter((item) =>
-        item.toString().includes(query) // Numeric filter
+      const filtered = iddropdown.filter(
+        (item) => item.toString().includes(query) // Numeric filter
       );
       setFilteredData(filtered);
     } else {
@@ -175,50 +199,71 @@ const Sidebar = (props) => {
 
   const handleSuggestionClick = (item) => {
     setSearchText(item);
-    localStorage.setItem('id', item);
+    localStorage.setItem("id", item);
     setShowSuggestions(false);
   };
 
   return (
     <>
-      <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3">
+      {/* <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3"> */}
+
+      <div className="h-[70px] md:h-[75px] md:flex lg:h-[7.2%] xl:h-[9%] 2xl:h-[7.5%] w-auto md:w-[97%] pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3 xl:w-[97.5%] custom-1.5xl:w-[97.5%] 2xl:w-auto">
         {/* mobileview */}
-        <div className="flex items-center w-full h-full text-lg font-semibold text-white bg-black bg-opacity-75 border border-white rounded-xl md:hidden font-poppins">
+        <div className="flex items-center w-full h-full text-lg font-semibold text-white bg-black bg-opacity-75 border border-white rounded-xl md:hidden font-popins">
           <div className="flex items-start w-3/4 p-4">
-            <img src={xyma_logo} alt="Xyma Logo" className="w-32 h-auto" />
+            <img
+              src={xyma_logo}
+              alt="Xyma Logo"
+              className="w-32 h-auto xl:w-26"
+            />
           </div>
+          
+          <div>
+          <SearchInput
+          iddropdown={iddropdown}
+          searchText={searchText}
+          handleSearchChange={handleSearchChange}
+          filteredData={filteredData}
+          handleSuggestionClick={handleSuggestionClick}
+          showSuggestions={showSuggestions}
+          setShowSuggestions={setShowSuggestions}
+          refreshUniqueIds={refreshUniqueIds}
+        />
+          </div>
+
           <div className="flex items-end w-[16%] p-4">
             <Menus />
           </div>
         </div>
 
-        <div className="hidden md:flex md:w-[16%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm">
+        {/* for desktop */}
+        <div className="hidden md:flex md:w-[16%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm">
           <img
             src={logo}
             alt="Vedanta Logo"
-            className="w-full h-auto max-w-[220px] max-h-[45px]"
+            className="md:w-[120px] lg:w-[140px] 2xl:w-[180px]"
           />
         </div>
         <button
-          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
           onClick={() => gotoDashboard()}
         >
           Home
         </button>
         <button
-          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
           onClick={() => gotoReport()}
         >
           Report
         </button>
         <button
-          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
           onClick={() => gotoAnalytics()}
         >
           Analytics
         </button>
         <button
-          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[14%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
           onClick={() => gotoHeatmap()}
         >
           Heatmap
@@ -236,7 +281,7 @@ const Sidebar = (props) => {
         />
 
         <button
-          className="hidden md:flex md:w-[4%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
+          className="hidden md:flex md:w-[4%]  rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px]  items-center justify-center backdrop-blur-sm"
           onClick={() => gotoSettings()}
         >
           <IoMdSettings />
@@ -254,11 +299,12 @@ const Sidebar = (props) => {
         >
           <IoMdLogOut />
         </button>
-        <div className="hidden md:flex md:w-[8%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
+        <div className="hidden md:flex md:w-[10%] xl:w-[8%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm">
           <img
             src={xyma_logo}
             alt="xyma logo"
-            className="w-16 h-auto xl:max-w-[100px] max-h-[40px] xl:w-28"
+            className="w-16 h-auto xl:max-w-[60px] 2xl:max-w-[70px] max-h-[30px] xl-fit"
+            //  className="lg:w-[50px] 2xl:w-[180px] lg:h-[70px]"
           />
         </div>
       </div>

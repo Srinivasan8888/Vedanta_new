@@ -29,13 +29,14 @@ const Analytics = () => {
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Sidebar />
-      <div className="bg-[rgba(16,16,16,0.5)] md:h-[87%] m-4 rounded-lg border border-white">
-        <div className="md:h-[35%] md:flex m-4 gap-3">
+      <div className="m-4 rounded-lg border border-white bg-[rgba(16,16,16,0.5)] md:h-[90%]">
+      <div className="m-4 gap-3  xl:h-[35%] md:grid md:grid-cols-2 xl:flex xl:grid-cols-none">
           <AnalyticsButton
             selectedButton={selectedButton}
             setSelectedButton={setSelectedButton}
           />
-          <div className="md:w-[35%] bg-[rgba(16,16,16,0.7)] md:h-[100%] rounded-xl mt-4 border flex flex-col border-white text-white backdrop-blur justify-center items-center py-4">
+
+          <div className="mt-4 flex flex-col items-center justify-center rounded-xl border border-white bg-[rgba(16,16,16,0.7)] py-4 text-white backdrop-blur xl:h-[100%] xl:w-[35%]">
             {selectedButton === "Average" && (
               <AverageDateRange
                 selectedBusBar={selectedBusBar}
@@ -62,24 +63,24 @@ const Analytics = () => {
             )}
           </div>
 
-          <div className="md:w-[40%] w-full h-auto md:h-[100%] rounded-xl mt-4 border border-white overflow-x-auto overflow-y-auto backdrop-blur scrollbar-custom md:flex md:flex-row text-white p-2 md:p-4">
-            <div className="md:w-[60%] w-full md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)] pb-4">
-              <div className="text-white text-[18px] md:text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex py-2">
+          <div className="scrollbar-custom mt-4 h-auto w-full overflow-x-auto overflow-y-auto rounded-xl border border-white p-2 text-white backdrop-blur md:flex md:h-[100%] lg:h-[300px] lg:w-full md:col-span-2 xl:h-[100%] md:flex-row md:p-4 xl:w-[40%]">
+          <div className="w-full rounded-xl bg-[rgba(16,16,16,0.7)] pb-4 md:h-[100%] md:w-[60%]">
+          <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[25%] md:text-[22px]">
                 Side A
               </div>
               <div className="flex justify-center">
-                <div className="grid items-center justify-center grid-cols-2 gap-2 px-1 md:grid-cols-3 md:gap-5">
+                <div className="grid grid-cols-2 gap-2 justify-center items-center px-1 md:grid-cols-3 md:gap-5">
                   {[1, 2, 3, 4, 5, 6].map((busBarNumber) => (
                     <button
                       key={busBarNumber}
-                      className={`w-20 h-16 md:w-32 md:h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
+                      className={`flex h-16 w-20 items-center justify-center rounded-lg border bg-[rgba(16,16,16,0.9)] focus:outline-none focus:ring-2 focus:ring-white md:h-20 md:w-28 ${
                         selectedBusBar === busBarNumber
                           ? "border-4 border-white"
                           : "border border-white"
                       }`}
                       onClick={() => handleBusBarClick(busBarNumber)}
                     >
-                      <span className="text-white text-sm md:text-base font-medium font-['Poppins']">
+                      <span className="font-['Poppins'] text-sm font-medium text-white md:text-base">
                         BusBar {busBarNumber}
                       </span>
                     </button>
@@ -88,23 +89,23 @@ const Analytics = () => {
               </div>
             </div>
 
-            <div className="md:w-[40%] w-full md:h-[100%] rounded-xl bg-[rgba(16,16,16,0.7)] mt-2 md:mt-0 md:ml-4 pb-4 ">
-              <div className="text-white text-[18px] md:text-[22px] font-semibold font-['Poppins'] md:h-[25%] items-center justify-center flex py-2">
+            <div className="mt-2 w-full rounded-xl bg-[rgba(16,16,16,0.7)] pb-4 md:ml-4 md:mt-0 md:h-[100%] md:w-[40%]">
+              <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[25%] md:text-[22px]">
                 Side B
               </div>
               <div className="flex justify-center">
-                <div className="grid justify-around grid-cols-2 gap-2 ml-1 md:grid-cols-2 md:gap-5 md:ml-3">
+                <div className="grid grid-cols-2 gap-2 justify-around ml-1 md:ml-3 md:grid-cols-2 md:gap-5">
                   {[7, 8, 9, 10].map((busBarNumber) => (
                     <button
                       key={busBarNumber}
-                      className={`w-20 h-16 md:w-32 md:h-20 rounded-lg border flex items-center justify-center bg-[rgba(16,16,16,0.9)] focus:ring-2 focus:ring-white focus:outline-none ${
+                      className={`flex h-16 w-20 items-center justify-center rounded-lg border bg-[rgba(16,16,16,0.9)] focus:outline-none focus:ring-2 focus:ring-white  md:h-20 md:w-28 ${
                         selectedBusBar === busBarNumber
                           ? "border-4 border-white"
                           : "border border-white"
                       }`}
                       onClick={() => handleBusBarClick(busBarNumber)}
                     >
-                      <span className="text-white text-sm md:text-base font-medium font-['Poppins']">
+                      <span className="font-['Poppins'] text-sm font-medium text-white md:text-base">
                         BusBar {busBarNumber}
                       </span>
                     </button>
@@ -114,8 +115,8 @@ const Analytics = () => {
             </div>
           </div>
         </div>
-        <div className="md:h-[58%] md:flex">
-          <div className="md:w-full md:h-full m-4 h-[700px] bg-[rgba(16,16,16,0.6)] rounded-xl border border-white backdrop-blur">
+        <div className="md:flex md:h-[270px] lg:h-[43%] xl:h-[58%] custom-md-air:h-[400px]">
+          <div className="m-4 h-[700px] rounded-xl border border-white bg-[rgba(16,16,16,0.6)] backdrop-blur md:h-full md:w-full">
             <AnalyticsChart data={fetchedData} />
           </div>
         </div>
