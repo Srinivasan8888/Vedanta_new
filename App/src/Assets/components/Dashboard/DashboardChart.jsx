@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import Switcher13 from "./miscellaneous/Switcher13.jsx";
 import Chartline from "./miscellaneous/chartline.jsx";
 import Chartbar from "./miscellaneous/chartbar.jsx";
-import { temp } from "./data/data.js";
 import 'chartjs-plugin-annotation';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { Chart as ChartJS, registerables } from 'chart.js';

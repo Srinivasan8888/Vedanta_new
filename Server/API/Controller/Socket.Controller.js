@@ -679,7 +679,7 @@ export const AvgtempModel = (io, time) => {
 
     // Function to set changedtime based on the time parameter
     const setChangedTime = (time) => {
-        switch(time) {
+        switch (time) {
             case "1D": return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
             case "3D": return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
             case "1W": return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
@@ -695,7 +695,7 @@ export const AvgtempModel = (io, time) => {
     const getSensorData = async (changedtime) => {
         try {
             const maxMinValues = [];
-            
+
             const fetchData = models.map(async (model) => {
                 return Promise.all(
                     nameMapping.map(async (parameter) => {
@@ -704,7 +704,7 @@ export const AvgtempModel = (io, time) => {
                             { $project: { [parameter]: 1, createdAt: 1 } },
                             { $group: { _id: null, max: { $max: `$${parameter}` }, min: { $min: `$${parameter}` } } }
                         ]);
-                        
+
                         if (data[0] && (data[0].max !== null || data[0].min !== null)) {
                             return {
                                 parameter: parameter,
@@ -1035,7 +1035,7 @@ export const Heatmaprange = (io) => {
 
 //     return allData;
 // };
-    
+
 
 //     const getBSideData = async (startDate, endDate) => {
 //         const allData = { timestamps: [], data: {} }; // Initialize data structure
@@ -1044,13 +1044,13 @@ export const Heatmaprange = (io) => {
 //             const query = {
 //                 createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
 //             };
-    
+
 //             // Check if the model exists in modelMap2
 //             if (!modelMap2[modelName]) {
 //                 console.warn(`Model ${modelName} not found in modelMap2`);
 //                 continue; // Skip this iteration if the model is not found
 //             }
-    
+
 //             const data = await modelMap2[modelName].aggregate([
 //                 { $match: query },
 //                 { $sort: { createdAt: -1 } },
@@ -1083,7 +1083,7 @@ export const Heatmaprange = (io) => {
 //                 },
 //                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
 //             ]);
-    
+
 //             // Populate the data structure
 //             data.forEach((doc) => {
 //                 allData.timestamps.push(doc.createdAt); // Add timestamp
@@ -1099,7 +1099,7 @@ export const Heatmaprange = (io) => {
 //         }
 //         return allData;
 //     };
-    
+
 
 //     // WebSocket connection handler
 //     io.on('connection', async (socket) => {
@@ -1479,16 +1479,16 @@ export const collectorbar = (io) => {
             console.warn(`No model found for sensor ID: ${sensorId}`);
             return null;
         }
-    
+
         const model = modelMap[modelKey];
         if (!model) {
             console.warn(`Model ${modelKey} not found`);
             return null;
         }
-    
+
         const date = parseTimeToDate(time);
         console.log(`Fetching data for sensor ID: ${sensorId}, Model: ${modelKey}, Time: ${time}, Date: ${date}`);
-    
+
         try {
             const data = await model.aggregate([
                 { $match: { createdAt: { $gte: date } } },
@@ -1500,22 +1500,22 @@ export const collectorbar = (io) => {
                     }
                 }
             ]);
-    
+
             console.log('Fetched data:', data);
-    
+
             // Extract the sensor values from the fetched data
             const sensorValues = data.map(entry => entry[sensorId]).filter(value => value !== undefined);
-    
+
             if (sensorValues.length === 0) {
                 console.warn(`No data found for sensor ID: ${sensorId}`);
                 return null;
             }
-    
+
             // Calculate min, max, and average values
             const minValue = Math.min(...sensorValues);
             const maxValue = Math.max(...sensorValues);
             const averageValue = sensorValues.reduce((sum, value) => sum + value, 0) / sensorValues.length;
-    
+
             return {
                 data,
                 minValue,
@@ -1528,55 +1528,55 @@ export const collectorbar = (io) => {
         }
     };
 
-   io.on('connection', (socket) => {
-    console.log('Client connected');
+    io.on('connection', (socket) => {
+        console.log('Client connected');
 
-    socket.on('requestedCollectorbar', async (params) => {
-        console.log('Received requestData:', params);
+        socket.on('requestedCollectorbar', async (params) => {
+            console.log('Received requestData:', params);
 
-        const { value: sensorId, date: time } = params; // 'value' is the sensor ID, 'date' is the time
-        if (!sensorId || !time) {
-            console.warn("Invalid request: Missing sensor ID or time");
-            io.emit('error', { message: "Invalid parameters: sensor ID and time are required" });
-            return;
-        }
-
-        try {
-            const result = await getCollectorBarData(sensorId, time); // Use sensor ID and time
-            if (result) {
-                socket.emit('collectorBarData', {
-                    data: result.data,
-                    minValue: result.minValue,
-                    maxValue: result.maxValue,
-                    averageValue: result.averageValue
-                });
-            } else {
-                socket.emit('error', { message: "No data found for the given sensor ID and time range" });
+            const { value: sensorId, date: time } = params; // 'value' is the sensor ID, 'date' is the time
+            if (!sensorId || !time) {
+                console.warn("Invalid request: Missing sensor ID or time");
+                io.emit('error', { message: "Invalid parameters: sensor ID and time are required" });
+                return;
             }
-        } catch (error) {
-            console.error("Error processing request:", error);
-            socket.emit('error', { message: "Failed to retrieve data" });
-        }
-    });
 
-    Object.keys(modelMap).forEach((modelKey) => {
-        const model = modelMap[modelKey];
-        if (model) {
-            model.watch([], options).on('change', async (change) => {
-                console.log(`Data changed for ${modelKey}:`, change);
-                const result = await getCollectorBarData(models[modelKey][0], "10m"); // Use the first sensor ID in the model
+            try {
+                const result = await getCollectorBarData(sensorId, time); // Use sensor ID and time
                 if (result) {
-                    io.emit('collectorBarData', {
+                    socket.emit('collectorBarData', {
                         data: result.data,
                         minValue: result.minValue,
                         maxValue: result.maxValue,
                         averageValue: result.averageValue
                     });
+                } else {
+                    socket.emit('error', { message: "No data found for the given sensor ID and time range" });
                 }
-            });
-        }
+            } catch (error) {
+                console.error("Error processing request:", error);
+                socket.emit('error', { message: "Failed to retrieve data" });
+            }
+        });
+
+        Object.keys(modelMap).forEach((modelKey) => {
+            const model = modelMap[modelKey];
+            if (model) {
+                model.watch([], options).on('change', async (change) => {
+                    console.log(`Data changed for ${modelKey}:`, change);
+                    const result = await getCollectorBarData(models[modelKey][0], "10m"); // Use the first sensor ID in the model
+                    if (result) {
+                        io.emit('collectorBarData', {
+                            data: result.data,
+                            minValue: result.minValue,
+                            maxValue: result.maxValue,
+                            averageValue: result.averageValue
+                        });
+                    }
+                });
+            }
+        });
     });
-});
 };
 
 export const latesttimetamp = (io) => {
@@ -1660,6 +1660,278 @@ export const latesttimetamp = (io) => {
                 io.emit("LatestTimestamp", latestTimestamp); // Emit the updated latest timestamp
             } catch (error) {
                 console.error("Error fetching latest timestamp on change:", error);
+            }
+        });
+    });
+};
+
+// export const notificationData = (io) => {
+//     const options = { fullDocument: "updateLookup" };
+//     const modelMap = { SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5, SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10};
+
+//     // Function to fetch latest A-Side data for a specific userId
+//     const getnotificationdata = async () => {
+//         const promises = Object.values(modelMap).map((model) =>
+//             model.aggregate([
+//                 { $sort: { createdAt: -1 } }, // Sort by createdAt descending
+//                 { $limit: 1 }, // Get the latest record
+//                 {
+//                     $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
+//                 },
+//             ])
+//         );
+//         const results = await Promise.all(promises);
+//         return results.map(data => data[0]).filter(Boolean); // Flatten and filter empty results
+//     };
+
+//     // Function to fetch latest B-Side data for a specific userId
+//     // const getBSideData = async () => {
+//     //     const promises = Object.values(modelMap2).map((model) =>
+//     //         model.aggregate([
+//     //             { $sort: { createdAt: -1 } }, // Sort by createdAt descending
+//     //             { $limit: 1 }, // Get the latest record
+//     //             {
+//     //                 $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
+//     //             },
+//     //         ])
+//     //     );
+//     //     const results = await Promise.all(promises);
+//     //     return results.map(data => data[0]).filter(Boolean); // Flatten and filter empty results
+//     // };
+
+//     io.on("connection", async (socket) => {
+//         console.log("Client connected, sending initial data");
+
+//         try {
+//             // Fetch initial A-Side and B-Side data for the user
+//             const notificationTempData = await Promise.all(getnotificationdata());
+
+//             // Emit initial data to the client
+//             socket.emit("TempData", notificationTempData);
+
+//         } catch (error) {
+//             console.error("Error sending initial data:", error);
+//         }
+//     });
+
+//     // Set up change streams for A-Side models
+//     for (const model of Object.values(modelMap)) {
+//         const changeStream = model.watch([], options);
+//         changeStream.on("change", async (change) => {
+//             console.log(`[Change detected in ${model.modelName}]`, change);
+
+//             // Extract userId from the changed document
+//             const userId = change.fullDocument?.id;
+//             if (!userId) {
+//                 console.warn(`No userId found in change event for ${model.modelName}`);
+//                 return;
+//             }
+
+//             try {
+//                 // Fetch updated A-Side data for the affected userId
+//                 const TData = await notificationTempData();
+
+//                 // Log the updated data for debugging
+//                 console.log("Updated A-Side Data:", TData);
+
+//                 // Emit the updated data to all connected clients
+//                 io.emit("TempDataUpdate", TData);
+//             } catch (error) {
+//                 console.error(`Error handling change in ${model.modelName}:`, error);
+//             }
+//         });
+//     }
+
+//     // // Set up change streams for B-Side models
+//     // for (const model of Object.values(modelMap2)) {
+//     //     const changeStream = model.watch([], options);
+//     //     changeStream.on("change", async (change) => {
+//     //         console.log(`[Change detected in ${model.modelName}]`, change);
+
+//     //         // Extract userId from the changed document
+//     //         const userId = change.fullDocument?.id;
+//     //         if (!userId) {
+//     //             console.warn(`No userId found in change event for ${model.modelName}`);
+//     //             return;
+//     //         }
+
+//     //         try {
+//     //             // Fetch updated B-Side data for the affected userId
+//     //             const BData = await getBSideData(userId);
+
+//     //             // Log the updated data for debugging
+//     //             console.log("Updated B-Side Data:", BData);
+
+//     //             // Emit the updated data to all connected clients
+//     //             io.emit("BSideUpdate", BData);
+//     //         } catch (error) {
+//     //             console.error(`Error handling change in ${model.modelName}:`, error);
+//     //         }
+//     //     });
+//     // }
+// };
+
+export const notificationData = (io) => {
+    const options = { fullDocument: "updateLookup" };
+
+
+    const models = {
+        model1: [
+            "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+            "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+            "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+            "CBT7A1", "CBT7A2"
+        ],
+        model2: [
+            "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+            "CBT10A1", "CBT10A2"
+        ],
+        model3: [
+            "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+            "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+        ],
+        model4: [
+            "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+        ],
+        model5: [
+            "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+            "CBT19A1", "CBT19A2"
+        ],
+        model6: [
+            "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+            "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+            "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+            "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+        ],
+        model7: [
+            "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+            "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+            "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+            "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+            "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+        ],
+        model8: [
+            "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+            "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+        ],
+        model9: [
+            "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+            "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+        ],
+        model10: [
+            "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+            "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+            "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+            "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+            "CBT27B1", "CBT27B2"
+        ]
+    };
+    const modelMap = {
+        SensorModel1,
+        SensorModel2,
+        SensorModel3,
+        SensorModel4,
+        SensorModel5,
+        SensorModel6,
+        SensorModel7,
+        SensorModel8,
+        SensorModel9,
+        SensorModel10,
+    };
+
+    const modelFieldMap = {
+        SensorModel1: models.model1,
+        SensorModel2: models.model2,
+        SensorModel3: models.model3,
+        SensorModel4: models.model4,
+        SensorModel5: models.model5,
+        SensorModel6: models.model6,
+        SensorModel7: models.model7,
+        SensorModel8: models.model8,
+        SensorModel9: models.model9,
+        SensorModel10: models.model10
+    };
+
+    const getFilteredData = async () => {
+        const results = [];
+        const uniqueIds = new Set();
+
+        // First pass: Collect all unique IDs
+        for (const model of Object.values(modelMap)) {
+            try {
+                const docs = await model.find().select('id -_id').lean();
+                docs.forEach(doc => doc.id && uniqueIds.add(doc.id));
+            } catch (err) {
+                console.error("ID collection error:", err);
+            }
+        }
+
+        // Second pass: Check each ID against all models
+        for (const id of uniqueIds) {
+            for (const [modelName, model] of Object.entries(modelMap)) {
+                try {
+                    const sensorFields = modelFieldMap[modelName];
+                    if (!sensorFields?.length) continue;
+
+                    const doc = await model.findOne({ id })
+                        .sort({ createdAt: -1 })
+                        .select([...sensorFields, 'createdAt'])
+                        .lean();
+
+                    if (!doc) continue;
+
+                    sensorFields.forEach(field => {
+                        const value = parseFloat(doc[field]);
+                        if (isNaN(value)) return;
+
+                        let message;
+                        if (value >= 700) {
+                            message = "Critical: Something went wrong";
+                        } else if (value >= 450) {
+                            message = "Attention Required";
+                        } else if (value >= 300) {
+                            message = "Warning";
+                        } else {
+                            return; // Skip values < 300
+                        }
+
+                        results.push({
+                            id,
+                            model: modelName,
+                            sensor: field,
+                            value,
+                            message,
+                            timestamp: doc.createdAt
+                        });
+                    });
+
+                } catch (err) {
+                    console.error(`Error processing ${modelName} ID ${id}:`, err);
+                }
+            }
+        }
+
+        return results;
+    };
+
+    // Socket handlers remain the same but now send categorized data
+    io.on("connection", async (socket) => {
+        try {
+            const data = await getFilteredData();
+            socket.emit("TempData", { status: "success", data });
+        } catch (err) {
+            socket.emit("TempData", { status: "error", error: err.message });
+        }
+    });
+
+    Object.entries(modelMap).forEach(([modelName, model]) => {
+        const changeStream = model.watch([], options);
+        changeStream.on("change", async () => {
+            try {
+                const data = await getFilteredData();
+                io.emit("TempDataUpdate", { status: "success", data });
+            } catch (err) {
+                io.emit("TempDataUpdate", { status: "error", error: err.message });
             }
         });
     });

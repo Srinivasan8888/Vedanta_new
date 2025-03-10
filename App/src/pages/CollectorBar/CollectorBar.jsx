@@ -5,7 +5,6 @@ import Sidebar from "../../Assets/Sidebar/Sidebar";
 import bg from "../../Assets/images/bg.png";
 // import Chartbar from "../../Assets/components/Dashboard/miscellaneous/chartbar";
 import Chartline from "../../Assets/components/Dashboard/miscellaneous/chartline";
-import { temp } from "../../Assets/components/Dashboard/data/data";
 import CollectorBarTable from "../../Assets/components/CollectorBar/CollectorBarTable";
 import axios from "axios";
 

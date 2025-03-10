@@ -92,8 +92,8 @@ export const verifyAccessToken = async (req, res, next) => {
     });
 
     if (token !== storedToken) {
-      // console.error("Token mismatch:", { userId, token, storedToken });
-      return next(createError.Unauthorized("Session expired or invalid"));
+      // Send unauthorized response if tokens do not match
+      return res.status(401).json({ message: "Unauthorized: Session expired or invalid" });
     }
 
     // Attach payload and continue
@@ -104,6 +104,7 @@ export const verifyAccessToken = async (req, res, next) => {
     if (!error.status) {
       error = createError.InternalServerError("Token verification failed");
     }
+    return next(error);
   }
 };
 

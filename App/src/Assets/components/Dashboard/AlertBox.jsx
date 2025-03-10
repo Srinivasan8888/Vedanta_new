@@ -1,39 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
+import warning from "../../images/warning.png";
 
-const AlertBox = () => {
+const AlertBox = ({ onClose, partNames }) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!isVisible) return null;
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="relative p-6 text-white bg-black border border-gray-700 rounded-md shadow-lg w-96">
-        <button
-          className="absolute text-gray-500 transition top-3 right-3 hover:text-white"
-          onClick={() => console.log("Close Alert")}
-        >
-          &times;
-        </button>
-        <div className="flex items-center space-x-4">
-          <div className="flex-shrink-0">
-            <div className="p-2 text-black bg-yellow-500 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.578-1.14.832-1.828l-6.928-7.2a1 1 0 00-1.488 0l-6.928 7.2c-.746.688-.222 1.828.832 1.828z"
-                />
-              </svg>
+    <div className="h-[287px] w-[809px] rounded-2xl border-2 border-white animate-[blink_1s_ease-in-out_infinite]">
+      <style>{`
+        @keyframes blink {
+          0% { background-color: rgba(0, 0, 0, 0.8); }
+          50% { background-color: rgba(255, 0, 0, 0.8); }
+          100% { background-color: rgba(0, 0, 0, 0.8); }
+        }
+      `}</style>
+      <div className="flex h-full rounded-2xl">
+        <div className="h-full w-[95%] rounded-2xl">
+          <div className="flex items-center justify-center h-full space-x-4">
+            <div className="flex-shrink-0">
+              <img src={warning} className="w-16 h-16" />
             </div>
+            <p className="w-[505px] font-['Poppins'] text-base font-medium leading-loose text-white">
+              The Temperature of {partNames.join(', ')} within the potline {localStorage.getItem('id')} has reached or
+              exceeded the specified limit. Immediate action is required to
+              prevent potential damage or safety Hazards.
+            </p>
           </div>
-          <p className="text-sm">
-            The Temperature of CBT within the potline 1 has reached or exceeded
-            the specified limit. Immediate action is required to prevent
-            potential damage or safety hazards.
-          </p>
+        </div>
+        <div className="flex h-full w-[5%] justify-end items-start pr-4 pt-4 rounded-2xl ml-auto">
+          <button onClick={() => {
+            setIsVisible(false);
+            if (onClose) onClose();
+          }}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="white"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          </button>
         </div>
       </div>
     </div>

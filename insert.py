@@ -25,7 +25,7 @@ def generate_sensor_data(sensor_id, start_sensor, end_sensor):
     }
     # Dynamically add temperature data for sensors
     for i in range(start_sensor, end_sensor + 1):
-        data[f'sensor{i}'] = f'{random.uniform(190.0, 500.0):.2f}'  # Random temperature between 320-360
+        data[f'sensor{i}'] = f'{random.uniform(190.0, 300.0):.2f}'  # Random temperature between 320-360
     return data
 
 # Insert data for each sensor

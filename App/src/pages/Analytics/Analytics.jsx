@@ -65,11 +65,11 @@ const Analytics = () => {
 
           <div className="scrollbar-custom mt-4 h-auto w-full overflow-x-auto overflow-y-auto rounded-xl border border-white p-2 text-white backdrop-blur md:flex md:h-[100%] lg:h-[300px] lg:w-full md:col-span-2 xl:h-[100%] md:flex-row md:p-4 xl:w-[40%]">
           <div className="w-full rounded-xl bg-[rgba(16,16,16,0.7)] pb-4 md:h-[100%] md:w-[60%]">
-          <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[25%] md:text-[22px]">
+          <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[20%] md:text-[22px]">
                 Side A
               </div>
               <div className="flex justify-center">
-                <div className="grid grid-cols-2 gap-2 justify-center items-center px-1 md:grid-cols-3 md:gap-5">
+                <div className="grid grid-cols-2 gap-2 justify-center items-center px-1 md:grid-cols-3 md:gap-5 xl:mr-3">
                   {[1, 2, 3, 4, 5, 6].map((busBarNumber) => (
                     <button
                       key={busBarNumber}
@@ -90,11 +90,11 @@ const Analytics = () => {
             </div>
 
             <div className="mt-2 w-full rounded-xl bg-[rgba(16,16,16,0.7)] pb-4 md:ml-4 md:mt-0 md:h-[100%] md:w-[40%]">
-              <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[25%] md:text-[22px]">
+              <div className="flex items-center justify-center py-2 font-['Poppins'] text-[18px] font-semibold text-white md:h-[20%] md:text-[22px]">
                 Side B
               </div>
               <div className="flex justify-center">
-                <div className="grid grid-cols-2 gap-2 justify-around ml-1 md:ml-3 md:grid-cols-2 md:gap-5">
+                <div className="grid grid-cols-2 gap-2 justify-around ml-1 xl:px-1 md:ml-3 md:grid-cols-2 md:gap-5 xl:ml-0 xl:mr-1">
                   {[7, 8, 9, 10].map((busBarNumber) => (
                     <button
                       key={busBarNumber}

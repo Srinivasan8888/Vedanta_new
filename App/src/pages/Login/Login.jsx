@@ -3,6 +3,7 @@ import loginbg from "../../Assets/images/loginbg.png";
 import xyma from "../../Assets/images/Xyma-Logo.png";
 import { useNavigate, Outlet } from "react-router-dom";
 import axios from "axios";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Login = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [token, setToken] = useState("");
   const [cooldownTime, setCooldownTime] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Check existing cooldown
@@ -168,22 +170,35 @@ const Login = () => {
                     required=""
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label
-                    for="password"
+                    htmlFor="password"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Password
                   </label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    required=""
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      id="password"
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pt-5 pr-3 text-sm leading-5"
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <FaEye className="w-5 h-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">

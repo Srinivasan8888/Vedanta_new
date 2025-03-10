@@ -9,10 +9,13 @@ import {
 import * as THREE from "three";
 import down from "../../images/red-arrow.png";
 import up from "../../images/green-arrow.png";
+import { useNavigate } from "react-router-dom";
+
 
 const Model = ({ socketData, ModelTempData }) => {
   // console.log("Socket Data:", socketData);
   // console.log("Model Temp Data:", ModelTempData);
+  const navigate = useNavigate();
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
   const [hoveredMesh, setHoveredMesh] = useState(null);
@@ -169,9 +172,10 @@ const Model = ({ socketData, ModelTempData }) => {
 
     if (partName) {
       setHoveredMesh(partName);
-      window.location.href = `/CollectorBar?part=${encodeURIComponent(
-        partName
-      )}`;
+      // window.location.href = `/CollectorBar?part=${encodeURIComponent(
+      //   partName
+      // )}`;
+      navigate(`/CollectorBar?part=${encodeURIComponent(partName)}`);
     }
   };
 
@@ -373,11 +377,11 @@ const ThreeModel = ({
 
   return (
     <div className="h-[500px] md:w-[95%] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm lg:w-[96%] xl:w-[73%] 2xl:w-[73%]  2x:w-auto rounded-2xl m-4 lg:h-auto relative">
-      <div className="absolute flex flex-col p-4 space-y-4 md:h-full md:w-full">
+      <div className="flex absolute flex-col p-4 space-y-4 md:h-full md:w-full">
         {/* Top Section */}
-        <div className="flex items-center justify-between w-full">
+        <div className="flex justify-between items-center w-full">
           {/* Buttons and Counter */}
-          <div className="flex items-center gap-4">
+          <div className="flex gap-4 items-center">
             {/* <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
@@ -419,7 +423,7 @@ const ThreeModel = ({
             </button> */}
           </div>
           {/* Status */}
-          <div className="flex items-center gap-6">
+          <div className="flex gap-6 items-center">
             <p className="font-bold text-white">
               Active: <span className="text-green-500">1</span>
             </p>

@@ -6,6 +6,7 @@ import Notifications from "../../Assets/components/Dashboard/Notifications";
 import Aside from "../../Assets/components/Dashboard/Aside";
 import Bside from "../../Assets/components/Dashboard/Bside";
 import DashboardChart from "../../Assets/components/Dashboard/DashboardChart";
+import AlertBox from "../../Assets/components/Dashboard/AlertBox"; // Import AlertBox
 import io from "socket.io-client";
 import isEqual from "lodash/isEqual";
 
@@ -19,8 +20,9 @@ const Dashboard = () => {
   const [ModelTempData, setModelTempData] = useState([]); // Model temperature data
   const [lastButtonClicked, setLastButtonClicked] = useState(null); // Last button clicked in chart
   const [error, setError] = useState(null); // Error handling
+  const [showAlert, setShowAlert] = useState(null); // State to show/hide alert
 
-  const socketRef = useRef(null); // Add this ref to track current socket
+  const socketRef = useRef(null); // Ref to track current socket
 
   useEffect(() => {
     let currentUserId = localStorage.getItem("id");
@@ -74,13 +76,11 @@ const Dashboard = () => {
     if (!socket) return;
 
     // Handle "ASide" event
-
     socket.on("ASideUpdate", (data) => {
       console.log("Received ASide Data:", data);
       const validData = Array.isArray(data) ? data : [];
       setAsidedata((prevData) => {
         if (!isEqual(validData, prevData)) {
-          // Update state only if data has changed
           return validData;
         }
         return prevData;
@@ -93,7 +93,6 @@ const Dashboard = () => {
       const validData = Array.isArray(data) ? data : [];
       setBsidedata((prevData) => {
         if (!isEqual(validData, prevData)) {
-          // Update state only if data has changed
           return validData;
         }
         return prevData;
@@ -102,7 +101,6 @@ const Dashboard = () => {
 
     // Handle "LatestTimestamp" event
     socket.on("LatestTimestamp", (data) => {
-      // console.log("Received LatestTimestamp:", data);
       setLatestTimestamp(data);
     });
 
@@ -115,12 +113,32 @@ const Dashboard = () => {
         console.warn("Invalid AllData received:", data);
       }
     });
+    
+    // socket.on("AllData", (data) => {
+    //   if (Array.isArray(data)) {
+    //     setModelData(data);
+
+    //     // Find the CBT part that exceeded the temperature limit
+    //     let highTempPart = null;
+    //     const hasHighTemperature = data.some((item) => {
+    //       for (const [key, value] of Object.entries(item)) {
+    //         if (key.startsWith('CBT') && parseFloat(value) >= 700) {
+    //           highTempPart = key;
+    //           return true;
+    //         }
+    //       }
+    //       return false;
+    //     });
+    //     setShowAlert(hasHighTemperature && highTempPart); // Show alert if condition is met and we have the part name
+    //   } else {
+    //     console.warn("Invalid AllData received:", data);
+    //   }
+    // });
 
     // Handle "Avgtempdata" event
     socket.on("Avgtempdata", (data) => {
-      // console.log("Received Avgtempdata:", data);
       if (data) {
-        setAvgData(data); // Update state only if data is valid
+        setAvgData(data);
       } else {
         console.warn("Invalid Avgtempdata received:", data);
       }
@@ -128,9 +146,8 @@ const Dashboard = () => {
 
     // Handle "AvgModeltemp" event
     socket.on("AvgModeltemp", (data) => {
-      // console.log("Received AvgModeltemp:", data);
       if (data) {
-        setModelTempData(data); // Update state only if data is valid
+        setModelTempData(data);
       } else {
         console.warn("Invalid AvgModeltemp received:", data);
       }
@@ -138,8 +155,6 @@ const Dashboard = () => {
 
     // Cleanup listeners on component unmount
     return () => {
-      // socket.off("ASide");
-      // socket.off("BSide");
       socket.off("ASideUpdate");
       socket.off("BSideUpdate");
       socket.off("LatestTimestamp");
@@ -150,10 +165,52 @@ const Dashboard = () => {
     };
   }, [socket]);
 
+  // Add this useEffect to monitor ModelData changes
+  useEffect(() => {
+    const checkTemperatureLimits = () => {
+      if (!ModelData.length) return;
+
+      // Find all parts exceeding temperature limit
+      const highTempParts = ModelData.reduce((acc, item) => {
+        Object.entries(item).forEach(([key, value]) => {
+          if (key.startsWith('CBT') && parseFloat(value) >= 700) {
+            acc.push(key);
+          }
+        });
+        return acc;
+      }, []);
+
+      setShowAlert(highTempParts.length > 0 ? highTempParts : null);
+    };
+
+    checkTemperatureLimits();
+  }, [ModelData]);
+
+  // Update your socket listener
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleAllData = (data) => {
+      if (Array.isArray(data)) {
+        setModelData(data);
+        const timestamps = data.map(item => item.createdAt);
+        setLatestTimestamp(timestamps);
+      } else {
+        console.warn("Invalid AllData received:", data);
+      }
+    };
+
+    socket.on("AllData", handleAllData);
+
+    return () => {
+      socket.off("AllData", handleAllData);
+    };
+  }, [socket]);
+
   // Handle button clicks in the DashboardChart
   const handleChartClick = (buttonId) => {
     console.log("Button clicked in DashboardChart:", buttonId);
-    socket.emit("ButtonClick", buttonId || "1W");
+    socket.emit("ButtonClick", buttonId || "1M");
     setLastButtonClicked(buttonId);
   };
 
@@ -171,25 +228,34 @@ const Dashboard = () => {
         }}
       />
       <>
-      <div className="xl:h-[45%] w-full lg:w-full xl:w-full 2xl:w-full xl:flex gap-5">
+        <div className="xl:h-[45%] w-full lg:w-full xl:w-full 2xl:w-full xl:flex gap-5">
           <ThreeScene
             socketData={ModelData}
             ModelTempData={ModelTempData}
             lastButtonClicked={lastButtonClicked}
             latesttimestamp={latesttimestamp}
-          /> 
+          />
 
           {/* <Notifications /> */}
-           <Aside socketData={AsideData} />
+          <Aside socketData={AsideData} />
         </div>
 
         {/* Bottom Section: Chart and B Side */}
         <div className="xl:h-[45%] w-full lg:w-fit xl:w-full 2xl:w-full xl:flex gap-5">
-          <DashboardChart socketData={AvgData} onChartClick={handleChartClick}/>
-          
+          <DashboardChart socketData={AvgData} onChartClick={handleChartClick} />
           <Bside socketData={BsideData} />
         </div>
       </>
+
+      {/* Render AlertBox with overlay */}
+      {showAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+          <AlertBox 
+            onClose={() => setShowAlert(null)}
+            partNames={showAlert}
+          />
+        </div>
+      )}
     </div>
   );
 };
