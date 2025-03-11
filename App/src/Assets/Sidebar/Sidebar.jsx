@@ -11,6 +11,7 @@ import io from "socket.io-client";
 
 import API from "../components/Axios/AxiosInterceptor";
 import "../components/miscellaneous/Scrollbar.css";
+import { Toaster, toast } from "sonner";
 
 // Ref to track current socket
 
@@ -111,15 +112,19 @@ const Sidebar = (props) => {
 
   const handleLogout = async () => {
     try {
-      // Call the onLogout prop to disconnect sockets
+      // Disconnect socket first
+      if (socket) {
+        socket.disconnect();
+      }
+      
+      // Then call parent logout handler
       if (props.onLogout) {
         props.onLogout();
       }
 
       const refreshToken = localStorage.getItem("refreshToken");
-      // const accessToken = localStorage.getItem('accessToken');
-
-      // Make logout request first
+      
+      // Make logout request
       const response = await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}auth/logout`,
         {
@@ -130,18 +135,21 @@ const Sidebar = (props) => {
         },
       );
 
-      // Clear storage only after successful response
-      if (response.status === 200) {
-        localStorage.clear();
-        sessionStorage.clear();
+      // Clear storage regardless of response status
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      // Force reload after short delay
+      setTimeout(() => {
         window.location.replace(`/`);
-      }
+      }, 100);
+      
     } catch (error) {
       console.error("Logout error:", error);
       localStorage.clear();
       sessionStorage.clear();
-      document.cookie =
-        "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.replace(`/`);
     }
   };
@@ -169,6 +177,10 @@ const Sidebar = (props) => {
   };
 
   useEffect(() => {
+    // Retrieve alerts from local storage on mount
+    const storedAlerts = JSON.parse(localStorage.getItem("alerts")) || [];
+    setAlerts(storedAlerts);
+
     const cachedIds = JSON.parse(localStorage.getItem("cachedIds") || "[]");
     if (cachedIds.length > 0) {
       setIddropdown(cachedIds);
@@ -227,21 +239,21 @@ const Sidebar = (props) => {
       const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
         auth: { accessToken },
       });
-      
+
       newSocket.on("connect", () => {
         console.log("Connected to WebSocket with ID:", newSocket.id);
       });
-      
+
       newSocket.on("connect_error", (err) => {
         console.error("WebSocket connection error:", err.message);
       });
-      
+
       return newSocket;
     };
-    
+
     const initialSocket = createSocket();
     setSocket(initialSocket);
-    
+
     return () => {
       if (initialSocket) initialSocket.disconnect();
     };
@@ -249,32 +261,120 @@ const Sidebar = (props) => {
 
   useEffect(() => {
     if (!socket) return;
-  
+
     const handleTempData = (response) => {
+      console.log("notification", response);
       if (response.status === "success") {
-        // Format and display alerts
-        const alerts = response.data.map(item => ({
-          id: item.id,
+        const seenIds = new Set(
+          JSON.parse(localStorage.getItem("seenAlerts") || "[]"),
+        );
+        const newAlerts = response.data.map((item) => ({
+          id: `${item.id}-${new Date(item.timestamp).getTime()}`,
           model: item.model,
           message: `${item.sensor}: ${item.message} (${item.value})`,
-          timestamp: item.timestamp
+          timestamp: item.timestamp,
+          seen: seenIds.has(`${item.id}-${new Date(item.timestamp).getTime()}`),
         }));
-        setAlerts(alerts);
-        console.log('Processed alerts:', alerts);
+
+        // newAlerts.forEach((alert) => {
+        //   if (!seenIds.has(alert.id)) {
+        //     toast(alert.message, {
+        //       description: new Date(alert.timestamp).toLocaleString(),
+        //       position: "bottom-right",
+        //     });
+        //     const updatedSeen = new Set([...seenIds, alert.id]);
+        //     localStorage.setItem(
+        //       "seenAlerts",
+        //       JSON.stringify([...updatedSeen]),
+        //     );
+        //   }
+        // });
+
+
+        newAlerts.forEach((alert) => {
+          if (!seenIds.has(alert.id)) {
+            let toastType = 'default'; // Default type
+            let toastMessage = alert.message;
+
+            // Determine the toast type based on the message
+            if (toastMessage.includes("Critical")) {
+              toastType = 'error'; // Red for critical
+              toastMessage = "Critical: Something went wrong";
+              toast.error(toastMessage, {
+                description: new Date(alert.timestamp).toLocaleString(),
+                position: "bottom-right",
+              });
+            } else if (toastMessage.includes("Attention Required")) {
+              toastType = 'warning'; // Orange for attention required
+              toastMessage = "Attention Required";
+              toast.warning(toastMessage, {
+                description: new Date(alert.timestamp).toLocaleString(),
+                position: "bottom-right",
+              });
+            } else if (toastMessage.includes("Be at the area")) {
+              toastType = 'info'; // Info color for general info
+              toastMessage = "Be at the area 10 minutes before the event time";
+              toast.info(toastMessage, {
+                description: new Date(alert.timestamp).toLocaleString(),
+                position: "bottom-right",
+              });
+            }
+
+            // Update seen alerts
+            const updatedSeen = new Set([...seenIds, alert.id]);
+            localStorage.setItem(
+              "seenAlerts",
+              JSON.stringify([...updatedSeen]),
+            );
+          }
+        });
+        // Update alerts and save to local storage
+        const updatedAlerts = [
+          ...newAlerts,
+          ...alerts.filter(
+            (existing) =>
+              !newAlerts.some((newAlert) => newAlert.id === existing.id),
+          ),
+        ];
+        setAlerts(updatedAlerts);
+        localStorage.setItem("alerts", JSON.stringify(updatedAlerts)); // Save alerts to local storage
       }
     };
-  
+
     socket.on("TempData", handleTempData);
     socket.on("TempDataUpdate", handleTempData);
-  
+
     return () => {
       socket.off("TempData", handleTempData);
       socket.off("TempDataUpdate", handleTempData);
     };
-  }, [socket]);
+  }, [socket, alerts]);
+
+  // Add this useEffect for scroll tracking
+  useEffect(() => {
+    const container = sidebarRef.current?.querySelector(".scrollbar-custom");
+    const handleScroll = () => {
+      const containerHeight = container.clientHeight;
+      const scrollPosition = container.scrollTop + containerHeight;
+      const fullHeight = container.scrollHeight;
+
+      // If scrolled to bottom (within 50px threshold)
+      if (fullHeight - scrollPosition < 50) {
+        const allIds = alerts.map((alert) => alert.id);
+        localStorage.setItem("seenAlerts", JSON.stringify(allIds));
+        setAlerts((prev) => prev.map((alert) => ({ ...alert, seen: true })));
+      }
+    };
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [alerts]);
 
   return (
     <>
+      <Toaster position="top-right" richColors />
       {/* <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3"> */}
 
       <div className="mx-2 mb-2 h-[70px] w-auto gap-3 pt-2 md:mb-2 md:flex md:h-[75px] md:w-[97%] md:justify-between md:pt-4 lg:h-[7.2%] xl:h-[9%] xl:w-[97.5%] custom-1.5xl:w-[97.5%] 2xl:h-[7.5%] 2xl:w-auto">
@@ -287,7 +387,7 @@ const Sidebar = (props) => {
               className="w-32 h-auto xl:w-26"
             />
           </div>
-          
+
           <div className="flex-1 mx-2">
             <div className="z-30 rounded-xl border border-white bg-[rgba(14,14,14,0.75)] backdrop-blur-sm">
               <div className="relative flex items-center w-full">
@@ -389,10 +489,12 @@ const Sidebar = (props) => {
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
->
-  <IoNotifications />
-  <div class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">{alerts.length}</div>
-</button>
+        >
+          <IoNotifications />
+          <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -end-2 -top-2">
+            {alerts.filter((alert) => !alert.seen).length}
+          </div>
+        </button>
 
         <button
           className="font-poppins hidden items-center justify-center rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-[22px] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[4%]"
@@ -428,7 +530,11 @@ const Sidebar = (props) => {
           <div className="overflow-x-auto scrollbar-custom">
             {alerts.length > 0 ? (
               alerts.map((alert) => (
-                <div key={alert.id} className="relative w-full border h-28">
+                <div
+                  key={alert.id}
+                  id={`alert-${alert.id}`}
+                  className="relative w-full border h-28"
+                >
                   <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
                     <div data-svg-wrapper className="relative">
                       <svg
@@ -447,8 +553,9 @@ const Sidebar = (props) => {
                       </svg>
                     </div>
                     <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                    {/* {new Date(alert.timestamp).toLocaleString()} {" "} the {alert.model} reported a error: {alert.message} */}
-                    {new Date(alert.timestamp).toLocaleString()} {" "} reported a error: {alert.message}
+                      {/* {new Date(alert.timestamp).toLocaleString()} {" "} the {alert.model} reported a error: {alert.message} */}
+                      {new Date(alert.timestamp).toLocaleString()} reported a
+                      error: {alert.message}
                     </div>
                   </div>
                   <div className="absolute left-0 top-0 h-28 w-full bg-[#b6b6b6]/20" />
@@ -467,162 +574,3 @@ const Sidebar = (props) => {
 };
 
 export default Sidebar;
-
-
-{/* <>
-
-<div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="#0077E4"
-                      stroke="#0077E4"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[#b6b6b6]/20" />
-            </div>
-
-            <div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="white"
-                      stroke="white"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[rgba(16,16,16,1)]/20" />
-            </div>
-
-            <div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="white"
-                      stroke="white"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[rgba(16,16,16,1)]/20" />
-            </div>
-
-            <div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="#0077E4"
-                      stroke="#0077E4"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[#b6b6b6]/20" />
-            </div>
-            
-            <div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="#0077E4"
-                      stroke="#0077E4"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[#b6b6b6]/20" />
-            </div>
-
-            <div className="relative w-full border h-28">
-              <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
-                <div data-svg-wrapper className="relative">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16 22C19.3137 22 22 19.3137 22 16C22 12.6863 19.3137 10 16 10C12.6863 10 10 12.6863 10 16C10 19.3137 12.6863 22 16 22Z"
-                      fill="white"
-                      stroke="white"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </div>
-                <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                  Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                  vulputate libero et{" "}
-                </div>
-              </div>
-              <div className="absolute left-0 top-0 h-28 w-full bg-[rgba(16,16,16,1)]/20" />
-            </div></> */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import bg from "../../Assets/images/bg.png";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
@@ -10,9 +10,21 @@ import TimeInterval from "../../Assets/components/Reports/TimeInterval";
 import RangeDate from "../../Assets/components/Reports/RangeDate";
 import CountData from "../../Assets/components/Reports/CountData";
 
-
 const Report = () => {
   const [selectedButton, setSelectedButton] = useState("Average");
+
+  useEffect(() => {
+    // Retrieve the selected button from localStorage on component mount
+    const savedButton = localStorage.getItem('selectedButton');
+    if (savedButton) {
+      setSelectedButton(savedButton);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save the selected button to localStorage whenever it changes
+    localStorage.setItem('selectedButton', selectedButton);
+  }, [selectedButton]);
 
   return (
     <div

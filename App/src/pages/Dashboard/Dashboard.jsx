@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [AsideData, setAsidedata] = useState([]); // Data for A Side
   const [BsideData, setBsidedata] = useState([]); // Data for B Side
   const [ModelData, setModelData] = useState([]); // Data for 3D Model
+  const [notificationData, setNotificationData] = useState([]); // Data for 3D Model
   const [latesttimestamp, setLatestTimestamp] = useState([]); // Latest timestamp
   const [AvgData, setAvgData] = useState([]); // Average temperature data
   const [ModelTempData, setModelTempData] = useState([]); // Model temperature data
@@ -109,6 +110,7 @@ const Dashboard = () => {
       // console.log("Received All Model Data:", data);
       if (Array.isArray(data)) {
         setModelData(data); // Update state only if data is an array
+        setNotificationData(data);
       } else {
         console.warn("Invalid AllData received:", data);
       }
@@ -168,10 +170,10 @@ const Dashboard = () => {
   // Add this useEffect to monitor ModelData changes
   useEffect(() => {
     const checkTemperatureLimits = () => {
-      if (!ModelData.length) return;
+      if (!notificationData.length) return;
 
       // Find all parts exceeding temperature limit
-      const highTempParts = ModelData.reduce((acc, item) => {
+      const highTempParts = notificationData.reduce((acc, item) => {
         Object.entries(item).forEach(([key, value]) => {
           if (key.startsWith('CBT') && parseFloat(value) >= 700) {
             acc.push(key);
@@ -184,28 +186,28 @@ const Dashboard = () => {
     };
 
     checkTemperatureLimits();
-  }, [ModelData]);
+  }, [notificationData]);
 
   // Update your socket listener
-  useEffect(() => {
-    if (!socket) return;
+  // useEffect(() => {
+  //   if (!socket) return;
 
-    const handleAllData = (data) => {
-      if (Array.isArray(data)) {
-        setModelData(data);
-        const timestamps = data.map(item => item.createdAt);
-        setLatestTimestamp(timestamps);
-      } else {
-        console.warn("Invalid AllData received:", data);
-      }
-    };
+  //   const handleAllData = (data) => {
+  //     if (Array.isArray(data)) {
+  //       setModelData(data);
+  //       const timestamps = data.map(item => item.createdAt);
+  //       setLatestTimestamp(timestamps);
+  //     } else {
+  //       console.warn("Invalid AllData received:", data);
+  //     }
+  //   };
 
-    socket.on("AllData", handleAllData);
+  //   socket.on("AllData", handleAllData);
 
-    return () => {
-      socket.off("AllData", handleAllData);
-    };
-  }, [socket]);
+  //   return () => {
+  //     socket.off("AllData", handleAllData);
+  //   };
+  // }, [socket]);
 
   // Handle button clicks in the DashboardChart
   const handleChartClick = (buttonId) => {
@@ -216,7 +218,7 @@ const Dashboard = () => {
 
   return (
     <div
-      className="relative w-screen bg-fixed bg-center bg-cover xl:h-screen md:bg-center"
+      className="relative w-screen overflow-hidden bg-fixed bg-center bg-cover xl:h-screen md:bg-center"
       style={{ backgroundImage: `url(${bg})` }}
     >
       {/* Sidebar */}

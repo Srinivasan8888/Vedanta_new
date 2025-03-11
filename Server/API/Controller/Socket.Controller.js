@@ -10,6 +10,7 @@ import SensorModel9 from "../Models/sensorModel9.js";
 import SensorModel10 from "../Models/sensorModel10.js";
 import AverageModel from "../Models/AverageModel.js";
 
+
 export const allsocketData = (io) => {
     const options = { fullDocument: "updateLookup" };
     const modelMap = {
@@ -1852,49 +1853,113 @@ export const notificationData = (io) => {
         SensorModel10: models.model10
     };
 
+    // const getFilteredData = async () => {
+    //     const results = [];
+    //     const uniqueIds = new Set();
+
+    //     // First pass: Collect all unique IDs
+    //     for (const model of Object.values(modelMap)) {
+    //         try {
+    //             const docs = await model.find().select('id -_id').lean();
+    //             docs.forEach(doc => doc.id && uniqueIds.add(doc.id));
+    //         } catch (err) {
+    //             console.error("ID collection error:", err);
+    //         }
+    //     }
+
+    //     // Second pass: Check each ID against all models
+    //     for (const id of uniqueIds) {
+    //         for (const [modelName, model] of Object.entries(modelMap)) {
+    //             try {
+    //                 const sensorFields = modelFieldMap[modelName];
+    //                 if (!sensorFields?.length) continue;
+
+    //                 const doc = await model.findOne({ id })
+    //                     .sort({ createdAt: -1 })
+    //                     .select([...sensorFields, 'createdAt'])
+    //                     .lean();
+
+    //                 if (!doc) continue;
+
+    //                 sensorFields.forEach(field => {
+    //                     const value = parseFloat(doc[field]);
+    //                     if (isNaN(value)) return;
+
+    //                     let message;
+    //                     if (value >= 700) {
+    //                         message = "Critical: Something went wrong";
+    //                     } else if (value >= 450) {
+    //                         message = "Attention Required";
+    //                     } else if (value >= 300) {
+    //                         message = "Warning";
+    //                     } else {
+    //                         return; // Skip values < 300
+    //                     }
+
+    //                     results.push({
+    //                         id,
+    //                         model: modelName,
+    //                         sensor: field,
+    //                         value,
+    //                         message,
+    //                         timestamp: doc.createdAt
+    //                     });
+    //                 });
+
+    //             } catch (err) {
+    //                 console.error(`Error processing ${modelName} ID ${id}:`, err);
+    //             }
+    //         }
+    //     }
+
+    //     return results;
+    // };
+
     const getFilteredData = async () => {
         const results = [];
         const uniqueIds = new Set();
-
-        // First pass: Collect all unique IDs
-        for (const model of Object.values(modelMap)) {
+    
+        // Collect all unique IDs in parallel
+        const idPromises = Object.values(modelMap).map(async (model) => {
             try {
                 const docs = await model.find().select('id -_id').lean();
                 docs.forEach(doc => doc.id && uniqueIds.add(doc.id));
             } catch (err) {
                 console.error("ID collection error:", err);
             }
-        }
-
-        // Second pass: Check each ID against all models
-        for (const id of uniqueIds) {
-            for (const [modelName, model] of Object.entries(modelMap)) {
+        });
+    
+        await Promise.all(idPromises);
+    
+        // Process each ID in parallel
+        const processIdPromises = Array.from(uniqueIds).map(async (id) => {
+            const modelPromises = Object.entries(modelMap).map(async ([modelName, model]) => {
                 try {
                     const sensorFields = modelFieldMap[modelName];
-                    if (!sensorFields?.length) continue;
-
+                    if (!sensorFields?.length) return;
+    
                     const doc = await model.findOne({ id })
                         .sort({ createdAt: -1 })
                         .select([...sensorFields, 'createdAt'])
                         .lean();
-
-                    if (!doc) continue;
-
+    
+                    if (!doc) return;
+    
                     sensorFields.forEach(field => {
                         const value = parseFloat(doc[field]);
                         if (isNaN(value)) return;
-
+    
                         let message;
                         if (value >= 700) {
                             message = "Critical: Something went wrong";
                         } else if (value >= 450) {
                             message = "Attention Required";
                         } else if (value >= 300) {
-                            message = "Warning";
+                            toast.info('Be at the area 10 minutes before the event time')
                         } else {
                             return; // Skip values < 300
                         }
-
+    
                         results.push({
                             id,
                             model: modelName,
@@ -1904,13 +1969,17 @@ export const notificationData = (io) => {
                             timestamp: doc.createdAt
                         });
                     });
-
+    
                 } catch (err) {
                     console.error(`Error processing ${modelName} ID ${id}:`, err);
                 }
-            }
-        }
-
+            });
+    
+            await Promise.all(modelPromises);
+        });
+    
+        await Promise.all(processIdPromises);
+    
         return results;
     };
 

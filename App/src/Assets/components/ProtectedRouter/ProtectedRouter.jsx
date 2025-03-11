@@ -106,6 +106,7 @@ const ProtectedRoute = () => {
         }
       } catch (error) {
         localStorage.clear();
+        alert("Session expired!!!.");
         setIsValidToken(false);
       }
     };

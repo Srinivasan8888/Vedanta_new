@@ -26,6 +26,9 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
     }]
   });
   
+  const [previousSocketData, setPreviousSocketData] = useState(socketData);
+  const [selectedButton, setSelectedButton] = useState(localStorage.getItem('selectedButton') || '1D');
+  
   // console.log('chartsocket', socketData);
   
   useEffect(() => {    
@@ -34,14 +37,20 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
     //   return;
     // }
     
+    if (socketData && socketData.data && socketData.data.length > 0) {
+      setPreviousSocketData(socketData);
+    }
+  }, [socketData]);
+
+  useEffect(() => {
     try {
       const chartData = {
-        labels: socketData.data.map(item => {
+        labels: previousSocketData.data.map(item => {
           const time = new Date(item.TIME).toLocaleTimeString();
           return time;
         }),
         datasets: [{
-          data: socketData.data.map(item => parseFloat(item.Avgtemp).toFixed(2)),
+          data: previousSocketData.data.map(item => parseFloat(item.Avgtemp).toFixed(2)),
           borderColor: "rgb(0, 119, 228)",
           backgroundColor: (context) => {
             const chart = context.chart;
@@ -74,11 +83,12 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
     } catch (error) {
       console.error('Error processing socket data:', error);
     }
-  }, [socketData]);
+  }, [previousSocketData]);
 
   const handleClick = (event) => {
     const buttonId = event.target.id;
-    // console.log("clicked button", buttonId);
+    setSelectedButton(buttonId);
+    localStorage.setItem('selectedButton', buttonId); // Store the selected button in local storage
     onChartClick(buttonId);
   };
 
@@ -368,46 +378,21 @@ ChartJS.register(dangerLinePlugin);
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 pb-2 md:mt-1 md:justify-around">
-            <button
-              type="button"
-              id="1D"
-              onClick={handleClick}
-              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-            >
-              1 Day
-            </button>
-            <button
-              type="button"
-              id="3D"
-              onClick={handleClick}
-              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-            >
-              3 Days
-            </button>
-            <button
-              type="button"
-              id="1W"
-              onClick={handleClick}
-              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-            >
-              1 Week
-            </button>
-            <button
-              type="button"
-              id="1M"
-              onClick={handleClick}
-              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-            >
-              1 Month
-            </button>
-            <button
-              type="button"
-              id="6M"
-              onClick={handleClick}
-              className="w-20 md:w-16  xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-            >
-              6 Months
-            </button>
+            {['1D', '3D', '1W', '1M', '6M'].map((id) => (
+              <button
+                key={id}
+                type="button"
+                id={id}
+                onClick={handleClick}
+                className={`w-20 md:w-16 xl:h-8 xl:w-24 2xl:w-28 2xl:h-12 
+                  ${selectedButton === id ? 'text-white bg-blue-700 hover:bg-blue-800' : 'text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800'} 
+                  focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs md:text-[10px] 2xl:text-sm 
+                  px-2 md:px-1.5 2xl:px-4 py-1 md:py-1 2xl:py-2.5 text-center 
+                  dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800`}
+              >
+                {id === '1D' ? '1 Day' : id === '3D' ? '3 Days' : id === '1W' ? '1 Week' : id === '1M' ? '1 Month' : '6 Months'}
+              </button>
+            ))}
           </div>
         </div>
       {/* </div> */}

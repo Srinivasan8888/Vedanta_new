@@ -19,13 +19,16 @@ def create_sensor(sensor_number, data):
 def generate_sensor_data(sensor_id, start_sensor, end_sensor):
     # Generate temperature values and include current time
     data = {
-        'id':'1605',
+        'id':'1604',
         'busbar': f'bb{sensor_id}',
         'time': datetime.now().isoformat() + 'Z'  # Current IST time in ISO 8601 format
     }
     # Dynamically add temperature data for sensors
     for i in range(start_sensor, end_sensor + 1):
-        data[f'sensor{i}'] = f'{random.uniform(190.0, 300.0):.2f}'  # Random temperature between 320-360
+        if i == 50:  # Special case for sensor50
+            data[f'sensor{i}'] = f'{random.uniform(300,900.0):.2f}'
+        else:
+            data[f'sensor{i}'] = f'{random.uniform(190.0, 300.0):.2f}'  # Random temperature between 320-360
     return data
 
 # Insert data for each sensor

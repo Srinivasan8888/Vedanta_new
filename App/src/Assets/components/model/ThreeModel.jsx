@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const Model = ({ socketData, ModelTempData }) => {
-  // console.log("Socket Data:", socketData);
+  console.log("Socket Data:", socketData);
   // console.log("Model Temp Data:", ModelTempData);
   const navigate = useNavigate();
   const group = useRef();
@@ -28,6 +28,8 @@ const Model = ({ socketData, ModelTempData }) => {
   const mouse = useRef(new THREE.Vector2());
   const raycaster = useRef(new THREE.Raycaster());
   const lastUpdate = useRef(0);
+  const [mergedSocketData, setMergedSocketData] = useState([]);
+  const [mergedModelTempData, setMergedModelTempData] = useState([]);
 
   const nameMapping = {
     CBT1A2: "s1",
@@ -145,6 +147,18 @@ const Model = ({ socketData, ModelTempData }) => {
   );
 
   useEffect(() => {
+    if (socketData && socketData.length > 0) {
+      setMergedSocketData(prev => [...prev, ...socketData]);
+    }
+  }, [socketData]);
+
+  useEffect(() => {
+    if (ModelTempData && ModelTempData.length > 0) {
+      setMergedModelTempData(prev => [...prev, ...ModelTempData]);
+    }
+  }, [ModelTempData]);
+
+  useEffect(() => {
     const handleMouseMove = (event) => {
       const canvas = document.querySelector("canvas");
       if (!canvas) return;
@@ -224,8 +238,8 @@ const Model = ({ socketData, ModelTempData }) => {
         let setmin = "N/A";
 
         for (const dataObj of [
-          ...(socketData || []),
-          ...(ModelTempData || []),
+          ...mergedSocketData,
+          ...mergedModelTempData,
         ]) {
           if (dataObj[partName]) {
             value = dataObj[partName];
@@ -377,11 +391,11 @@ const ThreeModel = ({
 
   return (
     <div className="h-[500px] md:w-[95%] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm lg:w-[96%] xl:w-[73%] 2xl:w-[73%]  2x:w-auto rounded-2xl m-4 lg:h-auto relative">
-      <div className="flex absolute flex-col p-4 space-y-4 md:h-full md:w-full">
+      <div className="absolute flex flex-col p-4 space-y-4 md:h-full md:w-full">
         {/* Top Section */}
-        <div className="flex justify-between items-center w-full">
+        <div className="flex items-center justify-between w-full">
           {/* Buttons and Counter */}
-          <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-4">
             {/* <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
@@ -423,7 +437,7 @@ const ThreeModel = ({
             </button> */}
           </div>
           {/* Status */}
-          <div className="flex gap-6 items-center">
+          <div className="flex items-center gap-6">
             <p className="font-bold text-white">
               Active: <span className="text-green-500">1</span>
             </p>

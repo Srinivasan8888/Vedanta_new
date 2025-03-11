@@ -9,8 +9,8 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
     <div className="lg:grid-row m-4 mt-4 grid h-[270px] grid-cols-2 items-center justify-center gap-4 rounded-xl border border-white bg-[rgba(16,16,16,0.6)] p-4 backdrop-blur-sm md:m-8 md:h-[92%] xl:h-[90%] lg:h-[70%] xl:grid-cols-none md:p-0 xl:w-[20%] xl:gap-0">
       {" "}
       <button
-        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center${
-          selectedButton === 0 ? "ring-2" : ""
+        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center ${
+          selectedButton === "Average" ? "ring-2 focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Average")}
       >
@@ -20,8 +20,8 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
         </div>
       </button>
       <button
-        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center${
-          selectedButton === 1 ? "ring-2" : ""
+        className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center ${
+          selectedButton === "Time" ? "ring-2 focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Time")}
       >
@@ -32,7 +32,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       </button>
       <button
         className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
-          selectedButton === 2 ? "ring-2" : ""
+          selectedButton === "Range" ? "ring-2 focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Range")}
       >
@@ -43,7 +43,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       </button>
       <button
         className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
-          selectedButton === 3 ? "ring-2" : ""
+          selectedButton === "Count" ? "ring-2 focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Count")}
       >
