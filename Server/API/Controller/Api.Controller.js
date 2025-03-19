@@ -15,35 +15,33 @@ import SensorModel10 from '../Models/sensorModel10.js';
 export const Aside = async (req, res) => {
   try {
     // Fetch all sensor data concurrently
+    const projection = {
+      _id: 0,
+      id: 0,
+      busbar: 0,
+      TIME: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      __v: 0
+    };
+
     const [data, data1, data2, data3, data4, data5] = await Promise.all([
-      SensorModel1.find().sort({ updatedAt: -1 }).limit(1),
-      SensorModel2.find().sort({ updatedAt: -1 }).limit(1),
-      SensorModel3.find().sort({ updatedAt: -1 }).limit(1),
-      SensorModel4.find().sort({ updatedAt: -1 }).limit(1),
-      SensorModel5.find().sort({ updatedAt: -1 }).limit(1),
-      SensorModel6.find().sort({ updatedAt: -1 }).limit(1)
+      SensorModel1.findOne({}, projection).sort({ updatedAt: -1 }),
+      SensorModel2.findOne({}, projection).sort({ updatedAt: -1 }),
+      SensorModel3.findOne({}, projection).sort({ updatedAt: -1 }),
+      SensorModel4.findOne({}, projection).sort({ updatedAt: -1 }),
+      SensorModel5.findOne({}, projection).sort({ updatedAt: -1 }),
+      SensorModel6.findOne({}, projection).sort({ updatedAt: -1 }),
     ]);
 
-    // Combine all sensor data into a single array
-    const combinedData = [
-      ...data,
-      ...data1,
-      ...data2,
-      ...data3,
-      ...data4,
-      ...data5
-    ];
 
+    // Combine sensor data
+    const combinedData = [data, data1, data2, data3, data4, data5].filter(Boolean); // Remove null values
 
-    res.status(200).json({
-      //   message: "Data fetched successfully.",
-      data: combinedData // Send combined data as a single response
-    });
+    res.status(200).json({ data: combinedData });
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(500).json({
-      error: "An error occurred while fetching data.",
-    });
+    res.status(500).json({ error: "An error occurred while fetching data." });
   }
 };
 
@@ -78,31 +76,570 @@ export const Bside = async (req, res) => {
 };
 
 export const getallsensor = async (req, res) => {
-  const collectionModels = [
-    SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
-    SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
-  ];
-  const limitPerModel = 1;
-  const combinedData = {};
+  try {
+    const userId = req.headers['x-user-id'];
+    const { time } = req.query; // Extract `time` and `userId` from query parameters
+    console.log('Received query parameters - time:', time, 'userId:', userId);
 
-  for (let i = 0; i < collectionModels.length; i++) {
-    try {
-      const documents = await collectionModels[i]
-        .find({})
-        .sort({ updatedAt: -1 })
-        .limit(limitPerModel)
-        .lean()
-        .select('-_id -id -TIME -createdAt -updatedAt -__v -busbar');
+    // Array of sensor models
+    const collectionModels = [
+      SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
+      SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+    ];
 
-      if (documents.length > 0) {
-        Object.assign(combinedData, documents[0]);
+    // Helper function to calculate the start time based on the `time` parameter
+    const setChangedTime = (time) => {
+      const currentDateTime = new Date();
+      switch (time) {
+        case "1D":
+          return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
+        case "3D":
+          return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
+        case "1W":
+          return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
+        case "1M":
+          return new Date(currentDateTime.getTime() - (30 * 24 * 60 * 60 * 1000)); // 1 month ago
+        case "6M":
+          return new Date(currentDateTime.getTime() - (6 * 30 * 24 * 60 * 60 * 1000)); // 6 months ago
+        default:
+          return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // Default to 1 day ago
       }
-    } catch (error) {
-      return res.status(500).json(error);
+    };
+
+    const changedTime = setChangedTime(time); // Calculate the start time
+    const limitPerModel = 1;
+    const projection = '-_id -id -TIME -createdAt -updatedAt -__v -busbar';
+
+    const asideData = {};
+    const bsideData = {};
+    const modelData = [];
+
+    // Fetch latest document from each model within the specified time range
+    for (let i = 0; i < collectionModels.length; i++) {
+      try {
+        const documents = await collectionModels[i]
+          .find({ updatedAt: { $gte: changedTime } }) // Filter by `updatedAt` >= `changedTime`
+          .sort({ updatedAt: -1 }) // Sort by most recent
+          .limit(limitPerModel) // Limit to one document per model
+          .lean()
+          .select(projection);
+
+        if (documents.length > 0) {
+          const document = documents[0]; // Get the first (latest) document
+          if (i < 5) {
+            Object.assign(asideData, document); // Models 1 to 5 → Aside
+          } else {
+            Object.assign(bsideData, document); // Models 6 to 10 → Bside
+          }
+
+          modelData.push(document); // Collect all data in Model
+        }
+      } catch (error) {
+        console.error(`Error fetching data from model ${i + 1}:`, error.message);
+        return res.status(500).json({ error: `Error fetching sensor data from model ${i + 1}`, details: error.message });
+      }
     }
+
+    // Function to fetch aggregated data for charts
+    const combinedDataChart = async (startDateTime) => {
+      console.log(`Fetching A-Side data for user ${userId} starting from ${startDateTime}`);
+      const allData = {
+
+        data: {}, 
+        timestamps: []
+      };
+
+      for (let i = 0; i < collectionModels.length; i++) {
+        const currentModel = collectionModels[i]; // Get model directly from array
+        const query = {
+          createdAt: { $gte: startDateTime },
+          id: userId,
+        };
+
+        try {
+          const data = await currentModel.aggregate([
+            { $match: query },
+            { $sort: { createdAt: -1 } },
+            {
+              $project: {
+                _id: 0,
+                createdAt: 1,
+                day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                ...Object.keys(currentModel.schema.paths).reduce((acc, key) => {
+                  if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id' && key !== 'TIME' && key !== '_id' && key !== 'timestamps') {
+                    acc[key] = 1;
+                  }
+                  return acc;
+                }, {}),
+              },
+            },
+            {
+              $group: {
+                _id: "$day",
+                createdAt: { $first: "$createdAt" },
+                ...Object.keys(currentModel.schema.paths).reduce((acc, key) => {
+                  if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id' && key !== 'TIME' && key !== '_id' && key !== 'timestamps') {
+                    acc[key] = { $first: `$${key}` };
+                  }
+                  return acc;
+                }, {}),
+              },
+            },
+            { $sort: { createdAt: -1 } },
+          ]);
+
+          // Populate the data structure
+          data.forEach((doc) => {
+            // Add timestamp only if it doesn't already exist
+            if (!allData.timestamps.some(t => t.getTime() === doc.createdAt.getTime())) {
+              allData.timestamps.push(doc.createdAt);
+            }
+
+            Object.keys(doc).forEach((key) => {
+              if (key !== 'createdAt' && key !== '_id') {
+                if (!allData.data[key]) {
+                  allData.data[key] = [];
+                }
+                allData.data[key].push(doc[key]);
+              }
+            });
+          });
+          allData.timestamps = [...new Set(allData.timestamps)]
+            .sort((a, b) => a - b);
+        } catch (error) {
+          console.error(`Error fetching data from ${modelName}:`, error.message);
+        }
+      }
+
+
+        const calculatePositionalAverages = (sensorData) => {
+          const keys = Object.keys(sensorData);
+          const numPositions = keys.length > 0 ? sensorData[keys[0]].length : 0;
+          const averages = [];
+      
+          for (let i = 0; i < numPositions; i++) {
+            let sum = 0;
+            let count = 0;
+            
+            keys.forEach(key => {
+              const value = parseFloat(sensorData[key][i]);
+              if (!isNaN(value)) {
+                sum += value;
+                count++;
+              }
+            });
+      
+            averages.push(count > 0 ? sum / count : null);
+          }
+      
+          return averages;
+        };
+      
+        // Add averaged data to final output
+        allData.averages = calculatePositionalAverages(allData.data);
+
+      // After calculating positional averages
+      const validAverages = allData.averages.filter(avg => avg !== null && !isNaN(avg));
+
+      // Calculate min and max averages
+      allData.minAverage = validAverages.length > 0 ? 
+        Math.min(...validAverages) : 
+        null;
+
+      allData.Average = validAverages.length > 0 ? 
+        validAverages.reduce((sum, val) => sum + val, 0) / validAverages.length :
+        null;
+
+      allData.maxAverage = validAverages.length > 0 ? 
+        Math.max(...validAverages) : 
+        null;
+
+      // Calculate mid average
+      
+
+      console.log(`Final A-Side data for user ${userId}:`, allData);
+      return allData;
+    };
+
+    // Fetch aggregated data for charts
+    const aggregatedData = await combinedDataChart(changedTime, userId);
+
+    // Send response
+    res.status(200).json({
+      status: 'success',
+      Model: modelData,
+      Aside: asideData,
+      Bside: bsideData,
+      Average: aggregatedData,
+    });
+  } catch (error) {
+    console.error("Unexpected error:", error.message);
+    return res.status(500).json({ error: "Unexpected server error", details: error.message });
+  }
+};
+
+//collectorbar page
+export const collectorbar = async (req, res) => {
+  const modelMap = {
+    model1: SensorModel1,
+    model2: SensorModel2,
+    model3: SensorModel3,
+    model4: SensorModel4,
+    model5: SensorModel5,
+    model6: SensorModel6,
+    model7: SensorModel7,
+    model8: SensorModel8,
+    model9: SensorModel9,
+    model10: SensorModel10,
+};
+
+const models = {
+    model1: [
+        "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+        "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+        "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+        "CBT7A1", "CBT7A2"
+    ],
+    model2: [
+        "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+        "CBT10A1", "CBT10A2"
+    ],
+    model3: [
+        "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+        "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+    ],
+    model4: [
+        "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+    ],
+    model5: [
+        "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+        "CBT19A1", "CBT19A2"
+    ],
+    model6: [
+        "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+        "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+        "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+        "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+    ],
+    model7: [
+        "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+        "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+        "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+        "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+        "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+    ],
+    model8: [
+        "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+        "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+    ],
+    model9: [
+        "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+        "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+    ],
+    model10: [
+        "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+        "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+        "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+        "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+        "CBT27B1", "CBT27B2"
+    ]
+};
+
+const parseTimeToDate = (time) => {
+  const now = Date.now(); // Get current timestamp in milliseconds
+  const num = parseInt(time.match(/\d+/)?.[0] || 0, 10); // Extract numeric value
+  const unit = time.match(/[a-zA-Z]+/)?.[0] || ''; // Extract time unit
+
+  let seconds = 0;
+
+  switch (unit.toLowerCase()) {
+      case 'min': seconds = num * 60; break; // Minutes
+      case 'h': seconds = num * 60 * 60; break; // Hours
+      case 'd': seconds = num * 24 * 60 * 60; break; // Days
+      case 'w': seconds = num * 7 * 24 * 60 * 60; break; // Weeks
+      case 'm': seconds = num * 30 * 24 * 60 * 60; break; // Months (approximate)
+      default:
+          console.warn("Invalid time format:", time);
+          return new Date(now); // Return current time if invalid
   }
 
-  res.status(200).json(combinedData);
+  return new Date(now - seconds * 1000); // Convert to milliseconds
+};
+
+const getModelKeyFromSensorId = (sensorId) => {
+  for (const [key, sensors] of Object.entries(models)) {
+    if (sensors.includes(sensorId)) {
+      return key; // Return the model key if the sensor ID is found
+    }
+  }
+  return null; // Return null if no model is found
+};
+
+  try {
+    const { sensorId, time } = req.query;
+    const userId = req.headers['x-user-id'];
+
+    console.log(`Request received - sensorId: ${sensorId}, time: ${time}, userId: ${userId}`); // Debugging
+
+    if (!sensorId || !time || !userId) {
+      return res.status(400).json({ message: "Invalid parameters: sensor ID, time, and user ID are required" });
+    }
+
+    const modelKey = getModelKeyFromSensorId(sensorId);
+    if (!modelKey) {
+      return res.status(404).json({ message: `No model found for sensor ID: ${sensorId}` });
+    }
+
+    const model = modelMap[modelKey];
+    if (!model) {
+      return res.status(404).json({ message: `Model ${modelKey} not found` });
+    }
+ const date = parseTimeToDate(time);
+    const query = { createdAt: { $gte: date }, id: userId };
+    const projection = { _id: 0, createdAt: 1, [sensorId]: 1 };
+
+    const data = await modelMap[modelKey].aggregate([{ $match: query }, { $project: projection }]);
+    const sensorValues = data.map(entry => parseFloat(entry[sensorId])).filter(value => value !== undefined);
+    const createdAtDates = data.map(entry => entry.createdAt);
+
+    if (sensorValues.length === 0) {
+      return res.status(404).json({ message: `No data found for sensor ID: ${sensorId}, user ID: ${userId}, and time range: ${time}` });
+    }
+
+    const minValue = Math.min(...sensorValues);
+    const maxValue = Math.max(...sensorValues);
+    const averageValue = sensorValues.reduce((sum, value) => sum + value, 0) / sensorValues.length;
+
+    res.status(200).json({
+      [sensorId]: sensorValues,
+      createdAt: createdAtDates,
+      minValue,
+      maxValue,
+      averageValue
+    });
+  } catch (error) {
+    console.error("Error fetching collector bar data:", error);
+    res.status(500).json({ message: "Failed to retrieve data" });
+  }
+};
+
+//heatmap page
+
+export const getHeatmap = async (req, res) => {
+  try {
+    const { startDate, endDate, side, value = 'max' } = req.query;
+    const userId = req.headers['x-user-id'];
+
+    // Validate parameters
+    if (!['ASide', 'BSide'].includes(side) || !['max', 'min'].includes(value)) {
+      return res.status(400).json({ error: "Invalid parameters" });
+    }
+    if (!startDate || !endDate || !userId) {
+      return res.status(400).json({ error: "Missing required parameters" });
+    }
+
+    // Date validation
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+
+    console.log(`[Request] ${side} | ${value} | ${startDate} → ${endDate} | User: ${userId}`);
+
+    // Model configuration
+    const modelConfig = {
+      ASide: {
+        models: [SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5, SensorModel6],
+        sensorKeys: [
+          [ "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+            "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+            "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+            "CBT7A1", "CBT7A2"],
+          ["CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+            "CBT10A1", "CBT10A2"],[
+              "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+              "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+          ],[
+            "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+        ], [
+          "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+          "CBT19A1", "CBT19A2"
+      ],[
+        "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+        "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+        "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+        "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+    ],
+          // ... other model groups
+        ]
+      },
+      BSide: {
+        models: [SensorModel7, SensorModel8, SensorModel9, SensorModel10],
+        sensorKeys: [
+          [
+            "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+            "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+            "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+            "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+            "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+        ],[
+          "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+          "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+      ],[
+        "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+        "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+    ],[
+      "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+      "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+      "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+      "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+      "CBT27B1", "CBT27B2"
+  ]
+          // ... other model groups
+        ]
+      }
+    };
+
+    const { models, sensorKeys } = modelConfig[side];
+    const allData = [];
+    const sensorStats = {};
+    
+    console.log(`Processing ${models.length} model groups for ${side}`);
+
+    for (let i = 0; i < models.length; i++) {
+      const model = models[i];
+      const keys = sensorKeys[i];
+
+      console.log(`\nProcessing model group ${i+1}:`);
+      console.log('Model:', model.modelName || 'Unnamed Model');
+      console.log('Sensor keys:', keys);
+
+      try {
+        const aggregationPipeline = [
+          { 
+            $match: { 
+              createdAt: { $gte: start, $lte: end },
+              id: userId 
+            } 
+          },
+          { $sort: { createdAt: -1 } },
+          {
+            $project: {
+              _id: 0,
+              createdAt: 1,
+              day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              ...Object.fromEntries(keys.map(k => [k, 1]))
+            }
+          },
+          {
+            $group: {
+              _id: "$day",
+              createdAt: { $first: "$createdAt" },
+              ...Object.fromEntries(keys.map(k => [k, { $first: `$${k}` }]))
+            }
+          },
+          { $sort: { createdAt: -1 } }
+        ];
+
+        console.log('Aggregation pipeline:', JSON.stringify(aggregationPipeline, null, 2));
+        
+        const data = await model.aggregate(aggregationPipeline);
+        console.log(`Found ${data.length} documents in model group ${i+1}`);
+
+        if (data.length > 0) {
+          console.log('Sample document:', JSON.stringify(data[0], null, 2));
+        }
+
+        // Process documents
+        data.forEach(doc => {
+          keys.forEach(key => {
+            const rawValue = doc[key];
+            const numValue = parseFloat(rawValue);
+            
+            if (!isNaN(numValue)) {
+              allData.push({
+                key,
+                value: numValue,
+                date: doc._id,  // Changed from doc.createdAt to doc._id (which is the grouped day)
+                createdAt: doc.createdAt
+              });
+            } else {
+              console.warn(`Invalid value for ${key}:`, rawValue);
+            }
+          });
+        });
+
+        console.log(`Added ${data.length * keys.length} entries from model group ${i+1}`);
+
+      } catch (error) {
+        console.error(`Error in model group ${i+1}:`, error.message);
+        console.error('Error stack:', error.stack);
+      }
+    }
+
+    console.log(`\nTotal entries collected: ${allData.length}`);
+    console.log('Sample entries:', allData.slice(0, 3));
+
+    // Group by sensor key and calculate min/max
+    allData.forEach(entry => {
+      if (!sensorStats[entry.key]) {
+        sensorStats[entry.key] = {
+          values: [],
+          dates: []
+        };
+      }
+      sensorStats[entry.key].values.push(entry.value);
+      sensorStats[entry.key].dates.push(entry.date);  // Changed from entry.createdAt to entry.date
+    });
+
+    // Prepare final results
+    const results = Object.entries(sensorStats).map(([key, data]) => ({
+      key,
+      values: data.values,
+      dates: data.dates
+    }));
+
+    // Get all unique dates sorted descending
+    const allDates = [...new Set(allData.map(entry => entry.date))].sort((a, b) => 
+      new Date(b) - new Date(a)  // Sort dates as Date objects
+    );
+
+    // Create min/max values object
+    const valueObject = Object.fromEntries(
+      Object.entries(sensorStats).map(([key, data]) => [
+        key,
+        value === 'max' 
+          ? Math.max(...data.values) 
+          : Math.min(...data.values)
+      ])
+    );
+
+    // Sort and get top 8 keys based on requested value
+    const sortedKeys = Object.keys(valueObject).sort((a, b) => 
+      value === 'max' ? valueObject[b] - valueObject[a] : valueObject[a] - valueObject[b]
+    ).slice(0, 8);
+
+    res.status(200).json({
+      status: "success",
+      data: sortedKeys.map(key => ({
+        key,
+        values: sensorStats[key].values
+      })),
+      dates: allDates,
+      [value === 'max' ? 'maxvalue' : 'minvalue']: Object.fromEntries(
+        sortedKeys.map(key => [key, valueObject[key]])
+      )
+    });
+
+  } catch (error) {
+    console.error("Final error:", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+      error: error.message
+    });
+  }
 };
 
 export const cbname = async (req, res) => {
@@ -138,6 +675,7 @@ export const cbname = async (req, res) => {
   }
 };
 
+// for chart page
 export const fetchSensorDataByaverage = async (req, res) => {
   const userId = req.headers['x-user-id'];
   // console.log("userId form api", userId)
@@ -1100,7 +1638,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
                 avgCBT23A2: 1,
                 avgCBT24A1: 1,
                 avgCBT24A2: 1,
-                TIME: 1
+
               }
             },
             { $sort: { "date": 1, "hour": 1 } }
@@ -1275,8 +1813,7 @@ export const fetchSensorDataByaverage = async (req, res) => {
                 avgCBT16B1: 1,
                 avgCBT16B2: 1,
                 avgCBT17B1: 1,
-                avgCBT17B2: 1,
-                TIME: 1
+                avgCBT17B2: 1
               }
             },
             { $sort: { "date": 1, "hour": 1 } }
@@ -1822,66 +2359,74 @@ export const fetchSensorDataByinterval = async (req, res) => {
               },
             },
             {
-              $group: {
-                _id: {
-                  year: { $year: "$createdAt" },
-                  month: { $month: "$createdAt" },
-                  day: { $dayOfMonth: "$createdAt" },
-                  hour: { $hour: "$createdAt" },
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
                 },
-                TIME: { $first: "$TIME" },
-                busbar: { $first: "$busbar" },
-                CBT1B1: { $first: "$CBT1B1" },
-                CBT1B2: { $first: "$CBT1B2" },
-                CBT2B1: { $first: "$CBT2B1" },
-                CBT2B2: { $first: "$CBT2B2" },
-                CBT3B1: { $first: "$CBT3B1" },
-                CBT3B2: { $first: "$CBT3B2" },
-                CBT4B1: { $first: "$CBT4B1" },
-                CBT4B2: { $first: "$CBT4B2" },
-                CBT5B1: { $first: "$CBT5B1" },
-                CBT5B2: { $first: "$CBT5B2" },
-                CBT6B1: { $first: "$CBT6B1" },
-                CBT6B2: { $first: "$CBT6B2" },
-                CBT7B1: { $first: "$CBT7B1" },
-                CBT7B2: { $first: "$CBT7B2" },
-                CBT8B1: { $first: "$CBT7B1" },
-                CBT8B2: { $first: "$CBT8B2" },
-                CBT9B1: { $first: "$CBT9B1" },
-                CBT9B2: { $first: "$CBT9B2" },
-                CBT10B1: { $first: "$CBT10B1" },
-                CBT10B2: { $first: "$CBT10B2" },
-
-              },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT1B1: { $avg: { $toDouble: "$CBT1B1" } },
+                avgCBT1B2: { $avg: { $toDouble: "$CBT1B2" } },
+                avgCBT2B1: { $avg: { $toDouble: "$CBT2B1" } },
+                avgCBT2B2: { $avg: { $toDouble: "$CBT2B2" } },
+                avgCBT3B1: { $avg: { $toDouble: "$CBT3B1" } },
+                avgCBT3B2: { $avg: { $toDouble: "$CBT3B2" } },
+                avgCBT4B1: { $avg: { $toDouble: "$CBT4B1" } },
+                avgCBT4B2: { $avg: { $toDouble: "$CBT4B2" } },
+                avgCBT5B1: { $avg: { $toDouble: "$CBT5B1" } },
+                avgCBT5B2: { $avg: { $toDouble: "$CBT5B2" } },
+                avgCBT6B1: { $avg: { $toDouble: "$CBT6B1" } },
+                avgCBT6B2: { $avg: { $toDouble: "$CBT6B2" } },
+                avgCBT7B1: { $avg: { $toDouble: "$CBT7B1" } },
+                avgCBT7B2: { $avg: { $toDouble: "$CBT7B2" } },
+                avgCBT8B1: { $avg: { $toDouble: "$CBT8B1" } },
+                avgCBT8B2: { $avg: { $toDouble: "$CBT8B2" } },
+                avgCBT9B1: { $avg: { $toDouble: "$CBT9B1" } },
+                avgCBT9B2: { $avg: { $toDouble: "$CBT9B2" } },
+                avgCBT10B1: { $avg: { $toDouble: "$CBT10B1" } },
+                avgCBT10B2: { $avg: { $toDouble: "$CBT10B2" } },
+                TIME: { $first: "$TIME" }
+              }
             },
             {
               $project: {
                 _id: 0,
-                TIME: 1,
-                busbar: 1,
-                CBT1B1: 1,
-                CBT1B2: 1,
-                CBT2B1: 1,
-                CBT2B2: 1,
-                CBT3B1: 1,
-                CBT3B2: 1,
-                CBT4B1: 1,
-                CBT4B2: 1,
-                CBT5B1: 1,
-                CBT5B2: 1,
-                CBT6B1: 1,
-                CBT6B2: 1,
-                CBT7B1: 1,
-                CBT7B2: 1,
-                CBT8B1: 1,
-                CBT8B2: 1,
-                CBT9B1: 1,
-                CBT9B2: 1,
-                CBT10B1: 1,
-                CBT10B2: 1,
+                avgCBT1B1: 1,
+                avgCBT1B2: 1,
+                avgCBT2B1: 1,
+                avgCBT2B2: 1,
+                avgCBT3B1: 1,
+                avgCBT3B2: 1,
+                avgCBT4B1: 1,
+                avgCBT4B2: 1,
+                avgCBT5B1: 1,
+                avgCBT5B2: 1,
+                avgCBT6B1: 1,
+                avgCBT6B2: 1,
+                avgCBT7B1: 1,
+                avgCBT7B2: 1,
+                avgCBT8B1: 1,
+                avgCBT8B2: 1,
+                avgCBT9B1: 1,
+                avgCBT9B2: 1,
+                avgCBT10B1: 1,
+                avgCBT10B2: 1,
                 TIME: 1
-              },
+              }
             },
+            { $sort: { "date": 1, "hour": 1 } }
           ]),
           SensorModel8.aggregate([
             {
@@ -1890,40 +2435,50 @@ export const fetchSensorDataByinterval = async (req, res) => {
               },
             },
             {
-              $group: {
-                _id: {
-                  year: { $year: "$createdAt" },
-                  month: { $month: "$createdAt" },
-                  day: { $dayOfMonth: "$createdAt" },
-                  hour: { $hour: "$createdAt" },
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
                 },
-                TIME: { $first: "$TIME" },
-                busbar: { $first: "$busbar" },
-                CBT11B1: { $first: "$CBT11B1" },
-                CBT11B2: { $first: "$CBT11B2" },
-                CBT12B1: { $first: "$CBT12B1" },
-                CBT12B2: { $first: "$CBT12B2" },
-                CBT13B1: { $first: "$CBT13B1" },
-                CBT13B2: { $first: "$CBT13B2" },
-                CBT14B1: { $first: "$CBT14B1" },
-                CBT14B2: { $first: "$CBT14B2" },
-              },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT11B1: { $avg: { $toDouble: "$CBT11B1" } },
+                avgCBT11B2: { $avg: { $toDouble: "$CBT11B2" } },
+                avgCBT12B1: { $avg: { $toDouble: "$CBT12B1" } },
+                avgCBT12B2: { $avg: { $toDouble: "$CBT12B2" } },
+                avgCBT13B1: { $avg: { $toDouble: "$CBT13B1" } },
+                avgCBT13B2: { $avg: { $toDouble: "$CBT13B2" } },
+                avgCBT14B1: { $avg: { $toDouble: "$CBT14B1" } },
+                avgCBT14B2: { $avg: { $toDouble: "$CBT14B2" } },
+                TIME: { $first: "$TIME" }
+              }
             },
             {
               $project: {
                 _id: 0,
-                TIME: 1,
-                busbar: 1,
-                CBT11B1: 1,
-                CBT11B2: 1,
-                CBT12B1: 1,
-                CBT12B2: 1,
-                CBT13B1: 1,
-                CBT13B2: 1,
-                CBT14B1: 1,
-                CBT14B2: 1,
-              },
+                avgCBT11B1: 1,
+                avgCBT11B2: 1,
+                avgCBT12B1: 1,
+                avgCBT12B2: 1,
+                avgCBT13B1: 1,
+                avgCBT13B2: 1,
+                avgCBT14B1: 1,
+                avgCBT14B2: 1,
+                TIME: 1
+              }
             },
+            { $sort: { "date": 1, "hour": 1 } }
           ]),
           SensorModel9.aggregate([
             {
@@ -1932,41 +2487,46 @@ export const fetchSensorDataByinterval = async (req, res) => {
               },
             },
             {
-              $group: {
-                _id: {
-                  year: { $year: "$createdAt" },
-                  month: { $month: "$createdAt" },
-                  day: { $dayOfMonth: "$createdAt" },
-                  hour: { $hour: "$createdAt" },
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
                 },
-                TIME: { $first: "$TIME" },
-                busbar: { $first: "$busbar" },
-                CBT15B1: { $first: "$CBT15B1" },
-                CBT15B2: { $first: "$CBT15B2" },
-                CBT16B1: { $first: "$CBT16B1" },
-                CBT16B2: { $first: "$CBT16B2" },
-                CBT17B1: { $first: "$CBT17B1" },
-                CBT17B2: { $first: "$CBT17B2" },
-                CBT18B1: { $first: "$CBT18B1" },
-                CBT18B2: { $first: "$CBT18B2" },
-              },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT15B1: { $avg: { $toDouble: "$CBT15B1" } },
+                avgCBT15B2: { $avg: { $toDouble: "$CBT15B2" } },
+                avgCBT16B1: { $avg: { $toDouble: "$CBT16B1" } },
+                avgCBT16B2: { $avg: { $toDouble: "$CBT16B2" } },
+                avgCBT17B1: { $avg: { $toDouble: "$CBT17B1" } },
+                avgCBT17B2: { $avg: { $toDouble: "$CBT17B2" } },
+                TIME: { $first: "$TIME" }
+              }
             },
             {
               $project: {
                 _id: 0,
-                TIME: 1,
-                busbar: 1,
-                CBT15B1: 1,
-                CBT15B2: 1,
-                CBT16B1: 1,
-                CBT16B2: 1,
-                CBT17B1: 1,
-                CBT17B2: 1,
-                CBT18B1: 1,
-                CBT18B2: 1,
-
-              },
+                avgCBT15B1: 1,
+                avgCBT15B2: 1,
+                avgCBT16B1: 1,
+                avgCBT16B2: 1,
+                avgCBT17B1: 1,
+                avgCBT17B2: 1,
+                TIME: 1
+              }
             },
+            { $sort: { "date": 1, "hour": 1 } }
           ]),
           SensorModel10.aggregate([
             {
@@ -1975,49 +2535,59 @@ export const fetchSensorDataByinterval = async (req, res) => {
               },
             },
             {
-              $group: {
-                _id: {
-                  year: { $year: "$createdAt" },
-                  month: { $month: "$createdAt" },
-                  day: { $dayOfMonth: "$createdAt" },
-                  hour: { $hour: "$createdAt" },
+              $addFields: {
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt"
+                  }
                 },
-                TIME: { $first: "$TIME" },
-                busbar: { $first: "$busbar" },
-                CBT19B1: { $first: "$CBT19B1" },
-                CBT19B2: { $first: "$CBT19B2" },
-                CBT20B1: { $first: "$CBT20B1" },
-                CBT20B2: { $first: "$CBT20B2" },
-                CBT21B1: { $first: "$CBT21B1" },
-                CBT21B2: { $first: "$CBT21B2" },
-                CBT22B1: { $first: "$CBT22B1" },
-                CBT22B2: { $first: "$CBT22B2" },
-                CBT23B1: { $first: "$CBT23B1" },
-                CBT23B2: { $first: "$CBT23B2" },
-                CBT24B1: { $first: "$CBT24B1" },
-                CBT24B2: { $first: "$CBT24B2" },
-              },
+                hour: {
+                  $dateToString: {
+                    format: "%H",
+                    date: "$createdAt"
+                  }
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { date: "$date", hour: "$hour" },
+                avgCBT19B1: { $avg: { $toDouble: "$CBT19B1" } },
+                avgCBT19B2: { $avg: { $toDouble: "$CBT19B2" } },
+                avgCBT20B1: { $avg: { $toDouble: "$CBT20B1" } },
+                avgCBT20B2: { $avg: { $toDouble: "$CBT20B2" } },
+                avgCBT21B1: { $avg: { $toDouble: "$CBT21B1" } },
+                avgCBT21B2: { $avg: { $toDouble: "$CBT21B2" } },
+                avgCBT22B1: { $avg: { $toDouble: "$CBT22B1" } },
+                avgCBT22B2: { $avg: { $toDouble: "$CBT22B2" } },
+                avgCBT23B1: { $avg: { $toDouble: "$CBT23B1" } },
+                avgCBT23B2: { $avg: { $toDouble: "$CBT23B2" } },
+                avgCBT24B1: { $avg: { $toDouble: "$CBT24B1" } },
+                avgCBT24B2: { $avg: { $toDouble: "$CBT24B2" } },
+                TIME: { $first: "$TIME" }
+              }
             },
             {
               $project: {
                 _id: 0,
-                TIME: 1,
-                busbar: 1,
-                CBT19B1: 1,
-                CBT19B2: 1,
-                CBT20B1: 1,
-                CBT20B2: 1,
-                CBT21B1: 1,
-                CBT21B2: 1,
-                CBT22B1: 1,
-                CBT22B2: 1,
-                CBT23B1: 1,
-                CBT23B2: 1,
-                CBT24B1: 1,
-                CBT24B2: 1,
-              },
+                avgCBT19B1: 1,
+                avgCBT19B2: 1,
+                avgCBT20B1: 1,
+                avgCBT20B2: 1,
+                avgCBT21B1: 1,
+                avgCBT21B2: 1,
+                avgCBT22B1: 1,
+                avgCBT22B2: 1,
+                avgCBT23B1: 1,
+                avgCBT23B2: 1,
+                avgCBT24B1: 1,
+                avgCBT24B2: 1,
+                TIME: 1
+              }
             },
-          ]),
+            { $sort: { "date": 1, "hour": 1 } }
+          ])
         ]);
 
         const combinedGroupedData = allGroupedData.flat();
@@ -3372,8 +3942,6 @@ export const fetchSensorDataBylimit = async (req, res) => {
   }
 };
 
-
-
 // for analytics page
 export const fetchSensorDataByaveragegraph = async (req, res) => {
   const { key, startDate, endDate, average } = req.query;
@@ -3413,7 +3981,7 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
       groupedData = await model.aggregate([
         {
           $match: {
-            createdAt: { $gte: date1, $lte: date2 }, 
+            createdAt: { $gte: date1, $lte: date2 },
             id: userId
           },
         },
@@ -3600,8 +4168,8 @@ export const fetchSensorDataByaveragegraph = async (req, res) => {
 export const fetchSensorDataByintervalgraph = async (req, res) => {
   const { key, startDate, endDate, average } = req.query;
   const userId = req.headers['x-user-id'];
-   console.log("userId for interval data", userId);
-//  console.log("Checking for userid ", userId);
+  console.log("userId for interval data", userId);
+  //  console.log("Checking for userid ", userId);
   // Map keys to their respective models
   const modelMap = {
     sensormodel1: SensorModel1,
@@ -3878,7 +4446,7 @@ export const fetchSensorDataByDategraph = async (req, res) => {
 
     // Fetch all raw data within the date range
     const rawData = await model.find({
-      createdAt: { $gte: date1, $lte: date2 }, 
+      createdAt: { $gte: date1, $lte: date2 },
       id: userId// Filter data between startDate and endDate
     }).sort({ createdAt: 1 }); // Sort by createdAt in ascending order
 
@@ -3970,7 +4538,7 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
           // Define the aggregation pipeline
           const projectStage = {
             _id: 0,
-           
+
             timestamp: "$TIME", // Use the TIME field as the timestamp
             ...Object.keys(model.schema.paths).reduce((acc, field) => {
               if (
@@ -3989,7 +4557,7 @@ export const fetchSensorDataBylimitgraph = async (req, res) => {
           };
 
           const groupedData = await model.aggregate([
-            { $match : { id: userId,}},
+            { $match: { id: userId, } },
             { $sort: { TIME: -1 } }, // Sort by TIME in descending order
             { $limit: limitNumber }, // Apply limit
             { $project: projectStage }, // Project only required fields
@@ -4068,4 +4636,4 @@ export const getUniqueIds = async (req, res) => {
   }
 };
 
-export const ApiController = { Aside, Bside, getallsensor, cbname, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph, getUniqueIds };
+export const ApiController = { Aside, Bside, getallsensor, cbname, collectorbar, getHeatmap, fetchSensorDataByaverage, fetchSensorDataByinterval, fetchSensorDataByDate, fetchSensorDataBylimit, fetchSensorDataByaveragegraph, fetchSensorDataByintervalgraph, fetchSensorDataByDategraph, fetchSensorDataBylimitgraph, getUniqueIds };

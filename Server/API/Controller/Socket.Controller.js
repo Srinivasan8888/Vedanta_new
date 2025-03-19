@@ -54,7 +54,8 @@ export const allsocketData = (io) => {
         // console.log("Client connected, sending initial data");
 
         // Extract userId from the socket handshake
-        const { userId } = socket.handshake.auth;
+        // const { userId } = socket.handshake.auth;
+        const { userId } = 1604;
 
         try {
             // Fetch data filtered by userId
@@ -205,204 +206,6 @@ export const SideData = (io) => {
         });
     }
 };
-// export const SideData = (io) => {
-//     const options = { fullDocument: "updateLookup" };
-//     const modelMap = {
-//         SensorModel1,
-//         SensorModel2,
-//         SensorModel3,
-//         SensorModel4,
-//         SensorModel5,
-//         SensorModel6,
-//     };
-//     const modelMap2 = {
-//         SensorModel7,
-//         SensorModel8,
-//         SensorModel9,
-//         SensorModel10,
-//     };
-
-//     // Store the last emitted data for ASide and BSide per userId
-//     const lastASideData = {};
-//     const lastBSideData = {};
-
-//     // Function to fetch data for a single model
-//     const fetchDataForModel = async (model, userId) => {
-//         try {
-//             const result = await model.aggregate([
-//                 { $match: { id: userId } }, // Filter by userId (id field)
-//                 { $sort: { createdAt: -1 } },
-//                 { $limit: 1 },
-//                 {
-//                     $project: {
-//                         _id: 0,
-//                         id: 0,
-//                         TIME: 0,
-//                         createdAt: 0,
-//                         updatedAt: 0,
-//                         __v: 0,
-//                         busbar: 0,
-//                     },
-//                 },
-//             ]);
-//             console.log(`Fetched Data for userId ${userId} from ${model.modelName}:`, result);
-//             return result[0] || {}; // Return the first document or an empty object
-//         } catch (error) {
-//             console.error(`Error fetching data for model ${model.modelName}:`, error);
-//             return {};
-//         }
-//     };
-
-//     // Fetch all ASide data
-//     const getASideData = async (userId) => {
-//         const promises = Object.values(modelMap).map((model) => fetchDataForModel(model, userId));
-//         const results = await Promise.all(promises);
-//         return results.filter(Boolean); // Filter out empty results
-//     };
-
-//     // Fetch all BSide data
-//     const getBSideData = async (userId) => {
-//         const promises = Object.values(modelMap2).map((model) => fetchDataForModel(model, userId));
-//         const results = await Promise.all(promises);
-//         return results.filter(Boolean); // Filter out empty results
-//     };
-
-//     // Validate data to ensure it's always an array
-//     const validateData = (data) => {
-//         return Array.isArray(data) ? data : [];
-//     };
-
-//     // Helper function to compare last data with current data
-//     const compareData = (lastData, currentData) => {
-//         return currentData.map((currentItem) => {
-//             const lastItem = lastData.find(
-//                 (item) =>
-//                     Object.keys(item).length > 0 && Object.keys(currentItem).length > 0
-//             );
-//             const updatedEntries = Object.entries(currentItem).map(([key, currentValue]) => {
-//                 const lastValue = lastItem?.[key];
-//                 const trend =
-//                     lastValue === undefined || isNaN(lastValue) || isNaN(currentValue)
-//                         ? null // No trend if no previous value or invalid values
-//                         : parseFloat(currentValue) > parseFloat(lastValue)
-//                         ? "up"
-//                         : "down";
-//                 return { key, value: currentValue, trend };
-//             });
-//             return { ...currentItem, entries: updatedEntries };
-//         });
-//     };
-
-//     // Handle client connections
-//     io.on("connection", async (socket) => {
-//         console.log("Client connected, sending initial data");
-
-//         // Extract userId from the socket handshake
-//         const { userId } = socket.handshake.auth;
-//         console.log("Connected userId:", userId);
-
-//         try {
-//             // Fetch and send initial ASide and BSide data
-//             const [AsideData, BSideData] = await Promise.all([
-//                 getASideData(userId),
-//                 getBSideData(userId),
-//             ]);
-
-//             console.log("Initial ASide Data:", AsideData);
-//             console.log("Initial BSide Data:", BSideData);
-
-//             // Store initial data as last data for this userId
-//             lastASideData[userId] = AsideData;
-//             lastBSideData[userId] = BSideData;
-
-//             // Emit initial data to the client
-//             socket.emit("ASideUpdate", validateData(AsideData)); // Emit ASideUpdate
-//             socket.emit("BSideUpdate", validateData(BSideData)); // Emit BSideUpdate
-//         } catch (error) {
-//             console.error("Error sending initial data:", error);
-//         }
-//     });
-
-//     // Watch for changes in ASide models
-//     const asideTimeouts = {}; // Store timeouts per userId
-//     for (const [modelName, model] of Object.entries(modelMap)) {
-//         model.watch(
-//             [
-//                 { $match: { "fullDocument.id": { $exists: true } } }, // Only match documents with an `id` field
-//             ],
-//             options
-//         ).on("change", async (change) => {
-//             const userId = change.fullDocument?.id; // Extract userId from the changed document
-//             console.log("Change Full Document:", change.fullDocument);
-
-//             if (!userId) {
-//                 console.warn("No userId found in change event");
-//                 return; // Skip if userId is missing
-//             }
-
-//             console.log(`[ASide change detected in ${modelName} for userId: ${userId}]`);
-
-//             // Clear existing timeout for this userId
-//             clearTimeout(asideTimeouts[userId]);
-
-//             // Set a new timeout to debounce emissions
-//             asideTimeouts[userId] = setTimeout(async () => {
-//                 try {
-//                     const AData = await getASideData(userId);
-//                     console.log(`Updated ASide Data for userId ${userId}:`, AData);
-
-//                     const comparedData = compareData(lastASideData[userId] || [], AData); // Compare last and current data
-//                     lastASideData[userId] = AData; // Update last data for this userId
-
-//                     // Emit ASideUpdate with trends
-//                     io.emit("ASideUpdate", validateData(comparedData));
-//                 } catch (error) {
-//                     console.error(`Error updating ASide (${modelName}):`, error);
-//                 }
-//             }, 2000); // Debounce emissions
-//         });
-//     }
-
-//     // Watch for changes in BSide models
-//     const bsideTimeouts = {}; // Store timeouts per userId
-//     for (const [modelName, model] of Object.entries(modelMap2)) {
-//         model.watch(
-//             [
-//                 { $match: { "fullDocument.id": { $exists: true } } }, // Only match documents with an `id` field
-//             ],
-//             options
-//         ).on("change", async (change) => {
-//             const userId = change.fullDocument?.id; // Extract userId from the changed document
-//             console.log("Change Full Document:", change.fullDocument);
-
-//             if (!userId) {
-//                 console.warn("No userId found in change event");
-//                 return; // Skip if userId is missing
-//             }
-
-//             console.log(`[BSide change detected in ${modelName} for userId: ${userId}]`);
-
-//             // Clear existing timeout for this userId
-//             clearTimeout(bsideTimeouts[userId]);
-
-//             // Set a new timeout to debounce emissions
-//             bsideTimeouts[userId] = setTimeout(async () => {
-//                 try {
-//                     const BData = await getBSideData(userId);
-//                     console.log(`Updated BSide Data for userId ${userId}:`, BData);
-
-//                     const comparedData = compareData(lastBSideData[userId] || [], BData); // Compare last and current data
-//                     lastBSideData[userId] = BData; // Update last data for this userId
-
-//                     // Emit BSideUpdate with trends
-//                     io.emit("BSideUpdate", validateData(comparedData));
-//                 } catch (error) {
-//                     console.error(`Error updating BSide (${modelName}):`, error);
-//                 }
-//             }, 2000); // Debounce emissions
-//         });
-//     }
-// };
 
 export const Avgchartdash = (io, time) => {
     const options = { fullDocument: "updateLookup" };
@@ -524,137 +327,64 @@ export const Avgchartdash = (io, time) => {
 };
 
 
-// export const AvgtempModel = (io, time) => {
-//     const options = { fullDocument: "updateLookup" };
-//     const models = [
-//         SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
-//         SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
-//     ];
-//     const nameMapping = [
-//         "CBT1A2", "CBT1A1", "CBT2A2", "CBT2A1", "CBT3A2", "CBT3A1", "CBT4A2", "CBT4A1", "CBT5A2", "CBT5A1",
-//         "CBT6A2", "CBT6A1", "CBT7A2", "CBT7A1",
+export const dashboardDate = (io) => {
+    const options = { fullDocument: "updateLookup" };
 
-//         "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2", "CBT10A1", "CBT10A2",
 
-//         "CBT11A2", "CBT11A1", "CBT12A2", "CBT12A1", "CBT13A2", "CBT13A1", "CBT14A2", "CBT14A1", "CBT15A2", "CBT15A1",
-//         "CBT16A2", "CBT16A1", "CBT17A2", "CBT17A1", "CBT18A2", "CBT18A1", "CBT19A2", "CBT19A1", "CBT20A2", "CBT20A1",
-//         "CBT21A2", "CBT21A1", "CBT22A2", "CBT22A1", "CBT23A2", "CBT23A1", "CBT24A2", "CBT24A1", "CBT25A2", "CBT25A1",
-//         "CBT26A2", "CBT26A1", "CBT27A2", "CBT27A1", "CBT1B2", "CBT1B1", "CBT2B2", "CBT2B1", "CBT3B2", "CBT3B1",
-//         "CBT4B2", "CBT4B1", "CBT5B2", "CBT5B1", "CBT6B2", "CBT6B1", "CBT7B2", "CBT7B1", "CBT8B2", "CBT8B1",
-//         "CBT9B2", "CBT9B1", "CBT10B2", "CBT10B1", "CBT11B2", "CBT11B1", "CBT12B2", "CBT12B1", "CBT13B2", "CBT13B1",
-//         "CBT14B2", "CBT14B1", "CBT15B2", "CBT15B1", "CBT16B2", "CBT16B1", "CBT17B2", "CBT17B1", "CBT18B2", "CBT18B1",
-//         "CBT19B2", "CBT19B1", "CBT20B2", "CBT20B1", "CBT21B2", "CBT21B1", "CBT22B2", "CBT22B1", "CBT23B2", "CBT23B1",
-//         "CBT24B2", "CBT24B1", "CBT25B2", "CBT25B1", "CBT26B2", "CBT26B1", "CBT27B2", "CBT27B1"
-//     ];
-//     let changedtime;
-//     const currentDateTime = new Date();
+    const aggregateSensorData = async (model, userId, projectFields) => {
+        userId = String(userId);
+        return model.aggregate([
+            { $match: { id: userId } }, // Filter by userId (id field)
+            { $sort: { createdAt: -1 } },
+            { $limit: 1 },
+            {
+                $project: projectFields
+            }
+        ], { maxTimeMS: 60000, allowDiskUse: true });
+    };
 
-//     // Function to set changedtime based on the time parameter
-//     const setChangedTime = (time) => {
-//         if (time == "1D") {
-//             return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
-//         } else if (time == "3D") {
-//             return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
-//         } else if (time == "1W") {
-//             return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
-//         } else if (time == "1M") {
-//             return new Date(currentDateTime.getTime() - (30 * 24 * 60 * 60 * 1000)); // 1 month ago
-//         } else if (time == "6M") {
-//             return new Date(currentDateTime.getTime() - (6 * 30 * 24 * 60 * 60 * 1000)); // 6 months ago
-//         } else {
-//             console.warn("Invalid time parameter:", time);
-//             return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // Default to 1 day ago
-//         }
-//     };
+    const allSensorDashboardData = async (userId) => {
+        return Promise.all([
+            aggregateSensorData(SensorModel1, 1604, {
+                _id: 0,
+                CBT1A1: 1,
+                CBT1A2: 1,
+                CBT2A1: 1,
+                CBT2A2: 1,
+                CBT3A1: 1,
+                CBT3A2: 1,
+                CBT4A1: 1,
+                CBT4A2: 1,
+                CBT5A1: 1,
+                CBT5A2: 1,
+                CBT6A1: 1,
+                CBT6A2: 1,
+                CBT7A1: 1,
+                CBT7A2: 1,
+            }),
+            // aggregateSensorData(SensorModel2, 1604),
+            // aggregateSensorData(SensorModel3, 1604),
+            // aggregateSensorData(SensorModel4, 1604),
+            // aggregateSensorData(SensorModel5, 1604),
+            // aggregateSensorData(SensorModel6, 1604),
+            // aggregateSensorData(SensorModel7, 1604),
+            // aggregateSensorData(SensorModel8, 1604),
+            // aggregateSensorData(SensorModel9, 1604),
+            // aggregateSensorData(SensorModel10, 1604),
+        ]);
+    };
 
-//     // Set initial changedtime
-//     changedtime = setChangedTime(time);
+    io.on('connection', async (socket) => {
+        const { userId } = socket.handshake.auth;
 
-//     const getSensorData = async (changedtime) => {
-//         try {
-//             console.log("current time", currentDateTime);
-//             console.log("Querying data from:", changedtime); // Log the time range being queried
-
-//             const maxMinValues = [];
-
-//             // Loop through all sensor models
-//             for (let i = 0; i < models.length; i++) {
-//                 const model = models[i];
-//                 console.log("models", model)
-
-//                 // Loop through each parameter in nameMapping
-//                 for (let j = 0; j < nameMapping.length; j++) {
-//                     const parameter = nameMapping[j];
-//                     // console.log("parameter", parameter)
-//                     const data = await model.aggregate([
-//                         {
-//                             $match: {
-//                                 createdAt: { $gte: changedtime }
-//                             }
-//                         },
-//                         {
-//                             $project: {
-//                                 [parameter]: 1, // Dynamically select the parameter field
-//                                 createdAt: 1
-//                             }
-//                         },
-//                         {
-//                             $group: {
-//                                 _id: null,
-//                                 max: { $max: `$${parameter}` },
-//                                 min: { $min: `$${parameter}` }
-//                             }
-//                         }
-//                     ]);
-
-//                     if (data[0] && (data[0].max !== null || data[0].min !== null)) {
-//                         maxMinValues.push({
-//                             parameter: parameter,
-//                             max: data[0].max || null,
-//                             min: data[0].min || null
-//                         });
-//                     }
-//                 }
-//             }
-
-//             return maxMinValues;
-//         } catch (error) {
-//             console.error("Error fetching sensor data:", error);
-//             return [];
-//         }
-//     };
-
-//     io.on('connection', async (socket) => {
-//         console.log("Client connected, sending initial sensor data");
-//         try {
-//             const sensorData = await getSensorData(changedtime); // Pass changedtime
-//             // console.log("Emitting sensor data:", sensorData);
-//             io.emit("AvgModeltemp", sensorData);
-//         } catch (error) {
-//             console.error("Error sending initial sensor data:", error);
-//         }
-
-//         socket.on("ButtonClick", async (buttonId) => {
-//             console.log("Button clicked with ID:", buttonId);
-//             // Update changedtime based on buttonId (you can customize this logic)
-//             changedtime = setChangedTime(buttonId); // Assuming buttonId corresponds to time parameter
-//             const sensorData = await getSensorData(changedtime); // Pass updated changedtime
-//             // console.log("Emitting sensor data on button click:", sensorData);
-//             io.emit("AvgModeltemp", sensorData);
-//         });
-//     });
-
-//     // Watch for changes in any of the sensor models
-//     models.forEach(model => {
-//         model.watch([], options).on("change", async (change) => {
-//             console.log("[change detected in Sensor Model]", change);
-//             const sensorData = await getSensorData(changedtime); // Pass changedtime
-//             // console.log("Emitting sensor data on change:", sensorData);
-//             io.emit("AvgModeltemp", sensorData);
-//         });
-//     });
-// };
-
+        try {
+            const dashboardData = await allSensorDashboardData(userId);
+            io.emit("DashboardData", { status: "success", data: dashboardData });
+        } catch (error) {
+            console.error("Error sending dashboard data:", error);
+        }
+    });
+};
 
 export const AvgtempModel = (io, time) => {
     const options = { fullDocument: "updateLookup" };
@@ -940,211 +670,6 @@ export const Heatmaprange = (io) => {
     }
 };
 
-// export const Heatmap = (io) => {
-//     const options = { fullDocument: "updateLookup" };
-
-//     // Map of sensor models
-//     const modelMap = {
-//         SensorModel1,
-//         SensorModel2,
-//         SensorModel3,
-//         SensorModel4,
-//         SensorModel5,
-//         SensorModel6,
-//     };
-
-//     const modelMap2 = {
-//         SensorModel7,
-//         SensorModel8,
-//         SensorModel9,
-//         SensorModel10,
-//     };
-
-//     const getASideData = async (startDate, endDate, userId) => {
-//     console.log("userid", userId); // Debugging: Log the userId
-//     const allData = { timestamps: [], data: {} }; // Initialize data structure
-
-//     for (let i = 1; i <= 6; i++) {
-//         const modelName = `SensorModel${i}`;
-
-//         // Construct the query dynamically
-//         const query = {
-//             createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
-//             ...(userId && { id: userId }), // Add `id` filter only if `userId` is provided
-//         };
-
-//         const data = await modelMap[modelName].aggregate([
-//             { $match: query },
-//             { $sort: { createdAt: -1 } },
-//             {
-//                 $project: {
-//                     _id: 0,
-//                     createdAt: 1,
-//                     TIME: 1,
-//                     day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
-//                     ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-//                         if (
-//                             key !== '_id' &&
-//                             key !== 'createdAt' &&
-//                             key !== 'updatedAt' &&
-//                             key !== '__v' &&
-//                             key !== 'busbar' &&
-//                             key !== 'id'
-//                         ) {
-//                             acc[key] = 1; // Include all other fields
-//                         }
-//                         return acc;
-//                     }, {}),
-//                 },
-//             },
-//             {
-//                 $group: {
-//                     _id: "$day", // Group by the day
-//                     createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
-//                     TIME: 1,
-//                     ...Object.keys(modelMap[modelName].schema.paths).reduce((acc, key) => {
-//                         if (
-//                             key !== '_id' &&
-//                             key !== 'createdAt' &&
-//                             key !== 'updatedAt' &&
-//                             key !== '__v' &&
-//                             key !== 'busbar' &&
-//                             key !== 'id'
-//                         ) {
-//                             acc[key] = { $first: `$${key}` }; // Get the first value for each field
-//                         }
-//                         return acc;
-//                     }, {}),
-//                 },
-//             },
-//             { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
-//         ]);
-
-//         // Populate the data structure
-//         data.forEach((doc) => {
-//             allData.timestamps.push(doc.createdAt); // Add timestamp
-//             Object.keys(doc).forEach((key) => {
-//                 if (key !== 'createdAt') {
-//                     if (!allData.data[key]) {
-//                         allData.data[key] = []; // Initialize array for each key if it doesn't exist
-//                     }
-//                     allData.data[key].push(doc[key]); // Add value to the corresponding key
-//                 }
-//             });
-//         });
-//     }
-
-//     return allData;
-// };
-
-
-//     const getBSideData = async (startDate, endDate) => {
-//         const allData = { timestamps: [], data: {} }; // Initialize data structure
-//         for (let i = 7; i <= 10; i++) {
-//             const modelName = `SensorModel${i}`;
-//             const query = {
-//                 createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Ensure dates are parsed correctly
-//             };
-
-//             // Check if the model exists in modelMap2
-//             if (!modelMap2[modelName]) {
-//                 console.warn(`Model ${modelName} not found in modelMap2`);
-//                 continue; // Skip this iteration if the model is not found
-//             }
-
-//             const data = await modelMap2[modelName].aggregate([
-//                 { $match: query },
-//                 { $sort: { createdAt: -1 } },
-//                 {
-//                     $project: {
-//                         _id: 0,
-//                         createdAt: 1,
-//                         TIME: 1,
-//                         day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Extract the date without time
-//                         ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
-//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-//                                 acc[key] = 1; // Include all other fields
-//                             }
-//                             return acc;
-//                         }, {}),
-//                     },
-//                 },
-//                 {
-//                     $group: {
-//                         _id: "$day", // Group by the day
-//                         createdAt: { $first: "$createdAt" }, // Get the first timestamp for the day
-//                         TIME: 1,
-//                         ...Object.keys(modelMap2[modelName].schema.paths).reduce((acc, key) => {
-//                             if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id') {
-//                                 acc[key] = { $first: `$${key}` }; // Get the first value for each field
-//                             }
-//                             return acc;
-//                         }, {}),
-//                     },
-//                 },
-//                 { $sort: { createdAt: -1 } }, // Sort by the timestamp again if needed
-//             ]);
-
-//             // Populate the data structure
-//             data.forEach((doc) => {
-//                 allData.timestamps.push(doc.createdAt); // Add timestamp
-//                 Object.keys(doc).forEach((key) => {
-//                     if (key !== 'createdAt') {
-//                         if (!allData.data[key]) {
-//                             allData.data[key] = []; // Initialize array for each key if it doesn't exist
-//                         }
-//                         allData.data[key].push(doc[key]); // Add value to the corresponding key
-//                     }
-//                 });
-//             });
-//         }
-//         return allData;
-//     };
-
-
-//     // WebSocket connection handler
-//     io.on('connection', async (socket) => {
-//         console.log('Client connected, sending initial data');
-
-//         // Listen for client requests with parameters
-//         socket.on('requestData', async (params) => {
-//             const { value, startDate, endDate, side } = params; // Extract parameters
-//             console.log('Received requestData:', params); // Debugging
-
-//             try {
-//                 if (side === 'ASide') {
-//                     const AsideData = await getASideData(new Date(startDate), new Date(endDate));
-//                     socket.emit('ASide', AsideData); // Emit to the specific client
-//                 } else if (side === 'BSide') {
-//                     const BSideData = await getBSideData(new Date(startDate), new Date(endDate));
-//                     socket.emit('BSide', BSideData); // Emit to the specific client
-//                 }
-//             } catch (error) {
-//                 console.error('Error sending data:', error);
-//             }
-//         });
-//     });
-
-//     // Watch for changes in SensorModels (ASide)
-//     for (let i = 1; i <= 6; i++) {
-//         const modelName = `SensorModel${i}`;
-//         modelMap[modelName].watch([], options).on('change', async (change) => {
-//             console.log(`[change detected in ${modelName}]`, change);
-//             const AData = await getASideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
-//             io.emit('ASide', AData);
-//         });
-//     }
-
-//     // Watch for changes in SensorModels (BSide)
-//     for (let i = 7; i <= 10; i++) {
-//         const modelName = `SensorModel${i}`;
-//         modelMap2[modelName].watch([], options).on('change', async (change) => {
-//             console.log(`[change detected in ${modelName}]`, change);
-//             const BData = await getBSideData(new Date(0), new Date()); // Fetch all data from the beginning of time to now
-//             io.emit('BSide', BData);
-//         });
-//     }
-// };
 export const Heatmap = (io) => {
     const options = { fullDocument: "updateLookup" };
     // Map of sensor models
@@ -1666,112 +1191,6 @@ export const latesttimetamp = (io) => {
     });
 };
 
-// export const notificationData = (io) => {
-//     const options = { fullDocument: "updateLookup" };
-//     const modelMap = { SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5, SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10};
-
-//     // Function to fetch latest A-Side data for a specific userId
-//     const getnotificationdata = async () => {
-//         const promises = Object.values(modelMap).map((model) =>
-//             model.aggregate([
-//                 { $sort: { createdAt: -1 } }, // Sort by createdAt descending
-//                 { $limit: 1 }, // Get the latest record
-//                 {
-//                     $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
-//                 },
-//             ])
-//         );
-//         const results = await Promise.all(promises);
-//         return results.map(data => data[0]).filter(Boolean); // Flatten and filter empty results
-//     };
-
-//     // Function to fetch latest B-Side data for a specific userId
-//     // const getBSideData = async () => {
-//     //     const promises = Object.values(modelMap2).map((model) =>
-//     //         model.aggregate([
-//     //             { $sort: { createdAt: -1 } }, // Sort by createdAt descending
-//     //             { $limit: 1 }, // Get the latest record
-//     //             {
-//     //                 $project: { _id: 0, id: 0, TIME: 0, createdAt: 0, updatedAt: 0, __v: 0, busbar: 0 },
-//     //             },
-//     //         ])
-//     //     );
-//     //     const results = await Promise.all(promises);
-//     //     return results.map(data => data[0]).filter(Boolean); // Flatten and filter empty results
-//     // };
-
-//     io.on("connection", async (socket) => {
-//         console.log("Client connected, sending initial data");
-
-//         try {
-//             // Fetch initial A-Side and B-Side data for the user
-//             const notificationTempData = await Promise.all(getnotificationdata());
-
-//             // Emit initial data to the client
-//             socket.emit("TempData", notificationTempData);
-
-//         } catch (error) {
-//             console.error("Error sending initial data:", error);
-//         }
-//     });
-
-//     // Set up change streams for A-Side models
-//     for (const model of Object.values(modelMap)) {
-//         const changeStream = model.watch([], options);
-//         changeStream.on("change", async (change) => {
-//             console.log(`[Change detected in ${model.modelName}]`, change);
-
-//             // Extract userId from the changed document
-//             const userId = change.fullDocument?.id;
-//             if (!userId) {
-//                 console.warn(`No userId found in change event for ${model.modelName}`);
-//                 return;
-//             }
-
-//             try {
-//                 // Fetch updated A-Side data for the affected userId
-//                 const TData = await notificationTempData();
-
-//                 // Log the updated data for debugging
-//                 console.log("Updated A-Side Data:", TData);
-
-//                 // Emit the updated data to all connected clients
-//                 io.emit("TempDataUpdate", TData);
-//             } catch (error) {
-//                 console.error(`Error handling change in ${model.modelName}:`, error);
-//             }
-//         });
-//     }
-
-//     // // Set up change streams for B-Side models
-//     // for (const model of Object.values(modelMap2)) {
-//     //     const changeStream = model.watch([], options);
-//     //     changeStream.on("change", async (change) => {
-//     //         console.log(`[Change detected in ${model.modelName}]`, change);
-
-//     //         // Extract userId from the changed document
-//     //         const userId = change.fullDocument?.id;
-//     //         if (!userId) {
-//     //             console.warn(`No userId found in change event for ${model.modelName}`);
-//     //             return;
-//     //         }
-
-//     //         try {
-//     //             // Fetch updated B-Side data for the affected userId
-//     //             const BData = await getBSideData(userId);
-
-//     //             // Log the updated data for debugging
-//     //             console.log("Updated B-Side Data:", BData);
-
-//     //             // Emit the updated data to all connected clients
-//     //             io.emit("BSideUpdate", BData);
-//     //         } catch (error) {
-//     //             console.error(`Error handling change in ${model.modelName}:`, error);
-//     //         }
-//     //     });
-//     // }
-// };
-
 export const notificationData = (io) => {
     const options = { fullDocument: "updateLookup" };
 
@@ -1853,72 +1272,10 @@ export const notificationData = (io) => {
         SensorModel10: models.model10
     };
 
-    // const getFilteredData = async () => {
-    //     const results = [];
-    //     const uniqueIds = new Set();
-
-    //     // First pass: Collect all unique IDs
-    //     for (const model of Object.values(modelMap)) {
-    //         try {
-    //             const docs = await model.find().select('id -_id').lean();
-    //             docs.forEach(doc => doc.id && uniqueIds.add(doc.id));
-    //         } catch (err) {
-    //             console.error("ID collection error:", err);
-    //         }
-    //     }
-
-    //     // Second pass: Check each ID against all models
-    //     for (const id of uniqueIds) {
-    //         for (const [modelName, model] of Object.entries(modelMap)) {
-    //             try {
-    //                 const sensorFields = modelFieldMap[modelName];
-    //                 if (!sensorFields?.length) continue;
-
-    //                 const doc = await model.findOne({ id })
-    //                     .sort({ createdAt: -1 })
-    //                     .select([...sensorFields, 'createdAt'])
-    //                     .lean();
-
-    //                 if (!doc) continue;
-
-    //                 sensorFields.forEach(field => {
-    //                     const value = parseFloat(doc[field]);
-    //                     if (isNaN(value)) return;
-
-    //                     let message;
-    //                     if (value >= 700) {
-    //                         message = "Critical: Something went wrong";
-    //                     } else if (value >= 450) {
-    //                         message = "Attention Required";
-    //                     } else if (value >= 300) {
-    //                         message = "Warning";
-    //                     } else {
-    //                         return; // Skip values < 300
-    //                     }
-
-    //                     results.push({
-    //                         id,
-    //                         model: modelName,
-    //                         sensor: field,
-    //                         value,
-    //                         message,
-    //                         timestamp: doc.createdAt
-    //                     });
-    //                 });
-
-    //             } catch (err) {
-    //                 console.error(`Error processing ${modelName} ID ${id}:`, err);
-    //             }
-    //         }
-    //     }
-
-    //     return results;
-    // };
-
     const getFilteredData = async () => {
         const results = [];
         const uniqueIds = new Set();
-    
+
         // Collect all unique IDs in parallel
         const idPromises = Object.values(modelMap).map(async (model) => {
             try {
@@ -1928,27 +1285,27 @@ export const notificationData = (io) => {
                 console.error("ID collection error:", err);
             }
         });
-    
+
         await Promise.all(idPromises);
-    
+
         // Process each ID in parallel
         const processIdPromises = Array.from(uniqueIds).map(async (id) => {
             const modelPromises = Object.entries(modelMap).map(async ([modelName, model]) => {
                 try {
                     const sensorFields = modelFieldMap[modelName];
                     if (!sensorFields?.length) return;
-    
+
                     const doc = await model.findOne({ id })
                         .sort({ createdAt: -1 })
                         .select([...sensorFields, 'createdAt'])
                         .lean();
-    
+
                     if (!doc) return;
-    
+
                     sensorFields.forEach(field => {
                         const value = parseFloat(doc[field]);
                         if (isNaN(value)) return;
-    
+
                         let message;
                         if (value >= 700) {
                             message = "Critical: Something went wrong";
@@ -1959,7 +1316,7 @@ export const notificationData = (io) => {
                         } else {
                             return; // Skip values < 300
                         }
-    
+
                         results.push({
                             id,
                             model: modelName,
@@ -1969,17 +1326,17 @@ export const notificationData = (io) => {
                             timestamp: doc.createdAt
                         });
                     });
-    
+
                 } catch (err) {
                     console.error(`Error processing ${modelName} ID ${id}:`, err);
                 }
             });
-    
+
             await Promise.all(modelPromises);
         });
-    
+
         await Promise.all(processIdPromises);
-    
+
         return results;
     };
 
