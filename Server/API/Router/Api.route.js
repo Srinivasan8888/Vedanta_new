@@ -19,6 +19,6 @@ router.get('/getIntervalChart', verifyAccessToken, ApiController.fetchSensorData
 router.get('/getDateChart', verifyAccessToken, ApiController.fetchSensorDataByDategraph)
 router.get('/getLimitChart', verifyAccessToken, ApiController.fetchSensorDataBylimitgraph)
 router.get('/getuniqueids', ApiController.getUniqueIds)
-
-
+router.get('/getLatestTimestamp', ApiController.getLatestTimestamp)
+router.get('/getNotifications', ApiController.getNotifications)
 export default router;

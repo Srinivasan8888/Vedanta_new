@@ -116,11 +116,12 @@ export const signRefreshToken = (userId) => {
         createError.InternalServerError("Refresh token secret is not defined")
       );
     }
-    const payload = {};
+    const payload = {
+      audience: userId.toString()
+    };
     const options = {
       expiresIn: "30d",
       issuer: "vedanta.xyma.live",
-      audience: userId,
     };
     JWT.sign(payload, secret, options, (err, token) => {
       if (err) {
@@ -128,37 +129,94 @@ export const signRefreshToken = (userId) => {
         reject(createError.InternalServerError());
       }
       console.log("Setting refresh token in Redis...");
-      client.SETEX(userId, 24 * 60 * 60, token)
+      const redisKey = `refreshToken:${userId.toString()}`;
+      client.SETEX(redisKey, 24 * 60 * 60, token)
         .then(reply => {
-          console.log("Finished setting refresh token in Redis.");
+          console.log("Successfully stored refresh token");
           resolve(token);
         })
         .catch(err => {
-          console.log("Error setting refresh token in Redis:", err.message);
-          reject(createError.InternalServerError());
+          console.log("Redis storage error:", err.message);
+          reject(createError.InternalServerError("Token storage failed"));
         });
     });
   });
 };
 
+// Standalone refresh token verification (returns Promise)
 export const verifyRefreshToken = (refreshToken) => {
   return new Promise((resolve, reject) => {
+    if (!refreshToken) return reject(createError.BadRequest("Refresh token required"));
+
     JWT.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
-      (err, payload) => {
-        if (err) return reject(createError.Unauthorized());
-        const userId = payload.aud;
-        client.GET(userId)
-          .then(result => {
-            if (refreshToken === result) return resolve(userId);
-            reject(createError.Unauthorized());
-          })
-          .catch(err => {
-            console.log(err.message);
-            reject(createError.InternalServerError());
-          });
+      async (err, payload) => {
+        try {
+          if (err) {
+            const message = err.name === 'TokenExpiredError' 
+              ? 'Refresh token expired' 
+              : 'Invalid refresh token';
+            return reject(createError.Unauthorized(message));
+          }
+
+          const userId = payload.aud;
+          const redisKey = `refreshToken:${userId}`;
+          const storedToken = await client.GET(redisKey);
+          
+          if (!storedToken || storedToken !== refreshToken) {
+            return reject(createError.Unauthorized("Refresh token revoked"));
+          }
+          
+          resolve(userId);
+        } catch (error) {
+          reject(createError.InternalServerError("Token verification failed"));
+        }
       }
     );
   });
 };
+
+// Middleware version for Express
+export const verifyRefreshTokenMiddleware = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    const userId = await verifyRefreshToken(refreshToken);
+    req.userId = userId;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Updated generateAccessToken function
+export const generateAccessToken = async (refreshToken) => {
+  try {
+    const userId = await verifyRefreshToken(refreshToken);
+    const newAccessToken = await signAccessToken(userId);
+    return newAccessToken;
+  } catch (error) {
+    throw error;
+  }
+};
+// export const verifyRefreshToken = (refreshToken) => {
+//   return new Promise((resolve, reject) => {
+//     JWT.verify(
+//       refreshToken,
+//       process.env.REFRESH_TOKEN_SECRET,
+//       (err, payload) => {
+//         if (err) return reject(createError.Unauthorized());
+//         const userId = payload.aud;
+//         client.GET(userId)
+//           .then(result => {
+//             if (refreshToken === result) return resolve(userId);
+//             reject(createError.Unauthorized());
+//           })
+//           .catch(err => {
+//             console.log(err.message);
+//             reject(createError.InternalServerError());
+//           });
+//       }
+//     );
+//   });
+// };

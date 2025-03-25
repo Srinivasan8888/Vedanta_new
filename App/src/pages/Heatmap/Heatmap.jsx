@@ -5,6 +5,7 @@ import Sidebar from "../../Assets/Sidebar/Sidebar.jsx";
 import Switcher10 from "../../Assets/components/Heatmap/Switcher10";
 import Switcher9 from "../../Assets/components/Heatmap/Switcher9";
 import HeatmapTable from "../../Assets/components/Heatmap/HeatmapTable";
+import API from "../../Assets/components/Axios/AxiosInterceptor.jsx";
 
 const Heatmap = () => {
   const [startDate, setStartDate] = useState(null);
@@ -18,6 +19,12 @@ const Heatmap = () => {
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null); // Store error messages
   const socketRef = useRef(null); // Add this ref to track current socket
+  const [heatmapData, setHeatmapData] = useState({
+    minvalue: {},
+    maxvalue: {},
+    data: [],
+    dates: []
+  });
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
@@ -42,140 +49,140 @@ const Heatmap = () => {
     // console.log("Switcher Value10 of side:", newValue);
   };
 
-  useEffect(() => {
-    let currentUserId = localStorage.getItem("id");
-    const accessToken = localStorage.getItem("accessToken");
+  // useEffect(() => {
+  //   let currentUserId = localStorage.getItem("id");
+  //   const accessToken = localStorage.getItem("accessToken");
 
-    const createSocket = (userId) => {
-      const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
-        auth: { accessToken, userId },
-      });
+  //   const createSocket = (userId) => {
+  //     const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
+  //       auth: { accessToken, userId },
+  //     });
 
-      newSocket.on("connect_error", (err) => {
-        console.error("WebSocket connection error:", err);
-        setError("Failed to connect to the WebSocket server.");
-      });
+  //     newSocket.on("connect_error", (err) => {
+  //       console.error("WebSocket connection error:", err);
+  //       setError("Failed to connect to the WebSocket server.");
+  //     });
 
-      socketRef.current = newSocket; // Update ref with new socket
-      return newSocket;
-    };
+  //     socketRef.current = newSocket; // Update ref with new socket
+  //     return newSocket;
+  //   };
 
-    const initialSocket = createSocket(currentUserId);
-    setSocket(initialSocket);
+  //   const initialSocket = createSocket(currentUserId);
+  //   setSocket(initialSocket);
 
-    const intervalId = setInterval(() => {
-      const newUserId = localStorage.getItem("id");
+  //   const intervalId = setInterval(() => {
+  //     const newUserId = localStorage.getItem("id");
 
-      if (newUserId !== currentUserId) {
-        console.log("UserId changed. Reconnecting socket...");
-        currentUserId = newUserId;
+  //     if (newUserId !== currentUserId) {
+  //       console.log("UserId changed. Reconnecting socket...");
+  //       currentUserId = newUserId;
 
-        // Disconnect using ref instead of initialSocket
-        if (socketRef.current) {
-          socketRef.current.disconnect();
-        }
+  //       // Disconnect using ref instead of initialSocket
+  //       if (socketRef.current) {
+  //         socketRef.current.disconnect();
+  //       }
 
-        const updatedSocket = createSocket(newUserId);
-        setSocket(updatedSocket);
-        console.log("id finding=", newUserId);
-      }
-    }, 500);
+  //       const updatedSocket = createSocket(newUserId);
+  //       setSocket(updatedSocket);
+  //       console.log("id finding=", newUserId);
+  //     }
+  //   }, 500);
 
-    return () => {
-      clearInterval(intervalId);
-      // Disconnect using ref instead of initialSocket
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(intervalId);
+  //     // Disconnect using ref instead of initialSocket
+  //     if (socketRef.current) {
+  //       socketRef.current.disconnect();
+  //     }
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    // Load initial data from localStorage
-    const savedASide = localStorage.getItem("HeatmapASide");
-    const savedBSide = localStorage.getItem("HeatmapBSide");
-    const savedASiderange = localStorage.getItem("HeatmapASiderange");
-    const savedBSiderange = localStorage.getItem("HeatmapBSiderange");
+  // useEffect(() => {
+  //   // Load initial data from localStorage
+  //   const savedASide = localStorage.getItem("HeatmapASide");
+  //   const savedBSide = localStorage.getItem("HeatmapBSide");
+  //   const savedASiderange = localStorage.getItem("HeatmapASiderange");
+  //   const savedBSiderange = localStorage.getItem("HeatmapBSiderange");
 
-    if (savedASide) setASideData(JSON.parse(savedASide));
-    if (savedBSide) setBSideData(JSON.parse(savedBSide));
-    if (savedASiderange) setCombinedData(JSON.parse(savedASiderange));
-    if (savedBSiderange) setCombinedData(JSON.parse(savedBSiderange));
-  }, []);
+  //   if (savedASide) setASideData(JSON.parse(savedASide));
+  //   if (savedBSide) setBSideData(JSON.parse(savedBSide));
+  //   if (savedASiderange) setCombinedData(JSON.parse(savedASiderange));
+  //   if (savedBSiderange) setCombinedData(JSON.parse(savedBSiderange));
+  // }, []);
 
-  useEffect(() => {
-    if (!socket) return;
+  // useEffect(() => {
+  //   if (!socket) return;
 
-    // Listen for ASide data
-    socket.on("ASide", (data) => {
-      console.log("Received ASide Data:", data);
-      setASideData(data);
-      localStorage.setItem("HeatmapASide", JSON.stringify(data));
-    });
+  //   // Listen for ASide data
+  //   socket.on("ASide", (data) => {
+  //     console.log("Received ASide Data:", data);
+  //     setASideData(data);
+  //     localStorage.setItem("HeatmapASide", JSON.stringify(data));
+  //   });
 
-    // Listen for BSide data
-    socket.on("BSide", (data) => {
-      console.log("Received BSide Data:", data);
-      setBSideData(data);
-      localStorage.setItem("HeatmapBSide", JSON.stringify(data));
-    });
+  //   // Listen for BSide data
+  //   socket.on("BSide", (data) => {
+  //     console.log("Received BSide Data:", data);
+  //     setBSideData(data);
+  //     localStorage.setItem("HeatmapBSide", JSON.stringify(data));
+  //   });
 
-    // for the 7 values for min and max in the table
-    const handleData = (ASideData, BSideData) => {
-      const mergedData = [
-        ...ASideData.map((data) => ({ ...data, source: "ASiderange" })),
-        ...BSideData.map((data) => ({ ...data, source: "BSiderange" })),
-      ];
-      const filteredData = mergedData.filter(
-        (data) =>
-          data.source ===
-          (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange"),
-      );
-      setCombinedData(filteredData);
-    };
+  //   // for the 7 values for min and max in the table
+  //   const handleData = (ASideData, BSideData) => {
+  //     const mergedData = [
+  //       ...ASideData.map((data) => ({ ...data, source: "ASiderange" })),
+  //       ...BSideData.map((data) => ({ ...data, source: "BSiderange" })),
+  //     ];
+  //     const filteredData = mergedData.filter(
+  //       (data) =>
+  //         data.source ===
+  //         (switcherValue10 === "ASide" ? "ASiderange" : "BSiderange"),
+  //     );
+  //     setCombinedData(filteredData);
+  //   };
 
-    // Listen for ASiderange and BSiderange data
-    let ASideData = [];
-    let BSideData = [];
+  //   // Listen for ASiderange and BSiderange data
+  //   let ASideData = [];
+  //   let BSideData = [];
 
-    socket.on("ASiderange", (data) => {
-      console.log("Received ASiderange Data:", data);
-      if (Array.isArray(data)) {
-        ASideData = data; // Store ASiderange data
-        localStorage.setItem("HeatmapASiderange", JSON.stringify(data));
-        handleData(ASideData, BSideData);
-      }
-    });
+  //   socket.on("ASiderange", (data) => {
+  //     console.log("Received ASiderange Data:", data);
+  //     if (Array.isArray(data)) {
+  //       ASideData = data; // Store ASiderange data
+  //       localStorage.setItem("HeatmapASiderange", JSON.stringify(data));
+  //       handleData(ASideData, BSideData);
+  //     }
+  //   });
 
-    socket.on("BSiderange", (data) => {
-      console.log("Received BSiderange Data:", data);
-      if (Array.isArray(data)) {
-        BSideData = data; // Store BSiderange data
-        localStorage.setItem("HeatmapBSiderange", JSON.stringify(data));
-        handleData(ASideData, BSideData);
-      }
-    });
+  //   socket.on("BSiderange", (data) => {
+  //     console.log("Received BSiderange Data:", data);
+  //     if (Array.isArray(data)) {
+  //       BSideData = data; // Store BSiderange data
+  //       localStorage.setItem("HeatmapBSiderange", JSON.stringify(data));
+  //       handleData(ASideData, BSideData);
+  //     }
+  //   });
 
-    // Automatically fetch data when the socket is connected or when dependencies change
-    const requestData = {
-      value: switcherValue,
-      startDate: startDate,
-      endDate: endDate,
-      side: switcherValue10, // This should trigger the effect when it changes
-    };
+  //   // Automatically fetch data when the socket is connected or when dependencies change
+  //   const requestData = {
+  //     value: switcherValue,
+  //     startDate: startDate,
+  //     endDate: endDate,
+  //     side: switcherValue10, // This should trigger the effect when it changes
+  //   };
 
-    socket.emit("requestrangedata", requestData);
-    console.log(requestData);
-    socket.emit("requestData", requestData);
+  //   socket.emit("requestrangedata", requestData);
+  //   console.log(requestData);
+  //   socket.emit("requestData", requestData);
 
-    // Cleanup listeners
-    return () => {
-      socket.off("ASide");
-      socket.off("BSide");
-      socket.off("ASiderange");
-      socket.off("BSiderange");
-    };
-  }, [socket, switcherValue, startDate, endDate, switcherValue10]); // Ensure switcherValue10 is included
+  //   // Cleanup listeners
+  //   return () => {
+  //     socket.off("ASide");
+  //     socket.off("BSide");
+  //     socket.off("ASiderange");
+  //     socket.off("BSiderange");
+  //   };
+  // }, [socket, switcherValue, startDate, endDate, switcherValue10]); // Ensure switcherValue10 is included
 
   // Retrieve dates from local storage on component mount
   useEffect(() => {
@@ -190,6 +197,47 @@ const Heatmap = () => {
     }
   }, []);
 
+  // Add this useEffect to handle API calls
+  useEffect(() => {
+    const fetchHeatmapData = async () => {
+      try {
+        const params = new URLSearchParams({
+          startDate: startDate || '',
+          endDate: endDate || '',
+          side: switcherValue10,
+          value: switcherValue
+        });
+
+        const response = await API.get(
+          `${process.env.REACT_APP_SERVER_URL}api/v2/getHeatmap?${params}`
+        );
+        
+        // Store all API data
+        setHeatmapData(response.data);
+
+        // Transform data for the grid
+        const valueData = switcherValue === "min" 
+          ? response.data.minvalue 
+          : response.data.maxvalue;
+
+        const gridData = Object.entries(valueData).map(([key, value]) => ({
+          key,
+          value
+        }));
+
+        setCombinedData(gridData);
+
+      } catch (error) {
+        console.error("Error fetching heatmap data:", error);
+        setError("Failed to load heatmap data");
+      }
+    };
+
+    if (startDate && endDate) {
+      fetchHeatmapData();
+    }
+  }, [startDate, endDate, switcherValue, switcherValue10]); // <-- These dependencies trigger the effect
+
   return (
     <div
       className="relative w-screen bg-fixed bg-center bg-cover md:h-screen md:bg-center"
@@ -197,9 +245,9 @@ const Heatmap = () => {
     >
       <Sidebar
         onLogout={() => {
-          if (socketRef.current) {
-            socketRef.current.disconnect();
-          }
+          // if (socketRef.current) {
+          //   socketRef.current.disconnect();
+          // }
         }}
       />
 
@@ -274,22 +322,30 @@ const Heatmap = () => {
 
               <div className="grid grid-cols-2 gap-4 px-4 md:h-[100%] md:grid-cols-4 md:grid-rows-2 xl:h-[75%] xl:grid-cols-8 xl:grid-rows-1">
                 {combinedData.length > 0 ? (
-                  combinedData.map((data, index) => (
-                    <div
-                      key={index}
-                      className="flex h-full flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)]"
-                    >
-                      <p className="text-sm font-semibold text-[rgb(39,129,255)] md:text-xl">
-                        {data.value || "N/A"}
-                      </p>
-                      <p>
-                        {switcherValue === "max" ? "Max of" : "Min of"}{" "}
-                        <span className="text-sm text-white md:text-md">
-                          {data.key || "Data"}
-                        </span>
-                      </p>
-                    </div>
-                  ))
+                  combinedData.map((data, index) => {
+                    const valueData = switcherValue === "min" 
+                      ? heatmapData.minvalue?.[data.key] 
+                      : heatmapData.maxvalue?.[data.key];
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex h-full flex-col items-center justify-center rounded-lg border border-white bg-[rgba(16,16,16,0.8)]"
+                      >
+                        <p className={`text-sm font-semibold md:text-xl ${
+                          switcherValue === "min" ? "text-blue-400" : "text-blue-400"
+                        }`}>
+                          {valueData ? valueData.toFixed(2) : "N/A"}
+                        </p>
+                        <p>
+                          {switcherValue === "max" ? "Max of" : "Min of"}{" "}
+                          <span className="text-sm text-white md:text-md">
+                            {data.key || "Data"}
+                          </span>
+                        </p>
+                      </div>
+                    );
+                  })
                 ) : (
                   <>
                     {[...Array(8)].map((_, index) => (
@@ -312,8 +368,9 @@ const Heatmap = () => {
         </div>
 
         <div className="scrollbar-custom mx-8 flex overflow-x-auto overflow-y-auto rounded-bl-lg rounded-br-lg md:mt-4 md:h-[60%]">
-          <HeatmapTable
-            data={switcherValue10 === "ASide" ? ASideData : BSideData}
+          <HeatmapTable 
+            data={heatmapData.data || []}
+            dates={heatmapData.dates || []}
           />
         </div>
       </div>

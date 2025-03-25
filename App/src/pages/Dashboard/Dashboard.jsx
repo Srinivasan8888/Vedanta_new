@@ -229,25 +229,25 @@ const Dashboard = () => {
   useEffect(() => {
     fetchAllSensorData();
 
-    const intervalId = setInterval(fetchAllSensorData, 500);
+    const intervalId = setInterval(fetchAllSensorData, 3000);
 
     return () => clearInterval(intervalId);
   }, [selectedTime]);
 
   const handleChartClick = (buttonId) => {
     console.log("Button clicked in DashboardChart:", buttonId);
-    socket.emit("ButtonClick", buttonId || "1M");
+    // socket.emit("ButtonClick", buttonId || "1M");
     setLastButtonClicked(buttonId);
     const time = buttonId || "1M";
     setSelectedTime(time);
-    socket.emit("ButtonClick", time);
+    // socket.emit("ButtonClick", time);
     setLastButtonClicked(time);
   };
 
   return (
     <div
-      className="relative w-screen overflow-hidden bg-fixed bg-center bg-cover md:bg-center xl:h-screen"
-      style={{ backgroundImage: `url(${bg})` }}
+      className="relative w-screen bg-fixed bg-center bg-cover md:bg-center xl:h-screen"
+      style={{ backgroundImage: `url(${bg})`, overflow: 'auto' }}
     >
       {/* Sidebar */}
       <Sidebar
@@ -260,23 +260,23 @@ const Dashboard = () => {
       <>
         <div className="w-full gap-5 lg:w-full xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
           <ThreeScene
-            socketData={ModelData}
-            ModelTempData={ModelTempData}
+            socketData={fetchedData?.Model}
+            // ModelTempData={ModelTempData}
             lastButtonClicked={lastButtonClicked}
             latesttimestamp={latesttimestamp}
           />
 
           {/* <Notifications /> */}
-          <Aside socketData={AsideData} />
+          <Aside socketData={fetchedData?.Aside} />
         </div>
 
         {/* Bottom Section: Chart and B Side */}
         <div className="w-full gap-5 lg:w-fit xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
           <DashboardChart
-            socketData={AvgData}
+            socketData={fetchedData?.Average}
             onChartClick={handleChartClick}
           />
-          <Bside socketData={BsideData} />
+          <Bside socketData={fetchedData?.Bside} />
         </div>
       </>
 

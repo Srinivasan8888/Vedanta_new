@@ -1,90 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { Navigate, Outlet } from "react-router-dom";
-// import API from "../Axios/AxiosInterceptor";
-
-// const ProtectedRoute = ({ redirectTo = "/" }) => {
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     let isMounted = true; // Prevent state updates if the component unmounts
-
-//     const verifyAccessToken = async () => {
-//       const refreshToken = localStorage.getItem("refreshToken");
-
-//       if (!refreshToken) {
-//         localStorage.clear();
-//         if (isMounted) {
-//           setIsAuthenticated(false);
-//           setLoading(false);
-//         }
-//         return;
-//       }
-
-//       try {
-//         const response = await API.get("/auth/access-token");
-
-//         if (response.data.success) {
-//           localStorage.setItem("accessToken", response.data.accessToken);
-//           if (isMounted) {
-//             setIsAuthenticated(true);
-//           }
-//         } else {
-//           if (isMounted) {
-//             setIsAuthenticated(false);
-//           }
-//         }
-//       } catch (error) {
-//         console.error("Token verification failed:", error);
-//         localStorage.clear();
-//         if (isMounted) {
-//           setIsAuthenticated(false);
-//         }
-//       } finally {
-//         if (isMounted) {
-//           setLoading(false);
-//         }
-//       }
-//     };
-
-//     verifyAccessToken();
-
-//     return () => {
-//       isMounted = false; // Cleanup function
-//     };
-//   }, []);
-
-//   if (loading) {
-//     return (
-//       <div className="flex items-center justify-center h-screen text-white bg-gray-800">
-//         <div className="w-10 h-10 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
-//       </div>
-//     );
-//   }
-
-//   return isAuthenticated ? <Outlet /> : <Navigate to={redirectTo} replace />;
-// };
-
-// export default ProtectedRoute;
-
-// export default ProtectedRoute;
-// import React from 'react';
-// import { Navigate, Outlet } from 'react-router-dom';
-
-// const ProtectedRoute = () => {
-//   const token = localStorage.getItem('accessToken');
-//   const token2 = localStorage.getItem('refreshToken');
-
-//   if(token && token2 ) {
-//     return <Outlet />
-//   }else {
-//     return <Navigate to={"/"}/>;
-//   }
-// }
-
-// export default ProtectedRoute;
-
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import API from '../Axios/AxiosInterceptor';
@@ -92,27 +5,73 @@ import API from '../Axios/AxiosInterceptor';
 const ProtectedRoute = () => {
   const [isValidToken, setIsValidToken] = useState(true);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsValidToken(false);
+    window.location.href = '/';
+  };
+
+  const storeNewToken = (accessToken) => {
+    // Store in localStorage
+    localStorage.setItem('accessToken', accessToken);
+    
+    // Store in cookie with 1 day expiration
+    const date = new Date();
+    date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    
+    document.cookie = `accessToken=${accessToken}; ${expires}; path=/; ${
+      process.env.NODE_ENV === 'production' ? 'Secure; SameSite=Strict' : ''
+    }`;
+  };
+
   useEffect(() => {
-    const verifyToken = async () => {
+    const verifyAndRefreshToken = async () => {
       try {
-        const response = await API.get(`${process.env.REACT_APP_SERVER_URL}auth/access-token`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        // Initial check with current access token
+        await API.get(`${process.env.REACT_APP_SERVER_URL}auth/access-token`, {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}` 
           }
         });
         
-        if (response.status !== 200) {
-          throw new Error('Token validation failed');
-        }
       } catch (error) {
-        localStorage.clear();
-        alert("Session expired!!!.");
-        setIsValidToken(false);
+        if (error.response?.status === 401) {
+          try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (!refreshToken) {
+              handleLogout();
+              return;
+            }
+
+            // Generate new access token using refresh token
+            const response = await API.post(
+              `${process.env.REACT_APP_SERVER_URL}auth/access-token-generate`,
+              { refreshToken }
+            );
+
+            if (response.data.accessToken) {
+              storeNewToken(response.data.accessToken);
+              setIsValidToken(true);
+            } else {
+              handleLogout();
+            }
+          } catch (refreshError) {
+            if (refreshError.response?.status === 401) {
+              handleLogout();
+            } else {
+              console.error('Token refresh failed:', refreshError);
+              handleLogout();
+            }
+          }
+        } else {
+          handleLogout();
+        }
       }
     };
 
-    verifyToken();
-    const interval = setInterval(verifyToken, 300000); // 5 minutes
+    verifyAndRefreshToken();
+    const interval = setInterval(verifyAndRefreshToken, 300000); // 5 minutes
     return () => clearInterval(interval);
   }, []);
 

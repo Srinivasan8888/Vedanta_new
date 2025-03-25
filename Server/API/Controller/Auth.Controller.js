@@ -5,9 +5,11 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
+  generateAccessToken,
 } from "../../Helpers/jwt_helper.js";
 import { client as redisClient, redisPromise } from "../../Helpers/init_redis.js";
-import { RateLimiterRedis } from 'rate-limiter-flexible';
+import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
+import bcrypt from 'bcrypt';
 
 const maxWrongAttemptsByIPperDay = 100;
 const maxConsecutiveFailsByEmail = 5;
@@ -101,39 +103,78 @@ export const login = async (req, res, next) => {
     }
 
     // Validate credentials
-    const result = await authSchema.validateAsync(req.body);
-    const user = await User.findOne({ email: result.email });
-    if (!user) throw createError.NotFound("User not registered");
+    const { email: reqEmail, password } = req.body;
+    if (!reqEmail || !password) {
+      throw createError.BadRequest("Email and password required");
+    }
 
-    const isMatch = await user.isValidPassword(result.password);
-    if (!isMatch) throw createError.Unauthorized("Invalid credentials");
+    // Find user with proper error handling
+    const user = await User.findOne({ email: reqEmail }).select('+password');
+    if (!user) {
+      throw createError.NotFound("User not registered");
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw createError.Unauthorized("Invalid credentials");
+    }
 
     // Reset counters on success
     await limiterConsecutiveFailsByEmail.delete(emailKey);
     await limiterSlowBruteByIP.delete(ipAddr);
 
+    // Remove sensitive data before response
+    user.password = undefined;
+
     // Generate tokens
-    const accessToken = await signAccessToken(user.id);
-    const refreshToken = await signRefreshToken(user.id);
-    res.send({ accessToken, refreshToken });
+    const accessToken = await signAccessToken(user._id);
+    const refreshToken = await signRefreshToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      accessToken,
+      refreshToken,
+      user
+    });
 
   } catch (error) {
-    // Handle all failed attempts
-    try {
-      await Promise.all([
-        limiterConsecutiveFailsByEmail.consume(emailKey),
-        limiterSlowBruteByIP.consume(ipAddr)
-      ]);
-      console.log(`Penalized ${emailKey} - Attempts: ${(await limiterConsecutiveFailsByEmail.get(emailKey))?.consumedPoints || 1}`);
-    } catch (rlError) {
-      const retrySecs = Math.round(rlError.msBeforeNext / 1000) || 1;
+    console.error(`Login error for ${email}:`, error.stack);
+
+    // Handle specific error types first
+    if (error.name === 'MongoError' || error.name === 'MongoNetworkError') {
+      console.error('Database error:', error.message);
+      error = createError.InternalServerError('Database connection issue');
+      return next(error);
+    }
+
+    // Handle rate limiter errors separately
+    if (error instanceof RateLimiterRes) {
+      const retrySecs = Math.round(error.msBeforeNext / 1000) || 1;
       res.set('Retry-After', retrySecs);
       return next(createError.TooManyRequests('Too many attempts. Please try again later.'));
     }
 
-    // Send appropriate error response
-    const status = error.isJoi ? 400 : error.status || 500;
-    next(createError(status, error.message));
+    // Only apply rate limits for authentication failures
+    if (error.status === 401 || error.status === 404) {
+      try {
+        await Promise.all([
+          limiterConsecutiveFailsByEmail.consume(emailKey),
+          limiterSlowBruteByIP.consume(ipAddr)
+        ]);
+        console.log(`Rate limited ${emailKey}`);
+      } catch (rlError) {
+        const retrySecs = Math.round(rlError.msBeforeNext / 1000) || 1;
+        res.set('Retry-After', retrySecs);
+        return next(createError.TooManyRequests('Too many attempts. Please try again later.'));
+      }
+    }
+
+    // Preserve original error status if available
+    const status = error.status || 500;
+    const message = status === 500 ? 'Internal server error' : error.message;
+    
+    next(createError(status, message));
   }
 };
 
@@ -186,6 +227,25 @@ export const logout = async (req, res, next) => {
     console.error("Logout error:", error.message);
     res.clearCookie('refreshToken');
     next(createError.Unauthorized("Session terminated"));
+  }
+};
+
+export const refreshAccessToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) throw createError.BadRequest("Refresh token required");
+    
+    // Generate new access token using the refresh token
+    const accessToken = await generateAccessToken(refreshToken);
+    
+    // Explicitly send the access token in the response
+    res.json({ 
+      accessToken,
+      message: "New access token generated successfully"
+    });
+    
+  } catch (error) {
+    next(error);
   }
 };
   

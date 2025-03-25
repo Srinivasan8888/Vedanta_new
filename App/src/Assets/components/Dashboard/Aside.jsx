@@ -7,41 +7,54 @@ import '../miscellaneous/Scrollbar.css';
 const ASide = ({ socketData }) => {
   const [data, setData] = useState([]);
   const previousDataRef = useRef({});
+  // console.log("AsideData", socketData)
 
   useEffect(() => {
-    if (socketData && socketData.length > 0) {
-      const newData = socketData.map((item, index) => {
-        const previousItem = previousDataRef.current[index] || {};
-        const busbarData = Object.entries(item).filter(([key]) => key.startsWith("CBT"));
+    if (socketData) {
+      // Custom sorting function for CBT entries
+      const parseKey = (key) => {
+        const match = key.match(/CBT(\d+)(A\d)/i);
+        return match ? { main: parseInt(match[1]), sub: parseInt(match[2].replace('A', '')) } : { main: 0, sub: 0 };
+      };
 
-        const updatedBusbarData = busbarData.map(([key, value]) => {
-          const prevValue = previousItem[key];
-          const parsedValue = parseFloat(value);
-          const parsedPrevValue = parseFloat(prevValue);
+      const entries = Array.isArray(socketData) 
+        ? socketData.flatMap(item => Object.entries(item).filter(([key]) => key.startsWith("CBT")))
+        : Object.entries(socketData).sort((a, b) => {
+            const aKey = parseKey(a[0]);
+            const bKey = parseKey(b[0]);
+            return aKey.main - bKey.main || aKey.sub - bKey.sub;
+          });
 
-          return {
-            key,
-            value,
-            arrow:
-              prevValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
-                ? up
-                : parsedValue > parsedPrevValue
-                ? up
-                : down,
-          };
-        });
+      const newData = entries.map(([key, value], index) => {
+        const previousValue = previousDataRef.current[key];
+        const parsedValue = parseFloat(value);
+        const parsedPrevValue = parseFloat(previousValue);
 
-        previousDataRef.current[index] = {
-          ...Object.fromEntries(busbarData),
-        };
+        const arrow = previousValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
+          ? up
+          : parsedValue > parsedPrevValue
+          ? up
+          : down;
+
+        previousDataRef.current[key] = value;
 
         return {
-          id: index,
-          updatedBusbarData,
+          key,
+          value: `${value} °C`,
+          arrow
         };
       });
 
-      setData(newData);
+      // Group into pairs (A1/A2)
+      const groupedData = [];
+      for (let i = 0; i < newData.length; i += 2) {
+        groupedData.push({
+          id: i/2,
+          items: newData.slice(i, i + 2)
+        });
+      }
+
+      setData(groupedData);
     }
   }, [socketData]);
 
@@ -49,12 +62,12 @@ const ASide = ({ socketData }) => {
     <div className="h-[400px] xl:h-[300px] 2xl:h-[93.9%] md:w-[98%] xl:w-[28%] 2xl:w-[25%] rounded-2xl border-[1.5px] border-white bg-[rgba(16,16,16,0.9)] xl:m-2 2xl:m-3 text-white font-poppins">
       <div className="flex justify-between">
         <p className="mt-6 ml-8 font-semibold xl:mt-3 xl:ml-4 xl:text-lg 2xl:mt-4 2xl:ml-6 2xl:text-xl">A Side</p>
-        <div className="flex relative items-center">
+        <div className="relative flex items-center">
           <label htmlFor="currency" className="sr-only">Options</label>
           <select
             id="currency"
             name="currency"
-            className="py-0 pr-7 pl-2 mt-7 mr-8 h-full text-gray-500 bg-transparent rounded-md border-0 appearance-none xl:mr-6 xl:mt-5 focus:outline-none sm:text-sm"
+            className="h-full py-0 pl-2 mr-8 text-gray-500 bg-transparent border-0 rounded-md appearance-none pr-7 mt-7 xl:mr-6 xl:mt-5 focus:outline-none sm:text-sm"
             style={{
               width: "12px",
               height: "19px",
@@ -72,7 +85,7 @@ const ASide = ({ socketData }) => {
         </div>
       </div>
 
-      <div className="flex justify-evenly mt-5 text-lg font-normal xl:mt-3 2xl:mt-5 xl:text-sm 2xl:text-base font-poppins">
+      <div className="flex mt-5 text-lg font-normal justify-evenly xl:mt-3 2xl:mt-5 xl:text-sm 2xl:text-base font-poppins">
         <p className="pl-6 xl:pl-3 2xl:pl-4">CBT Name</p>
         <p className="mr-6 xl:mr-3 2xl:mr-4">Value</p>
         <p></p>
@@ -80,13 +93,13 @@ const ASide = ({ socketData }) => {
       <div className="h-[1px] mx-8 xl:mx-4 2xl:mx-6 mt-3 bg-white"></div>
 
       <div className="max-h-[70%] xl:max-h-[65%] 2xl:max-h-[72%] overflow-y-auto scrollbar-custom">
-        {data.map((item) => (
-          <React.Fragment key={item.id}>
-            {item.updatedBusbarData.map(({ key, value, arrow }) => (
+        {data.map((group) => (
+          <React.Fragment key={group.id}>
+            {group.items.map(({ key, value, arrow }) => (
               <React.Fragment key={key}>
-                <div className="flex justify-evenly mt-5 ml-10 text-base font-light xl:mt-3 2xl:mt-5 xl:ml-6 2xl:ml-10 xl:text-xs 2xl:text-base font-poppins">
+                <div className="flex mt-5 ml-10 text-base font-light justify-evenly xl:mt-3 2xl:mt-5 xl:ml-6 2xl:ml-10 xl:text-xs 2xl:text-base font-poppins">
                   <p>{key}</p>
-                  <p className="ml-6 xl:ml-3 2xl:ml-6">{value} °C</p>
+                  <p className="ml-6 xl:ml-3 2xl:ml-6">{value}</p>
                   <p><img src={arrow} alt="arrow" className="xl:w-2 xl:h-2 2xl:w-4 2xl:h-4" /></p>
                 </div>
                 <div className="h-[1px] mx-8 xl:mx-4 2xl:mx-8 mt-3 bg-white"></div>

@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import io from "socket.io-client";
 import Sidebar from "../../Assets/Sidebar/Sidebar";
 import bg from "../../Assets/images/bg.png";
 // import Chartbar from "../../Assets/components/Dashboard/miscellaneous/chartbar";
 import Chartline from "../../Assets/components/Dashboard/miscellaneous/chartline";
 import CollectorBarTable from "../../Assets/components/CollectorBar/CollectorBarTable";
-import axios from "axios";
+import API from "../../Assets/components/Axios/AxiosInterceptor.jsx";
 
 const CollectorBar = () => {
   const [activeButton, setActiveButton] = useState("30Min");
   const [selectedButton, setSelectedButton] = useState(null);
   const [dropdown, setSelectedDropdown] = useState("CBT1A1");
   const [collectorbar, setCollectorbar] = useState();
-  const [socket, setSocket] = useState(null);
-  const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const [userData, setUserData] = useState({
     labels: [],
@@ -70,91 +67,59 @@ const CollectorBar = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    let currentUserId = localStorage.getItem("id"); // Initial userId
-    const accessToken = localStorage.getItem("accessToken");
-
-    // Function to create a new socket connection
-    const createSocket = (userId) => {
-      const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
-        auth: {
-          accessToken,
-          userId,
-        },
-      });
-
-      // Handle connection errors
-      newSocket.on("connect_error", (err) => {
-        console.error("WebSocket connection error:", err);
-        setError("Failed to connect to the WebSocket server.");
-      });
-
-      return newSocket;
-    };
-
-    // Create the initial socket connection
-    const initialSocket = createSocket(currentUserId);
-    setSocket(initialSocket);
-
-    // Periodically check for userId updates
-    const intervalId = setInterval(() => {
-      const newUserId = localStorage.getItem("id");
-      if (newUserId !== currentUserId) {
-        console.log("UserId changed. Reconnecting socket...");
-        currentUserId = newUserId;
-
-        // Disconnect the old socket and create a new one
-        initialSocket.disconnect();
-        const updatedSocket = createSocket(newUserId);
-        setSocket(updatedSocket);
-      }
-    }, 500); // Check every 1/2 seconds
-
-    // Cleanup on component unmount
-    return () => {
-      clearInterval(intervalId);
-      initialSocket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!socket || !dropdown) return;
-
-    const handleCollectorbarData = (data) => {
-      console.log("Received Collector Bar Data:", data);
-      setCollectorbar(data);
-      const tableData = Array.isArray(data?.data) ? data.data : [];
-
-      // Transform the data for the chart
-      const labels = tableData.map((item) =>
-        new Date(item.createdAt).toLocaleTimeString(),
-      );
-      const temperatures = tableData.map((item) => parseFloat(item[dropdown]));
-
-      setUserData((prevData) => ({
-        ...prevData,
-        labels: labels,
-        datasets: [
+    const fetchCollectorBarData = async () => {
+      try {
+        const response = await API.get(
+          `${process.env.REACT_APP_SERVER_URL}api/v2/getcollectorbar`,
           {
-            ...prevData.datasets[0],
-            data: temperatures,
-          },
-        ],
-      }));
+            params: {
+              sensorId: dropdown,
+              time: activeButton
+            }
+          }
+        );
+        handleCollectorbarData(response.data);
+      } catch (error) {
+        console.error("Error fetching collector bar data:", error);
+      }
     };
 
-    socket.on("collectorBarData", handleCollectorbarData);
+    fetchCollectorBarData();
+  }, [dropdown, activeButton]);
 
-    const requestData = {
-      value: dropdown,
-      date: activeButton,
-    };
-    console.log("Emitting requestedCollectorbar:", requestData);
-    socket.emit("requestedCollectorbar", requestData);
+  const handleCollectorbarData = (data) => {
+    console.log("Received Collector Bar Data:", data);
+    setCollectorbar(data);
 
-    return () => {
-      socket.off("collectorBarData", handleCollectorbarData);
-    };
-  }, [socket, dropdown, activeButton]);
+    // Get sensor ID from dropdown
+    const sensorId = dropdown;
+    
+    // Create array of {timestamp, value} objects
+    const tableData = data[sensorId].map((value, index) => ({
+      [sensorId]: value,
+      createdAt: data.createdAt[index]
+    }));
+
+    // Transform the data for the chart
+    const labels = tableData.map(item => 
+      new Date(item.createdAt).toLocaleTimeString()
+    );
+    const temperatures = tableData.map(item => parseFloat(item[sensorId]));
+
+    setUserData(prevData => ({
+      ...prevData,
+      labels: labels,
+      datasets: [{
+        ...prevData.datasets[0],
+        data: temperatures,
+      }]
+    }));
+
+    // Update min/max/avg display directly from API values
+    setMinValue(data.minValue);
+    setMaxValue(data.maxValue);
+    setAvgValue(data.averageValue.toFixed(2));
+  };
 
   const options = {
     maintainAspectRatio: false,
@@ -225,7 +190,7 @@ const CollectorBar = () => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const response = await axios.get(
+        const response = await API.get(
           `${process.env.REACT_APP_SERVER_URL}api/v2/getcbname`,
         );
         setFetchedOptions(response.data);
@@ -236,21 +201,10 @@ const CollectorBar = () => {
     fetchOptions();
   }, []);
 
-  // Calculate min, max, and average values from collectorbar data
-  const minValue = collectorbar
-    ? Math.min(...collectorbar.data.map((item) => parseFloat(item[dropdown])))
-    : 0;
-  const maxValue = collectorbar
-    ? Math.max(...collectorbar.data.map((item) => parseFloat(item[dropdown])))
-    : 0;
-  const avgValue = collectorbar
-    ? (
-        collectorbar.data.reduce(
-          (acc, item) => acc + parseFloat(item[dropdown]),
-          0,
-        ) / collectorbar.data.length
-      ).toFixed(2)
-    : 0;
+  // Add state for values
+  const [minValue, setMinValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(0);
+  const [avgValue, setAvgValue] = useState(0);
 
   return (
     <div

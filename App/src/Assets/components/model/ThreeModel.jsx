@@ -12,9 +12,8 @@ import up from "../../images/green-arrow.png";
 import { useNavigate } from "react-router-dom";
 
 
-const Model = ({ socketData, ModelTempData }) => {
+const Model = ({ socketData }) => {
   console.log("Socket Data:", socketData);
-  // console.log("Model Temp Data:", ModelTempData);
   const navigate = useNavigate();
   const group = useRef();
   const { scene } = useGLTF("./potline.gltf");
@@ -28,8 +27,7 @@ const Model = ({ socketData, ModelTempData }) => {
   const mouse = useRef(new THREE.Vector2());
   const raycaster = useRef(new THREE.Raycaster());
   const lastUpdate = useRef(0);
-  const [mergedSocketData, setMergedSocketData] = useState([]);
-  const [mergedModelTempData, setMergedModelTempData] = useState([]);
+  const [hoveredObject, setHoveredObject] = useState(null);
 
   const nameMapping = {
     CBT1A2: "s1",
@@ -147,18 +145,6 @@ const Model = ({ socketData, ModelTempData }) => {
   );
 
   useEffect(() => {
-    if (socketData && socketData.length > 0) {
-      setMergedSocketData(prev => [...prev, ...socketData]);
-    }
-  }, [socketData]);
-
-  useEffect(() => {
-    if (ModelTempData && ModelTempData.length > 0) {
-      setMergedModelTempData(prev => [...prev, ...ModelTempData]);
-    }
-  }, [ModelTempData]);
-
-  useEffect(() => {
     const handleMouseMove = (event) => {
       const canvas = document.querySelector("canvas");
       if (!canvas) return;
@@ -186,9 +172,6 @@ const Model = ({ socketData, ModelTempData }) => {
 
     if (partName) {
       setHoveredMesh(partName);
-      // window.location.href = `/CollectorBar?part=${encodeURIComponent(
-      //   partName
-      // )}`;
       navigate(`/CollectorBar?part=${encodeURIComponent(partName)}`);
     }
   };
@@ -203,103 +186,46 @@ const Model = ({ socketData, ModelTempData }) => {
     raycaster.current.setFromCamera(mouse.current, camera);
     const intersects = raycaster.current.intersectObject(group.current, true);
 
+    if (!group.current) return;
+
     if (intersects.length > 0) {
       const object = intersects[0].object;
+      if (!object) return;
+
       const partName = reverseNameMapping[object.name];
 
-      // Check if the partName is in the hoveredInfo
-      const hoveredPartInfo = hoveredInfo && hoveredInfo.name === partName;
-
-      // // Set color based on value ranges for parts s1 to s108
-      // if (hoveredPartInfo) {
-      //   const value = parseFloat(hoveredInfo.value); // Get the value as a float
-
-      //   if (value >= 190 && value <= 230) {
-      //     object.material.color.set(0x00ff00); // Set to green
-      //   } else if (value >= 231 && value <= 300) {
-      //     object.material.color.set(0x008000); // Set to dark green
-      //   } else if (value >= 301 && value <= 450) {
-      //     object.material.color.set(0xFFA500); // Set to orange
-      //   } else if (value > 451) {
-      //     object.material.color.set(0xFF0000); // Set to red
-      //   } else {
-      //     object.material.color.set(0xFFFFFF); // Set to default color
-      //   }
-      // } else if (partName) {
-      //   // Reset color for parts not in hoveredInfo
-      //   object.material.color.set(0xFFFFFF); // Reset to default color
-      // }
-
-      if (partName && partName !== hoveredMesh) {
-        setHoveredMesh(object);
+      if (partName) {
+        setHoveredObject(object);
+        setHoveredMesh(partName);
 
         let value = "N/A";
         let setmax = "N/A";
         let setmin = "N/A";
 
-        for (const dataObj of [
-          ...mergedSocketData,
-          ...mergedModelTempData,
-        ]) {
-          if (dataObj[partName]) {
-            value = dataObj[partName];
-            console.log(`Value for ${partName}: ${value}`);
-          }
-          if (dataObj.parameter === partName) {
-            // console.log("parameter", value);
-            setmax = dataObj.max;
-            setmin = dataObj.min;
-            setHoveredInfo((prev) => ({
-              ...prev,
-              maxTemp: dataObj.max,
-              minTemp: dataObj.min,
-            }));
-            console.log(`Max for ${partName}: ${setmax}`);
-            console.log(`Min for ${partName}: ${setmin}`);
-          }
+        // Find data in socketData array
+        const entry = socketData.find(data => data.name === partName);
+        if (entry) {
+          value = entry.value;
+          setmax = entry.maxTemp;
+          setmin = entry.minTemp;
         }
 
         setHoveredInfo({
           name: partName,
           value: `${parseFloat(value).toFixed(2)}°C`,
-          maxTemp: `${parseFloat(setmax).toFixed(2)}°C`, // placeholder
-          minTemp: `${parseFloat(setmin).toFixed(2)}°C`, // placeholder
+          maxTemp: `${parseFloat(setmax).toFixed(2)}°C`,
+          minTemp: `${parseFloat(setmin).toFixed(2)}°C`,
         });
+      } else {
+        setHoveredObject(null);
+        setHoveredMesh(null);
+        setPopupPosition(prev => ({ ...prev, show: false }));
       }
-    } else if (hoveredMesh) {
+    } else {
+      setHoveredObject(null);
       setHoveredMesh(null);
-      setPopupPosition((prev) => ({ ...prev, show: false }));
+      setPopupPosition(prev => ({ ...prev, show: false }));
     }
-
-    // if (group.current) {
-    //   // Iterate through all parts defined in nameMapping
-    //   Object.entries(nameMapping).forEach(([key, value]) => {
-    //     const partObject = group.current.getObjectByName(value); // Get the object by its name (s1, s2, ..., s108)
-
-    //     if (partObject) {
-    //       // Find the corresponding value for the part
-    //       const partInfo = socketData.find(data => data[key]) || ModelTempData.find(data => data.parameter === key);
-    //       const partValue = partInfo ? parseFloat(partInfo[key]) : null; // Get the value as a float
-
-    //       // Set color based on value ranges
-    //       if (partValue !== null) {
-    //         if (partValue >= 190 && partValue < 230) {
-    //           partObject.material.color.set(0x00ff00); // Set to green
-    //         } else if (partValue >= 230 && partValue < 300) {
-    //           partObject.material.color.set(0x008000); // Set to dark green
-    //         } else if (partValue >= 300 && partValue < 450) {
-    //           partObject.material.color.set(0xFFA500); // Set to orange
-    //         } else if (partValue > 450) {
-    //           partObject.material.color.set(0xFF0000); // Set to red
-    //         } else {
-    //           partObject.material.color.set(0xFFFFFF); // Set to default color
-    //         }
-    //       } else {
-    //         partObject.material.color.set(0xFFFFFF); // Reset to default color if no value is found
-    //       }
-    //     }
-    //   });
-    // }
   });
 
   return (
@@ -311,83 +237,71 @@ const Model = ({ socketData, ModelTempData }) => {
         scale={1}
         onClick={handleClick}
       />
-      {popupPosition.show &&
-        hoveredMesh &&
-        hoveredInfo &&
-        hoveredMesh.position && (
-          <Html
-            position={[
-              hoveredMesh.position.x,
-              hoveredMesh.position.y,
-              hoveredMesh.position.z,
-            ]}
-          >
-            <div className="relative text-white pointer-events-none">
-              <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
-                <div className="w-full text-xs font-semibold text-center">
-                  {hoveredInfo.name}
+      {popupPosition.show && hoveredObject?.position && hoveredInfo && (
+        <Html
+          position={[
+            hoveredObject.position.x,
+            hoveredObject.position.y,
+            hoveredObject.position.z,
+          ]}
+          zIndexRange={[100, 0]}
+        >
+          <div className="relative text-white pointer-events-none">
+            <div className="w-[159px] h-[79.50px] ml-1 bg-gradient-to-t from-[#101010cc] to-[#0073FFA3] rounded-2xl border border-white grid grid-cols-2 place-items-center">
+              <div className="w-full text-xs font-semibold text-center">
+                {hoveredInfo.name}
+              </div>
+              <div className="w-full text-base font-bold text-center">
+                {hoveredInfo.value}
+              </div>
+              <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+                <img src={up} alt="up" className="w-[17px] h-[17px]" />
+                <div className="text-white text-[11px] font-medium">
+                  {hoveredInfo.maxTemp}
                 </div>
-                <div className="w-full text-base font-bold text-center">
-                  {hoveredInfo.value}
-                </div>
-                <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-                  <img src={up} alt="up" className="w-[17px] h-[17px]" />
-                  <div className="text-white text-[11px] font-medium">
-                    {hoveredInfo.maxTemp}
-                  </div>
-                </div>
-                <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
-                  <img src={down} alt="up" className="w-[17px] h-[17px]" />
-                  <div className="text-white text-[11px] font-medium">
-                    {hoveredInfo.minTemp}
-                  </div>
+              </div>
+              <div className="h-[17px] flex items-center justify-center gap-2.5 w-full">
+                <img src={down} alt="up" className="w-[17px] h-[17px]" />
+                <div className="text-white text-[11px] font-medium">
+                  {hoveredInfo.minTemp}
                 </div>
               </div>
             </div>
-          </Html>
-        )}
+          </div>
+        </Html>
+      )}
     </>
   );
 };
 
-const ThreeModel = ({
-  socketData,
-  lastButtonClicked,
-  ModelTempData,
-  latesttimestamp,
-}) => {
+const ThreeModel = ({ socketData, lastButtonClicked }) => {
   const controlsRef = useRef();
   const [potId, setPotId] = useState('');
-  // console.log("Model data", socketData);
+  const [latestTimestamp, setLatestTimestamp] = useState('');
 
   useEffect(() => {
-    setInterval(() => {
-    const handleStorageChange = () => {
-      const id = window.localStorage.getItem('id');
-      setPotId(id || '');
+    const fetchLatestTimestamp = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_SERVER_URL}api/v2/getLatestTimestamp`);
+        const data = await response.json();
+        setLatestTimestamp(data.latestTimestamp);
+      } catch (error) {
+        console.error('Error fetching timestamp:', error);
+        setLatestTimestamp('N/A');
+      }
     };
 
-    // Initial load
-    handleStorageChange();
-    
-    // Listen for storage changes
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };}, [500]);
+    const interval = setInterval(() => {
+      const id = localStorage.getItem('id');
+      setPotId(id || '');
+      fetchLatestTimestamp(); // Fetch timestamp periodically
+    }, 5000); // Update every 5 seconds
+
+    // Initial fetch
+    fetchLatestTimestamp();
+
+    return () => clearInterval(interval);
   }, []);
-
-  // useEffect(() => {
-  //   // Zoom animation on mount
-  //   if (controlsRef.current) {
-  //     controlsRef.current.reset() // Reset any existing transformations
-  //     controlsRef.current.dollyTo(12, false) // Set initial zoomed-out position
-  //     controlsRef.current.dollyTo(-12, true) // Animate zoom-in
-  //   }
-  // }, [])
-
-  
 
   return (
     <div className="h-[500px] md:w-[95%] bg-[rgba(16,16,16,0.9)] backdrop-blur-sm lg:w-[96%] xl:w-[73%] 2xl:w-[73%]  2x:w-auto rounded-2xl m-4 lg:h-auto relative">
@@ -396,45 +310,7 @@ const ThreeModel = ({
         <div className="flex items-center justify-between w-full">
           {/* Buttons and Counter */}
           <div className="flex items-center gap-4">
-            {/* <button
-              type="button"
-              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-                />
-              </svg>
-            </button> */}
             <p className="text-2xl font-semibold text-white">{potId || 'N/A'}</p>
-            {/* <button
-              type="button"
-              className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                />
-              </svg>
-            </button> */}
           </div>
           {/* Status */}
           <div className="flex items-center gap-6">
@@ -458,22 +334,19 @@ const ThreeModel = ({
                 Last Updation:
               </div>
               <div className="text-base font-semibold text-white">
-                {latesttimestamp}
+                {latestTimestamp || 'Loading...'}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* <Canvas style={{ width: "100%", height: "90vh" }}> */}
       <Canvas className="">
         <ambientLight intensity={2} />
         <directionalLight position={[1, 5, 5]} intensity={2} />
         <PerspectiveCamera makeDefault position={[18, 1, 0]} />
         <Model
           socketData={socketData}
-          ModelTempData={ModelTempData}
-          latesttimestamp={latesttimestamp}
         />
         <OrbitControls
           ref={controlsRef}

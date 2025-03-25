@@ -27,30 +27,46 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
   });
   
   const [previousSocketData, setPreviousSocketData] = useState(socketData);
-  const [selectedButton, setSelectedButton] = useState(localStorage.getItem('selectedButton') || '1D');
+  const [selectedButton, setSelectedButton] = useState(localStorage.getItem('selectedButton') || '1M');
   
   // console.log('chartsocket', socketData);
   
   useEffect(() => {    
-    // if (!socketData?.data?.length) {
-    //   console.log('No socket data available yet');
-    //   return;
-    // }
-    
-    if (socketData && socketData.data && socketData.data.length > 0) {
+    // Clear previous data when new data arrives
+    setPreviousSocketData(null);
+    if (socketData) {
       setPreviousSocketData(socketData);
     }
   }, [socketData]);
 
   useEffect(() => {
     try {
+      // Start with empty chart data if no valid data
+      if (!socketData?.averages || !socketData?.timestamps) {
+        setChartData({
+          labels: [],
+          datasets: [{
+            data: [],
+            borderColor: "rgb(0, 119, 228)",
+            backgroundColor: "rgba(0, 119, 228, 0.1)",
+            tension: 0,
+            fill: true,
+            borderWidth: 4,
+          }]
+        });
+        return;
+      }
+
+      // Process new data only if available
       const chartData = {
-        labels: previousSocketData.data.map(item => {
-          const time = new Date(item.TIME).toLocaleTimeString();
-          return time;
-        }),
+        labels: socketData.timestamps.map(date => 
+          new Date(date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          })
+        ),
         datasets: [{
-          data: previousSocketData.data.map(item => parseFloat(item.Avgtemp).toFixed(2)),
+          data: socketData.averages.map(avg => parseFloat(avg).toFixed(2)),
           borderColor: "rgb(0, 119, 228)",
           backgroundColor: (context) => {
             const chart = context.chart;
@@ -69,7 +85,7 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
 
             return gradient;
           },
-          tension: 0,
+          tension: 0.4,
           fill: true,
           borderWidth: 4,
         }]
@@ -81,9 +97,20 @@ const DashboardChart = ({ socketData = [], onChartClick }) => {
       // console.log('Min Avg Temp:', socketData.minAvgTemp);
       // console.log('Max Avg Temp:', socketData.maxAvgTemp);
     } catch (error) {
-      console.error('Error processing socket data:', error);
+      console.error('Error processing data:', error);
+      setChartData({
+        labels: [],
+        datasets: [{
+          data: [],
+          borderColor: "rgb(0, 119, 228)",
+          backgroundColor: "rgba(0, 119, 228, 0.1)",
+          tension: 0,
+          fill: true,
+          borderWidth: 4,
+        }]
+      });
     }
-  }, [previousSocketData]);
+  }, [socketData]);
 
   const handleClick = (event) => {
     const buttonId = event.target.id;
@@ -346,15 +373,24 @@ ChartJS.register(dangerLinePlugin);
             <div className="flex flex-row justify-center gap-4 mt-1 md:flex-row md:gap-5 md:mx-10 md:space-y-0 ">
               <p className="text-sm md:text-base xl:text-base">
                 Max Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {socketData.maxAvgTemp ? `${socketData.maxAvgTemp}°C` : 'NaN'}</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> 
+                  {socketData?.maxAverage ? `${socketData.maxAverage.toFixed(2)}°C` : 'NaN'}
+                </span>
               </p>
               <p className="text-sm md:text-base xl:text-base">
                 Min Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {socketData.minAvgTemp ? `${socketData.minAvgTemp}°C` : 'NaN'}</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> 
+                  {socketData?.minAverage ? `${socketData.minAverage.toFixed(2)}°C` : 'NaN'}
+                </span>
               </p>
               <p className="text-sm md:text-base xl:text-base">
                 Avg Value:{" "}
-                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> {((socketData.minAvgTemp + socketData.maxAvgTemp) / 2).toFixed(2)}°C</span>
+                <span className="font-bold text-[rgba(0,119,228)] xl:text-base"> 
+                  {socketData?.averages ? 
+                    (socketData.averages.reduce((a, b) => a + b, 0) / socketData.averages.length).toFixed(2) : 
+                    'NaN'
+                  }°C
+                </span>
               </p>
             </div>
 

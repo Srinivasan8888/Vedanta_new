@@ -7,7 +7,7 @@ import { IoNotifications } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Sidebar.css";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 
 import API from "../components/Axios/AxiosInterceptor";
 import "../components/miscellaneous/Scrollbar.css";
@@ -232,123 +232,67 @@ const Sidebar = (props) => {
     };
   }, []);
 
-  // socket data for the notifications
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    const createSocket = () => {
-      const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL, {
-        auth: { accessToken },
-      });
-
-      newSocket.on("connect", () => {
-        console.log("Connected to WebSocket with ID:", newSocket.id);
-      });
-
-      newSocket.on("connect_error", (err) => {
-        console.error("WebSocket connection error:", err.message);
-      });
-
-      return newSocket;
-    };
-
-    const initialSocket = createSocket();
-    setSocket(initialSocket);
-
-    return () => {
-      if (initialSocket) initialSocket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleTempData = (response) => {
-      console.log("notification", response);
-      if (response.status === "success") {
-        const seenIds = new Set(
-          JSON.parse(localStorage.getItem("seenAlerts") || "[]"),
+    // Comment out the entire socket useEffect and replace with:
+    const fetchAlerts = async () => {
+      try {
+        const response = await axios.get(
+          'http://34.100.168.176:4000/api/v2/getNotifications'
         );
-        const newAlerts = response.data.map((item) => ({
-          id: `${item.id}-${new Date(item.timestamp).getTime()}`,
-          model: item.model,
-          message: `${item.sensor}: ${item.message} (${item.value})`,
-          timestamp: item.timestamp,
-          seen: seenIds.has(`${item.id}-${new Date(item.timestamp).getTime()}`),
-        }));
+        
+        if (response.data.status === "success") {
+          const seenIds = new Set(JSON.parse(localStorage.getItem("seenAlerts") || "[]"));
+          const newAlerts = response.data.data.alerts.critical.map(item => ({
+            id: `${item.id}-${new Date(item.timestamp).getTime()}`,
+            model: item.model,
+            message: `${item.sensor}: ${item.message} (${item.value})`,
+            timestamp: item.timestamp,
+            seen: seenIds.has(`${item.id}-${new Date(item.timestamp).getTime()}`)
+          }));
 
-        // newAlerts.forEach((alert) => {
-        //   if (!seenIds.has(alert.id)) {
-        //     toast(alert.message, {
-        //       description: new Date(alert.timestamp).toLocaleString(),
-        //       position: "bottom-right",
-        //     });
-        //     const updatedSeen = new Set([...seenIds, alert.id]);
-        //     localStorage.setItem(
-        //       "seenAlerts",
-        //       JSON.stringify([...updatedSeen]),
-        //     );
-        //   }
-        // });
+          newAlerts.forEach((alert) => {
+            if (!seenIds.has(alert.id)) {
+              const toastMessage = (
+                <div className="space-y-1">
+                  <div className="font-bold">{alert.severity.toUpperCase()}</div>
+                  <div>Model: {alert.model}, Sensor: {alert.sensor}, Value: {alert.value}, {alert.message}</div>
+                </div>
+              );
 
+              if (alert.severity === 'critical') {
+                toast.error(toastMessage, {
+                  description: new Date(alert.timestamp).toLocaleString(),
+                  position: "bottom-right",
+                  duration: 10000
+                });
+              }
+              // Add other severity levels here if needed
 
-        newAlerts.forEach((alert) => {
-          if (!seenIds.has(alert.id)) {
-            let toastType = 'default'; // Default type
-            let toastMessage = alert.message;
-
-            // Determine the toast type based on the message
-            if (toastMessage.includes("Critical")) {
-              toastType = 'error'; // Red for critical
-              toastMessage = "Critical: Something went wrong";
-              toast.error(toastMessage, {
-                description: new Date(alert.timestamp).toLocaleString(),
-                position: "bottom-right",
-              });
-            } else if (toastMessage.includes("Attention Required")) {
-              toastType = 'warning'; // Orange for attention required
-              toastMessage = "Attention Required";
-              toast.warning(toastMessage, {
-                description: new Date(alert.timestamp).toLocaleString(),
-                position: "bottom-right",
-              });
-            } else if (toastMessage.includes("Be at the area")) {
-              toastType = 'info'; // Info color for general info
-              toastMessage = "Be at the area 10 minutes before the event time";
-              toast.info(toastMessage, {
-                description: new Date(alert.timestamp).toLocaleString(),
-                position: "bottom-right",
-              });
+              const updatedSeen = new Set([...seenIds, alert.id]);
+              localStorage.setItem("seenAlerts", JSON.stringify([...updatedSeen]));
             }
-
-            // Update seen alerts
-            const updatedSeen = new Set([...seenIds, alert.id]);
-            localStorage.setItem(
-              "seenAlerts",
-              JSON.stringify([...updatedSeen]),
-            );
-          }
-        });
-        // Update alerts and save to local storage
-        const updatedAlerts = [
-          ...newAlerts,
-          ...alerts.filter(
-            (existing) =>
-              !newAlerts.some((newAlert) => newAlert.id === existing.id),
-          ),
-        ];
-        setAlerts(updatedAlerts);
-        localStorage.setItem("alerts", JSON.stringify(updatedAlerts)); // Save alerts to local storage
+          });
+          // Update alerts state and local storage
+          const updatedAlerts = [
+            ...newAlerts,
+            ...alerts.filter(existing => 
+              !newAlerts.some(newAlert => newAlert.id === existing.id)
+            )
+          ];
+          setAlerts(updatedAlerts);
+          localStorage.setItem("alerts", JSON.stringify(updatedAlerts));
+        }
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
       }
     };
 
-    socket.on("TempData", handleTempData);
-    socket.on("TempDataUpdate", handleTempData);
-
-    return () => {
-      socket.off("TempData", handleTempData);
-      socket.off("TempDataUpdate", handleTempData);
-    };
-  }, [socket, alerts]);
+    // Initial fetch
+    fetchAlerts();
+    // Poll every 10 seconds
+    const interval = setInterval(fetchAlerts, 5000);
+    return () => clearInterval(interval);
+  }, [alerts]);
 
   // Add this useEffect for scroll tracking
   useEffect(() => {
@@ -377,7 +321,7 @@ const Sidebar = (props) => {
       <Toaster position="top-right" richColors />
       {/* <div className="h-[80px] md:flex md:h-[6.4%] md:w-auto pt-2 mb-2 md:mb-2 md:pt-4 md:justify-between mx-2 gap-3"> */}
 
-      <div className="mx-2 mb-2 h-[70px] w-auto gap-3 pt-2 md:mb-2 md:flex md:h-[75px] md:w-[97%] md:justify-between md:pt-4 lg:h-[7.2%] xl:h-[9%] xl:w-[97.5%] custom-1.5xl:w-[97.5%] 2xl:h-[7.5%] 2xl:w-auto">
+      <div className="mx-2 mb-2 h-[70px] w-auto gap-3 pt-2 md:mb-2 md:flex md:h-[75px] md:w-[97%] md:justify-between md:pt-4 lg:h-[7.2%] xl:h-[9%] xl:w-[93.5%] custom-1.5xl:w-[93.5%] 2xl:h-[7.5%] 2xl:w-auto overflow-hidden">
         {/* mobileview */}
         <div className="flex items-center w-full h-full text-lg font-semibold text-white bg-black bg-opacity-75 border border-white font-popins rounded-xl md:hidden">
           <div className="flex items-start w-3/4 p-4">

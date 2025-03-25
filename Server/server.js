@@ -11,7 +11,7 @@ import './Helpers/init_mongodb.js';
 import { verifyAccessToken } from './Helpers/jwt_helper.js';
 // import client from './Helpers/init_redis.js';
 import './Helpers/init_redis.js';
-import './Helpers/init_socketio.js';
+// import './Helpers/init_socketio.js';
 
 import cors from "cors";
 
@@ -25,8 +25,8 @@ const app = express();
 const ports = process.env.PORT;
 app.use(cors({
     // origin: [`http://34.100.168.176:3000`,  `http://locahost:3000`, ], // 
-  origin: 'http://34.100.168.176:3000',
-//   origin: 'http://localhost:3000',
+//   origin: 'http://34.100.168.176:3000',
+  origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: [
     'Content-Type', 

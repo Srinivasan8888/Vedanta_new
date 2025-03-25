@@ -2,12 +2,19 @@ import React from "react";
 import "../miscellaneous/Scrollbar.css";
 
 const CollectorBarTable = ({ data }) => {
-  const tableData = Array.isArray(data?.data) ? data.data : [];
+  // Transform and sort data with latest first
+  const tableData = data ? Object.keys(data)
+    .filter(key => key !== "createdAt" && key !== "minValue" && key !== "maxValue" && key !== "averageValue")
+    .flatMap(sensorId => 
+      data[sensorId].map((value, index) => ({
+        value,
+        createdAt: data.createdAt[index]
+      }))
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : [];
 
-
-  const headers = [
-    "S.no", 
-    "TimeStamp", ...Object.keys(tableData[0] || {}).filter(key => key !== "createdAt")];
+  const headers = ["S.no", "TimeStamp",  "Value"];
 
   return (
     <div style={{ maxHeight: "361px" }} className="overflow-x-auto md:overflow-visible">
@@ -35,15 +42,11 @@ const CollectorBarTable = ({ data }) => {
                   {rowIndex + 1}
                 </td>
                 <td className="px-1 md:px-2 py-2 md:py-4 border border-white bg-[rgb(20,20,20)] text-xs md:text-sm">
-                  {new Date(row["createdAt"]).toLocaleString()}
+                  {new Date(row.createdAt).toLocaleString()}
                 </td>
-                {Object.keys(row)
-                  .filter((key) => key !== "createdAt")
-                  .map((key, colIndex) => (
-                    <td key={colIndex} className={`px-1 md:px-2 py-2 md:py-4 border border-white ${colIndex % 2 === 0 ? "bg-[rgb(16,16,16)]" : "bg-[rgb(20,20,20)]"}`}>
-                      <span className="text-xs text-white md:text-sm">{row[key] ? `${row[key]}°C` : "N/A"}</span>
-                    </td>
-                  ))}
+                <td className="px-1 md:px-2 py-2 md:py-4 border border-white bg-[rgb(20,20,20)] text-xs md:text-sm">
+                  {row.value}°C
+                </td>
               </tr>
             ))
           )}

@@ -190,7 +190,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pt-5 pr-3 text-sm leading-5"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm leading-5"
                     >
                       {showPassword ? (
                         <FaEyeSlash className="w-5 h-5 text-gray-500" />

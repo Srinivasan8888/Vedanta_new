@@ -14,8 +14,8 @@ const io = new Server(httpServer, {
   cors: {
     // Assuming frontend runs on port 3000
     // origin: [`http://34.100.168.176:3000`,  `http://locahost:3000`, ], 
-    origin: 'http://34.100.168.176:3000',
-    // origin: 'http://localhost:3000',
+    // origin: 'http://34.100.168.176:3000',
+    origin: 'http://localhost:3000',
     methods: ["GET", "POST"],
     credentials: true // Add if you need to support credentials
   },
