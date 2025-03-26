@@ -4,14 +4,14 @@ import Count from "../../images/Count.png";
 import Dateimg from "../../images/Date.png";
 import Interval from "../../images/Interval.png";
 
-const AnalyticsButton = ({ selectedButton = "Average", setSelectedButton }) => {
+const AnalyticsButton = ({ selectedButton , setSelectedButton }) => {
   // console.log("Selected Button in AnalyticsButton:", selectedButton); // Debugging
 
   return (
     <div className="xl:w-[25%] xl:h-[100%] h-[270px] bg-[rgba(16,16,16,0.6)] mt-4 grid grid-cols-2 gap-4 rounded-xl p-4 border backdrop-blur-sm md:backdrop-blur border-white">
       <button
         className={`bg-[rgb(16,16,16)] rounded-xl border h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
-          selectedButton === "Average" ? "!border-2 !border-white" : "border-2 border-white"
+          selectedButton === "Average" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Average")}
       >
@@ -20,7 +20,7 @@ const AnalyticsButton = ({ selectedButton = "Average", setSelectedButton }) => {
       </button>
       <button
         className={`bg-[rgb(16,16,16)] rounded-xl border h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
-          selectedButton === "Time" ? "!border-2 !border-white" : "border-2 border-white"
+          selectedButton === "Time" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Time")}
       >
@@ -29,7 +29,7 @@ const AnalyticsButton = ({ selectedButton = "Average", setSelectedButton }) => {
       </button>
       <button
         className={`bg-[rgb(16,16,16)] rounded-xl border h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
-          selectedButton === "Range" ? "!border-2 !border-white" : "border border-white"
+          selectedButton === "Range" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Range")}
       >
@@ -38,7 +38,7 @@ const AnalyticsButton = ({ selectedButton = "Average", setSelectedButton }) => {
       </button>
       <button
         className={`bg-[rgb(16,16,16)] rounded-xl border h-[100%] focus:ring-2 focus:ring-white flex flex-col justify-center items-center ${
-          selectedButton === "Count" ? "!border-2 !border-white" : "border border-white"
+          selectedButton === "Count" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Count")}
       >

@@ -10,7 +10,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       {" "}
       <button
         className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center ${
-          selectedButton === "Average" ? "ring-2 focus:ring-white" : "focus:ring-white"
+          selectedButton === "Average" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Average")}
       >
@@ -21,7 +21,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       </button>
       <button
         className={`flex h-[100%] flex-col justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 items-center ${
-          selectedButton === "Time" ? "ring-2 focus:ring-white" : "focus:ring-white"
+          selectedButton === "Time"? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Time")}
       >
@@ -32,7 +32,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       </button>
       <button
         className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
-          selectedButton === "Range" ? "ring-2 focus:ring-white" : "focus:ring-white"
+          selectedButton === "Range"? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Range")}
       >
@@ -43,7 +43,7 @@ const ReportsButton = ({ selectedButton, setSelectedButton }) => {
       </button>
       <button
         className={`flex h-[100%] flex-col items-center justify-center rounded-xl border bg-[rgb(16,16,16)] focus:ring-2 focus:ring-white xl:h-40 xl:w-60 ${
-          selectedButton === "Count" ? "ring-2 focus:ring-white" : "focus:ring-white"
+          selectedButton === "Count" ? "ring-2 ring-white focus:ring-white" : "focus:ring-white"
         }`}
         onClick={() => setSelectedButton("Count")}
       >
