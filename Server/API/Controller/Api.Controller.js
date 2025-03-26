@@ -542,7 +542,7 @@ export const getallsensor = async (req, res) => {
                         [parameter]: { $exists: true, $ne: null }
                       }
                     },
-                    { $sort: { createdAt: -1 } },
+                    { $sort: { TIME: -1 } }, // Changed from createdAt to TIME
                     { $limit: 1 },
                     {
                       $project: {
@@ -564,15 +564,15 @@ export const getallsensor = async (req, res) => {
             const result = data[0];
             let entry = { name: parameter, value: null, maxTemp: null, minTemp: null };
 
-            // Handle time-range data
+            // Set latest value first
+            if (result.latest.length > 0 && result.latest[0].value !== null) {
+              entry.value = result.latest[0].value;
+            }
+
+            // Set max/min temperatures
             if (result.inTimeRange.length > 0 && result.inTimeRange[0].max !== null) {
-              entry.value = result.inTimeRange[0].max;
               entry.maxTemp = result.inTimeRange[0].max;
               entry.minTemp = result.inTimeRange[0].min;
-            }
-            // Fallback to latest value
-            else if (result.latest.length > 0 && result.latest[0].value !== null) {
-              entry.value = result.latest[0].value;
             }
 
             maxMinValues.push(entry);
@@ -884,58 +884,74 @@ export const collectorbar = async (req, res) => {
 };
 
 export const getLatestTimestamp = async (req, res) => {
-  const models = [
-      SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
-      SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
-  ];
+    const models = [
+        SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
+        SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+    ];
 
-  // Helper function to convert UTC time to IST
-  const convertToIST = (date) => {
-      const istOffset = 5.5 * 60 * 60 * 1000; // Offset in milliseconds
-      return new Date(date.getTime() + istOffset);
-  };
+    // Helper function to format the date from IST timestamp
+    const formatDateFromIST = (timestamp) => {
+        try {
+            // Parse the timestamp directly (since it's already in IST)
+            const date = new Date(timestamp);
+            
+            const hours = date.getUTCHours();
+            const minutes = date.getUTCMinutes();
+            const day = date.getUTCDate();
+            const month = date.getUTCMonth() + 1;
+            const year = date.getUTCFullYear();
 
-  // Helper function to format the date
-  const formatDate = (date) => {
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 || 12;
+            const formattedMinutes = String(minutes).padStart(2, '0');
 
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const formattedHours = hours % 12 || 12;
-      const formattedMinutes = String(minutes).padStart(2, '0');
+            return `${formattedHours}:${formattedMinutes} ${ampm} ${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
+        } catch (error) {
+            console.error("Error formatting date:", error);
+            return null;
+        }
+    };
 
-      return `${formattedHours}:${formattedMinutes} ${ampm} ${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
-  };
+    try {
+        // Fetch the latest document from each model in parallel using TIME field
+        const latestDocuments = await Promise.all(
+            models.map(model =>
+                model.findOne()
+                    .sort({ TIME: -1 })
+                    .select({ TIME: 1 })
+                    .lean()
+            )
+        );
 
-  try {
-      // Fetch the latest document from each model in parallel
-      const latestDocuments = await Promise.all(
-          models.map(model =>
-              model.findOne().sort({ createdAt: -1 }).select({ createdAt: 1 }).lean()
-          )
-      );
+        // Extract TIME values and find the latest one
+        const timestamps = latestDocuments
+            .filter(doc => doc && doc.TIME)
+            .map(doc => doc.TIME);
 
-      // Extract timestamps and find the latest one
-      const timestamps = latestDocuments
-          .filter(doc => doc && doc.createdAt)
-          .map(doc => doc.createdAt);
+        if (timestamps.length === 0) {
+            return res.status(404).json({ error: "No timestamps found" });
+        }
 
-      if (timestamps.length === 0) {
-          return res.status(404).json({ error: "No timestamps found" });
-      }
+        // Find the latest timestamp
+        const latestTimestamp = timestamps.reduce((latest, current) => {
+            return new Date(current) > new Date(latest) ? current : latest;
+        });
 
-      // Find and format the latest timestamp
-      const latestTimestampUTC = new Date(Math.max(...timestamps));
-      const latestTimestampIST = formatDate(convertToIST(latestTimestampUTC));
+        // Format the timestamp (no conversion needed since it's already IST)
+        const formattedIST = formatDateFromIST(latestTimestamp);
 
-      res.status(200).json({ latestTimestamp: latestTimestampIST });
-  } catch (error) {
-      console.error("Error fetching latest timestamp:", error);
-      res.status(500).json({ error: "Internal server error" });
-  }
+        if (!formattedIST) {
+            return res.status(500).json({ error: "Error formatting timestamp" });
+        }
+
+        res.status(200).json({ 
+            latestTimestamp: formattedIST,
+            rawTimestamp: latestTimestamp
+        });
+    } catch (error) {
+        console.error("Error fetching latest timestamp:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 };
 
 

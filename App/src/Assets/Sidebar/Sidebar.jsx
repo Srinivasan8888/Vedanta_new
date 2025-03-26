@@ -237,7 +237,7 @@ const Sidebar = (props) => {
     const fetchAlerts = async () => {
       try {
         const response = await axios.get(
-          'http://34.100.168.176:4000/api/v2/getNotifications'
+          `${process.env.REACT_APP_SERVER_URL}api/v2/getNotifications`
         );
         
         if (response.data.status === "success") {
@@ -290,7 +290,7 @@ const Sidebar = (props) => {
     // Initial fetch
     fetchAlerts();
     // Poll every 10 seconds
-    const interval = setInterval(fetchAlerts, 5000);
+    const interval = setInterval(fetchAlerts, 1000);
     return () => clearInterval(interval);
   }, [alerts]);
 
@@ -332,7 +332,7 @@ const Sidebar = (props) => {
             />
           </div>
 
-          <div className="flex-1 mx-2">
+           <div className="flex-1 mx-2">
             <div className="z-30 rounded-xl border border-white bg-[rgba(14,14,14,0.75)] backdrop-blur-sm">
               <div className="relative flex items-center w-full">
                 <input
