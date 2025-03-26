@@ -362,7 +362,7 @@ ChartJS.register(dangerLinePlugin);
 // ... existing code ...
   
   return (
-    <div className="h-[490px] lg:w-[96.8%] pt-2 xl:pt-0 xl:h-[90%] 2xl:h-auto lg:mt-2 xl:w-[73%]  2xl:w-[73%] 2xl:pt-1 bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white">
+    <div className="h-[490px] lg:w-[96.8%] pt-2 xl:pt-0 xl:h-[90%] 2xl:h-auto lg:mt-2 xl:w-[73%]  2xl:w-[73%] 2xl:pt-1 bg-[rgba(16,16,16,0.9)] m-4 rounded-xl text-white overflow-hidden">
       {/* <div className="w-full h-full backdrop-blur-sm"> */}
         <div className="h-[180px] md:h-[75%] w-[100%]">
           <div className="flex flex-col px-4 mt-4 xl:mt-0 md:flex-row md:justify-around">

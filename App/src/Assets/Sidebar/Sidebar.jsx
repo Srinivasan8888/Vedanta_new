@@ -233,7 +233,6 @@ const Sidebar = (props) => {
   }, []);
 
   useEffect(() => {
-    // Comment out the entire socket useEffect and replace with:
     const fetchAlerts = async () => {
       try {
         const response = await axios.get(
@@ -242,14 +241,28 @@ const Sidebar = (props) => {
         
         if (response.data.status === "success") {
           const seenIds = new Set(JSON.parse(localStorage.getItem("seenAlerts") || "[]"));
-          const newAlerts = response.data.data.alerts.critical.map(item => ({
-            id: `${item.id}-${new Date(item.timestamp).getTime()}`,
-            model: item.model,
-            message: `${item.sensor}: ${item.message} (${item.value})`,
-            timestamp: item.timestamp,
-            seen: seenIds.has(`${item.id}-${new Date(item.timestamp).getTime()}`)
-          }));
+          
+          // Process all alert types
+          const alertTypes = ['critical', 'warnings', 'info'];
+          let newAlerts = [];
+          
+          alertTypes.forEach(type => {
+            if (response.data.data.alerts[type]) {
+              const typeAlerts = response.data.data.alerts[type].map(item => ({
+                id: `${item.id}-${new Date(item.timestamp).getTime()}`,
+                model: item.model,
+                sensor: item.sensor,
+                value: item.value,
+                severity: item.severity,
+                message: `${item.sensor}: ${item.message} (${item.value})`,
+                timestamp: item.timestamp,
+                seen: seenIds.has(`${item.id}-${new Date(item.timestamp).getTime()}`)
+              }));
+              newAlerts = [...newAlerts, ...typeAlerts];
+            }
+          });
 
+          // Show notifications for unseen alerts
           newAlerts.forEach((alert) => {
             if (!seenIds.has(alert.id)) {
               const toastMessage = (
@@ -259,19 +272,35 @@ const Sidebar = (props) => {
                 </div>
               );
 
-              if (alert.severity === 'critical') {
-                toast.error(toastMessage, {
-                  description: new Date(alert.timestamp).toLocaleString(),
-                  position: "bottom-right",
-                  duration: 10000
-                });
+              switch (alert.severity) {
+                case 'critical':
+                  toast.error(toastMessage, {
+                    description: new Date(alert.timestamp).toLocaleString(),
+                    position: "bottom-right",
+                    duration: 10000
+                  });
+                  break;
+                case 'warning':
+                  toast.warning(toastMessage, {
+                    description: new Date(alert.timestamp).toLocaleString(),
+                    position: "bottom-right",
+                    duration: 8000
+                  });
+                  break;
+                case 'info':
+                  toast.info(toastMessage, {
+                    description: new Date(alert.timestamp).toLocaleString(),
+                    position: "bottom-right",
+                    duration: 5000
+                  });
+                  break;
               }
-              // Add other severity levels here if needed
 
               const updatedSeen = new Set([...seenIds, alert.id]);
               localStorage.setItem("seenAlerts", JSON.stringify([...updatedSeen]));
             }
           });
+
           // Update alerts state and local storage
           const updatedAlerts = [
             ...newAlerts,
@@ -289,7 +318,7 @@ const Sidebar = (props) => {
 
     // Initial fetch
     fetchAlerts();
-    // Poll every 10 seconds
+    // Poll every second
     const interval = setInterval(fetchAlerts, 1000);
     return () => clearInterval(interval);
   }, [alerts]);
@@ -497,7 +526,6 @@ const Sidebar = (props) => {
                       </svg>
                     </div>
                     <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                      {/* {new Date(alert.timestamp).toLocaleString()} {" "} the {alert.model} reported a error: {alert.message} */}
                       {new Date(alert.timestamp).toLocaleString()} reported a
                       error: {alert.message}
                     </div>

@@ -7,6 +7,7 @@ import '../miscellaneous/Scrollbar.css';
 const ASide = ({ socketData }) => {
   const [data, setData] = useState([]);
   const previousDataRef = useRef({});
+  const [sortBy, setSortBy] = useState('default');
   // console.log("AsideData", socketData)
 
   useEffect(() => {
@@ -17,46 +18,55 @@ const ASide = ({ socketData }) => {
         return match ? { main: parseInt(match[1]), sub: parseInt(match[2].replace('A', '')) } : { main: 0, sub: 0 };
       };
 
-      const entries = Array.isArray(socketData) 
-        ? socketData.flatMap(item => Object.entries(item).filter(([key]) => key.startsWith("CBT")))
-        : Object.entries(socketData).sort((a, b) => {
-            const aKey = parseKey(a[0]);
-            const bKey = parseKey(b[0]);
-            return aKey.main - bKey.main || aKey.sub - bKey.sub;
-          });
+      const entries = Object.entries(socketData).sort((a, b) => {
+        const aKey = parseKey(a[0]);
+        const bKey = parseKey(b[0]);
+        return aKey.main - bKey.main || aKey.sub - bKey.sub;
+      });
 
-      const newData = entries.map(([key, value], index) => {
-        const previousValue = previousDataRef.current[key];
-        const parsedValue = parseFloat(value);
-        const parsedPrevValue = parseFloat(previousValue);
-
-        const arrow = previousValue === undefined || isNaN(parsedPrevValue) || isNaN(parsedValue)
-          ? up
-          : parsedValue > parsedPrevValue
-          ? up
-          : down;
-
-        previousDataRef.current[key] = value;
-
+      const newData = entries.map(([key, valueObj]) => {
         return {
           key,
-          value: `${value} °C`,
-          arrow
+          value: `${valueObj.value} °C`,
+          arrow: valueObj.trend === 'up' ? up : down,
+          trend: valueObj.trend
         };
+      });
+
+      // Sort the data after mapping
+      const sortedData = newData.sort((a, b) => {
+        if (sortBy === 'default') {
+          const aKey = parseKey(a.key);
+          const bKey = parseKey(b.key);
+          return aKey.main - bKey.main || aKey.sub - bKey.sub;
+        }
+        if (sortBy === 'max' || sortBy === 'min') {
+          const aValue = parseFloat(a.value.replace(' °C', ''));
+          const bValue = parseFloat(b.value.replace(' °C', ''));
+          return sortBy === 'max' ? bValue - aValue : aValue - bValue;
+        }
+        // For trend sorting
+        if (sortBy === 'trend-up') {
+          return b.trend.localeCompare(a.trend); // Up first
+        }
+        if (sortBy === 'trend-down') {
+          return a.trend.localeCompare(b.trend); // Down first
+        }
+        return 0;
       });
 
       // Group into pairs (A1/A2)
       const groupedData = [];
-      for (let i = 0; i < newData.length; i += 2) {
+      for (let i = 0; i < sortedData.length; i += 2) {
         groupedData.push({
           id: i/2,
-          items: newData.slice(i, i + 2)
+          items: sortedData.slice(i, i + 2)
         });
       }
 
       setData(groupedData);
     }
-  }, [socketData]);
+  }, [socketData, sortBy]);
 
   return (
     <div className="h-[400px] xl:h-[300px] 2xl:h-[93.9%] md:w-[98%] xl:w-[28%] 2xl:w-[25%] rounded-2xl border-[1.5px] border-white bg-[rgba(16,16,16,0.9)] xl:m-2 2xl:m-3 text-white font-poppins">
@@ -67,6 +77,8 @@ const ASide = ({ socketData }) => {
           <select
             id="currency"
             name="currency"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
             className="h-full py-0 pl-2 mr-8 text-gray-500 bg-transparent border-0 rounded-md appearance-none pr-7 mt-7 xl:mr-6 xl:mt-5 focus:outline-none sm:text-sm"
             style={{
               width: "12px",
@@ -76,11 +88,12 @@ const ASide = ({ socketData }) => {
               backgroundSize: "25px",
               appearance: "none",
             }}
-            disabled
           >
-            <option>Option 1</option>
-            <option>Option 2</option>
-            <option>Option 3</option>
+            <option value="default">Default</option>
+            <option value="max">Max</option>
+            <option value="min">Min</option>
+            <option value="trend-up">Trend ▲</option>
+            <option value="trend-down">Trend ▼</option>
           </select>
         </div>
       </div>
