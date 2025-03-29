@@ -271,7 +271,7 @@ const Dashboard = () => {
         </div>
 
         {/* Bottom Section: Chart and B Side */}
-        <div className="w-full gap-5 lg:w-fit xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
+        <div className="w-full gap-5 lg:w-full xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
           <DashboardChart
             socketData={fetchedData?.Average}
             onChartClick={handleChartClick}

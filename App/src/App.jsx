@@ -12,8 +12,9 @@ import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter"
 import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 import CollectorBar from "./pages/CollectorBar/CollectorBar";
+// import helmet from "helmet";
 
-
+// App.use(helmet());
 function App() {
   return (
     <div className="App">

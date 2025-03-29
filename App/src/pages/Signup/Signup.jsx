@@ -8,17 +8,21 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setconfirmPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
   const [passkey, setPasskey] = useState("");
   const navigate = useNavigate();
+
+  console.log("role", role);
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const token2 = localStorage.getItem('refreshToken');
-    
+    const token = localStorage.getItem("accessToken");
+    const token2 = localStorage.getItem("refreshToken");
+
     if (token && token2) {
-      navigate("/Dashboard"); 
+      navigate("/Dashboard");
     }
-  }, [navigate]); 
+  }, [navigate]);
+
 
   const registerUser = async (event) => {
     event.preventDefault();
@@ -33,7 +37,8 @@ const Signup = () => {
           {
             email,
             password,
-          }
+            role,
+          },
         );
 
         if (response.data.email) {
@@ -43,7 +48,10 @@ const Signup = () => {
           alert("Unknown error has occurred");
         }
       } catch (error) {
-        setErrorMessage(`Failed to register: ${error.response?.data?.error?.message || error.message}`);      }
+        setErrorMessage(
+          `Failed to register: ${error.response?.data?.error?.message || error.message}`,
+        );
+      }
     } else {
       alert("Password is not matching");
     }
@@ -60,8 +68,8 @@ const Signup = () => {
           <a className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
             <img className="w-32 h-auto mr-2" src={xyma} alt="logo" />
           </a>
-          <div className="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <div className="w-full bg-white rounded-lg shadow sm:max-w-md xl:p-0 dark:border dark:border-gray-700 dark:bg-gray-800">
+            <div className="p-6 space-y-4 sm:p-8 md:space-y-6">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Create a new account
               </h1>
@@ -77,7 +85,7 @@ const Signup = () => {
                     type="email"
                     name="email"
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     placeholder="name@company.com"
                     required="true"
                   />
@@ -94,7 +102,7 @@ const Signup = () => {
                     name="password"
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     required="true"
                   />
                 </div>
@@ -110,9 +118,30 @@ const Signup = () => {
                     name="confirm-password"
                     onChange={(e) => setconfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     required=""
                   />
+                </div>
+                <div>
+                  <label
+                    for="confirm-password"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    User Role
+                  </label>
+
+                  <select 
+                    required 
+                    value={role}
+                    onChange={(e) => {
+                      setRole(e.target.value);
+                    }} 
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="superadmin">Super-Admin</option>
+                  </select>
                 </div>
                 <div>
                   <label
@@ -126,7 +155,7 @@ const Signup = () => {
                     name="passkey"
                     onChange={(e) => setPasskey(e.target.value)}
                     placeholder="Enter secret passkey"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     required
                   />
                 </div>
@@ -135,7 +164,7 @@ const Signup = () => {
                 <button
                   onClick={() => setErrorMessage("")}
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Sign up
                 </button>
