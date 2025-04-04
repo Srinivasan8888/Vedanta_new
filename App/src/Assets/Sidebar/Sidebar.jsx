@@ -23,6 +23,7 @@ const SearchInput = ({
   showSuggestions,
   setShowSuggestions,
   refreshUniqueIds,
+  className,
 }) => {
   const containerRef = useRef(null);
 
@@ -39,7 +40,7 @@ const SearchInput = ({
 
   return (
     <div
-      className="font-poppins z-30 flex items-center justify-center rounded-xl border border-white bg-[rgba(14,14,14,0.75)] font-medium text-white backdrop-blur-sm md:w-[30%] md:text-[14px] lg:w-[25%] lg:text-[16px] xl:w-[22%] xl:text-[18px] 2xl:w-[20%] 2xl:text-[22px]"
+      className={`font-poppins z-30 flex items-center justify-center rounded-xl border border-white font-medium text-white backdrop-blur-sm md:w-[30%] md:text-[14px] lg:w-[25%] lg:text-[16px] xl:w-[22%] xl:text-[18px] 2xl:w-[20%] 2xl:text-[22px] ${className}`}
       ref={containerRef}
     >
       <div className="relative flex items-center w-full">
@@ -50,7 +51,7 @@ const SearchInput = ({
           value={searchText}
           onChange={handleSearchChange}
           placeholder="Search"
-          className="h-full w-full rounded-xl bg-transparent py-1.5 pl-5 pr-16 text-white focus:outline-none md:pl-4 md:pr-12 placeholder:md:text-[10px] lg:pl-5 lg:pr-14 lg:placeholder:text-[12px] xl:pl-6 xl:pr-16 xl:placeholder:text-[14px]"
+          className="h-full w-full rounded-xl bg-transparent py-1.5 pl-5 pr-16 text-white placeholder:text-white/70 focus:outline-none md:pl-4 md:pr-12 placeholder:md:text-[10px] lg:pl-5 lg:pr-14 lg:placeholder:text-[12px] xl:pl-6 xl:pr-16 xl:placeholder:text-[14px]"
           onFocus={() => {
             refreshUniqueIds();
             setShowSuggestions(true);
@@ -58,7 +59,7 @@ const SearchInput = ({
         />
 
         {showSuggestions && searchText && (
-          <ul className="absolute left-0 right-0 top-full z-50 max-h-[30vh] overflow-y-auto rounded-xl border border-gray-300 bg-white text-[14px] text-black shadow-lg lg:text-[16px] xl:text-[18px]">
+          <ul className="absolute left-0 right-0 top-full max-h-[30vh] overflow-y-auto rounded-xl border border-gray-300 bg-white text-[14px] text-black shadow-lg lg:text-[16px] xl:text-[18px]">
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
                 <li
@@ -294,43 +295,16 @@ const Sidebar = (props) => {
           </div>
 
           <div className="flex-1 mx-2">
-            <div className="z-30 rounded-xl border border-white bg-[rgba(14,14,14,0.75)] backdrop-blur-sm">
-              <div className="relative flex items-center w-full">
-                <input
-                  id="search"
-                  name="search"
-                  type="number"
-                  value={searchText}
-                  onChange={handleSearchChange}
-                  placeholder="Search"
-                  className="h-full w-full rounded-xl bg-transparent py-1.5 pl-3 pr-10 text-[14px] text-white placeholder:text-[10px] focus:outline-none"
-                  onFocus={() => {
-                    refreshUniqueIds();
-                    setShowSuggestions(true);
-                  }}
-                />
-                {showSuggestions && searchText && (
-                  <ul className="absolute left-0 right-0 top-full z-50 max-h-[30vh] overflow-y-auto rounded-xl border border-gray-300 bg-white text-[14px] text-black shadow-lg">
-                    {filteredData.length > 0 ? (
-                      filteredData.map((item, index) => (
-                        <li
-                          key={index}
-                          className="p-2 cursor-pointer hover:bg-gray-200"
-                          onClick={() => {
-                            handleSuggestionClick(item);
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          {item}
-                        </li>
-                      ))
-                    ) : (
-                      <li className="p-2 text-gray-500">No results found</li>
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
+            <SearchInput
+              iddropdown={iddropdown}
+              searchText={searchText}
+              handleSearchChange={handleSearchChange}
+              filteredData={filteredData}
+              handleSuggestionClick={handleSuggestionClick}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+              refreshUniqueIds={refreshUniqueIds}
+            />
           </div>
 
           <div className="flex w-[16%] items-end p-4">
@@ -396,6 +370,7 @@ const Sidebar = (props) => {
           showSuggestions={showSuggestions}
           setShowSuggestions={setShowSuggestions}
           refreshUniqueIds={refreshUniqueIds}
+          className="hidden md:block"
         />
 
         <button
@@ -474,7 +449,6 @@ const Sidebar = (props) => {
                       </svg>
                     </div>
                     <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
-                      {/* {new Date(alert.timestamp).toLocaleString()} {" "} the {alert.model} reported a error: {alert.message} */}
                       {new Date(alert.timestamp).toLocaleString()} reported a
                       error: {alert.message}
                     </div>

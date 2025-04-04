@@ -1,0 +1,168 @@
+import { ChevronFirst, ChevronLast, MoreVertical, FileText, Bell, Palette, Users, LogOut, Gauge } from "lucide-react"
+import logo from "../../images/Xyma-Logo.png"
+import { Link, useNavigate, useLocation } from "react-router-dom"
+import { createContext, useContext, useState, useEffect } from "react"
+import axios from "axios"
+
+const SidebarContext = createContext();
+
+const AdminSidebar = ({ children }) => {
+  const [expanded, setExpanded] = useState(true)
+  const [activeItem, setActiveItem] = useState("generate-report")
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Get the current path and set the active item
+    const path = location.pathname.split('/').pop();
+    if (path) {
+      setActiveItem(path);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    // Save the active item to localStorage
+    localStorage.setItem('activeSidebarItem', activeItem);
+  }, [activeItem]);
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      const response = await axios.delete(
+        `${process.env.REACT_APP_SERVER_URL}auth/logout`,
+        {
+          data: { refreshToken },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      navigate("/");
+    }
+  };
+
+    return (
+        <>
+            <aside className="h-screen">
+                <nav className="flex flex-col h-full bg-[rgba(16,16,16,0.9)] border-r shadow-sm">
+                    <div className="flex items-center justify-between p-4 pb-2">
+                        <img src={logo} className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`} />
+                        <button 
+                          onClick={() => {
+                            if (window.innerWidth >= 768) { // md breakpoint is 768px
+                              setExpanded((curr) => !curr);
+                            }
+                          }} 
+                          className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white hidden md:flex"
+                        >
+                            {expanded ? <ChevronFirst /> : <ChevronLast />}
+                        </button>
+                    </div>
+
+                    <SidebarContext.Provider value={{ expanded }}>
+                        <ul className="flex-1 px-3">
+                        <SidebarItem 
+                                icon={<Gauge size={20} />} 
+                                text="Dashboard" 
+                                active={activeItem === "dashboard"} 
+                                to="/Dashboard" 
+                            />
+                            <SidebarItem 
+                                icon={<FileText size={20} />} 
+                                text="Generate Report" 
+                                active={activeItem === "generate-report"} 
+                                to="/admin/generate-report" 
+                            />
+                            <SidebarItem 
+                                icon={<Bell size={20} />} 
+                                text="Set Alert" 
+                                active={activeItem === "set-alert"} 
+                                to="/admin/set-alert" 
+                            />
+                            <SidebarItem 
+                                icon={<Palette size={20} />} 
+                                text="Set Color range" 
+                                active={activeItem === "color-range"} 
+                                to="/admin/color-range" 
+                            />
+                            <SidebarItem 
+                                icon={<Users size={20} />} 
+                                text="User" 
+                                active={activeItem === "user"} 
+                                to="/admin/user" 
+                            />
+                            <SidebarItem 
+                                icon={<LogOut size={20} />} 
+                                text="Logout" 
+                                active={false} 
+                                onClick={handleLogout}
+                                className="hover:bg-red-600"
+                            />
+                        </ul>
+                    </SidebarContext.Provider>
+
+                    {/* <div className="flex p-3 border-t">
+                        <img src={profile} className="w-10 h-10 rounded-md" />
+                        <div className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"} `}>
+                            <div className="leading-4">
+                                <h4 className="font-semibold">constGenius</h4>
+                                <span className="text-xs text-gray-600">constgenius@gmail.com</span>
+                            </div>
+                            <MoreVertical size={20} />
+                        </div>
+                    </div> */}
+                </nav>
+            </aside>
+        </>
+    )
+}
+
+export function SidebarItem({ icon, text, active, alert, to, onClick, className = "" }) {
+    const { expanded } = useContext(SidebarContext)
+    const content = (
+        <li className={`relative flex items-center h-12 py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${active ? "bg-gray-700 text-white" : "hover:bg-gray-800 text-white"} ${className}`}>
+            <div className="flex items-center w-full">
+                {icon}
+                <span className={`overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}`}>{text}</span>
+                {alert && (
+                    <div className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${expanded ? "" : "top-2"}`}>
+                    </div>
+                )}
+            </div>
+
+            {!expanded && (
+                <div className={`absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-800 text-white text-sm invisible opacity-20 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}>
+                    {text}
+                </div>
+            )}
+        </li>
+    );
+
+    if (onClick) {
+        return (
+            <div onClick={onClick} className="block">
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <Link to={to} className="block">
+            {content}
+        </Link>
+    );
+}
+
+export default AdminSidebar

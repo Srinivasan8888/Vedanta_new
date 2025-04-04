@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter, Navigate } from "react-router-dom";
 // import ThreeScene from "./Assets/components/Model/ThreeScene";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Login/Login";
@@ -12,8 +12,14 @@ import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter"
 import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 import CollectorBar from "./pages/CollectorBar/CollectorBar";
+import Admin from "./pages/Admin_Dashboard/Admin";
+import AdminSidebar from "./Assets/components/sidebar-admins/adminsidebar";
+import Generatereport from "./Assets/components/sidebar-admins/components/Generatereport";
+import Alert from "./Assets/components/sidebar-admins/components/Alert";
+import ColorRange from "./Assets/components/sidebar-admins/components/ColorRange";
+import User from "./Assets/components/sidebar-admins/components/User";
+import bg from './Assets/images/bg.png'
 // import helmet from "helmet";
-
 // App.use(helmet());
 function App() {
   return (
@@ -24,7 +30,22 @@ function App() {
           <Route path="/admin_xyma_signup" element={<Signup />} />
           
           {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
+          
+            <Route path="/admin/*" element={
+              <div className="flex min-h-screen bg-center bg-no-repeat bg-cover" style={{ backgroundImage: `url(${bg})` }}>
+                <AdminSidebar />
+                <div className="flex-1">
+                  <Routes>
+                    <Route index element={<Navigate to="/admin/generate-report" replace />} />
+                    <Route path="generate-report" element={<Generatereport />} />
+                    <Route path="set-alert" element={<Alert />} />
+                    <Route path="color-range" element={<ColorRange />} />
+                    <Route path="user" element={<User />} />
+                  </Routes>
+                </div>
+              </div>
+            } />
+            <Route element={<ProtectedRoute />}>
             <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/CollectorBar" element={<CollectorBar />} />
             <Route path="/Analytics" element={<Analytics />} />
