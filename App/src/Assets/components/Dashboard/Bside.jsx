@@ -4,7 +4,7 @@ import up from "../../images/green-arrow.png";
 import down from "../../images/red-arrow.png";
 import '../miscellaneous/Scrollbar.css';
 
-const ASide = ({ socketData }) => {
+const Bside = ({ socketData }) => {
   const [data, setData] = useState([]);
   const previousDataRef = useRef({});
   const [sortBy, setSortBy] = useState('default');
@@ -14,8 +14,8 @@ const ASide = ({ socketData }) => {
     if (socketData) {
       // Custom sorting function for CBT entries
       const parseKey = (key) => {
-        const match = key.match(/CBT(\d+)(A\d)/i);
-        return match ? { main: parseInt(match[1]), sub: parseInt(match[2].replace('A', '')) } : { main: 0, sub: 0 };
+        const match = key.match(/CBT(\d+)(B\d)/i);
+        return match ? { main: parseInt(match[1]), sub: parseInt(match[2].replace('B', '')) } : { main: 0, sub: 0 };
       };
 
       const entries = Object.entries(socketData).sort((a, b) => {
@@ -24,14 +24,23 @@ const ASide = ({ socketData }) => {
         return aKey.main - bKey.main || aKey.sub - bKey.sub;
       });
 
-      const newData = entries.map(([key, valueObj]) => {
+      // Calculate trends by comparing with previous data
+      const newData = entries.map(([key, value]) => {
+        const previousValue = previousDataRef.current[key];
+        const trend = previousValue !== undefined 
+          ? parseFloat(value) > parseFloat(previousValue) ? 'up' : 'down'
+          : 'up'; // Default to 'up' for first render
+        
         return {
           key,
-          value: `${valueObj.value} °C`,
-          arrow: valueObj.trend === 'up' ? up : down,
-          trend: valueObj.trend
+          value: `${value} °C`,
+          arrow: trend === 'up' ? up : down,
+          trend
         };
       });
+
+      // Update previous data reference
+      previousDataRef.current = socketData;
 
       // Sort the data after mapping
       const sortedData = newData.sort((a, b) => {
@@ -55,7 +64,7 @@ const ASide = ({ socketData }) => {
         return 0;
       });
 
-      // Group into pairs (A1/A2)
+      // Group into pairs (B1/B2)
       const groupedData = [];
       for (let i = 0; i < sortedData.length; i += 2) {
         groupedData.push({
@@ -125,4 +134,4 @@ const ASide = ({ socketData }) => {
   );
 };
 
-export default ASide;
+export default Bside;

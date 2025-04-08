@@ -18,6 +18,7 @@ import Generatereport from "./Assets/components/sidebar-admins/components/Genera
 import Alert from "./Assets/components/sidebar-admins/components/Alert";
 import ColorRange from "./Assets/components/sidebar-admins/components/ColorRange";
 import User from "./Assets/components/sidebar-admins/components/User";
+import Alertslogs from "./Assets/components/sidebar-admins/components/Alertslogs";
 import bg from './Assets/images/bg.png'
 // import helmet from "helmet";
 // App.use(helmet());
@@ -41,6 +42,7 @@ function App() {
                     <Route path="set-alert" element={<Alert />} />
                     <Route path="color-range" element={<ColorRange />} />
                     <Route path="user" element={<User />} />
+                    <Route path="alerts-logs" element={<Alertslogs />} />
                   </Routes>
                 </div>
               </div>

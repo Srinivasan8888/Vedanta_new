@@ -1,4 +1,4 @@
-import { ChevronFirst, ChevronLast, MoreVertical, FileText, Bell, Palette, Users, LogOut, Gauge } from "lucide-react"
+import { ChevronFirst, ChevronLast, MoreVertical, FileText, Bell, Palette, Users, LogOut, Gauge, CircleAlert } from "lucide-react"
 import logo from "../../images/Xyma-Logo.png"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { createContext, useContext, useState, useEffect } from "react"
@@ -6,24 +6,39 @@ import axios from "axios"
 
 const SidebarContext = createContext();
 
-const AdminSidebar = ({ children }) => {
-  const [expanded, setExpanded] = useState(true)
-  const [activeItem, setActiveItem] = useState("generate-report")
+const AdminSidebar = ({ children, onToggle }) => {
+  const [expanded, setExpanded] = useState(window.innerWidth >= 1024);
+  const [activeItem, setActiveItem] = useState("dashboard");
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Get the current path and set the active item
-    const path = location.pathname.split('/').pop();
-    if (path) {
-      setActiveItem(path);
-    }
+    // Update the active item based on the current path
+    const path = location.pathname.split('/')[1] || 'dashboard';
+    setActiveItem(path);
+    localStorage.setItem('activeSidebarItem', path);
+
+    // Add event listener to handle window resizing
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setExpanded(false); // Collapse the sidebar in mobile view
+      } else {
+        setExpanded(true); // Expand the sidebar in desktop view
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [location]);
 
-  useEffect(() => {
-    // Save the active item to localStorage
-    localStorage.setItem('activeSidebarItem', activeItem);
-  }, [activeItem]);
+  const toggleSidebar = () => {
+    if (window.innerWidth >= 1024) {
+      setExpanded((curr) => !curr);
+      if (onToggle) {
+        onToggle(!expanded);
+      }
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -60,11 +75,7 @@ const AdminSidebar = ({ children }) => {
                     <div className="flex items-center justify-between p-4 pb-2">
                         <img src={logo} className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`} />
                         <button 
-                          onClick={() => {
-                            if (window.innerWidth >= 768) { // md breakpoint is 768px
-                              setExpanded((curr) => !curr);
-                            }
-                          }} 
+                          onClick={toggleSidebar}
                           className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white hidden md:flex"
                         >
                             {expanded ? <ChevronFirst /> : <ChevronLast />}
@@ -90,6 +101,12 @@ const AdminSidebar = ({ children }) => {
                                 text="Set Alert" 
                                 active={activeItem === "set-alert"} 
                                 to="/admin/set-alert" 
+                            />
+                             <SidebarItem 
+                                icon={<CircleAlert size={20} />} 
+                                text="Alert Logs" 
+                                active={activeItem === "alerts-logs"} 
+                                to="/admin/alerts-logs" 
                             />
                             <SidebarItem 
                                 icon={<Palette size={20} />} 
