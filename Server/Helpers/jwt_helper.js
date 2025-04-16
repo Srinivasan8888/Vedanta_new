@@ -2,7 +2,7 @@ import JWT from 'jsonwebtoken';
 import createError from "http-errors";
 import { client } from './init_redis.js'
 
-export const signAccessToken = (userId) => {
+export const signAccessToken = (userId, role) => {
   return new Promise((resolve, reject) => {
     const secret = process.env.ACCESS_TOKEN_SECRET;
     if (!secret) {
@@ -14,6 +14,7 @@ export const signAccessToken = (userId) => {
       audience: userId,
       name: "c3Jpbml2YXNhbg==",
       issuer: "vedanta.xyma.live",
+      role
     };
     const options = {
       expiresIn: "2d",

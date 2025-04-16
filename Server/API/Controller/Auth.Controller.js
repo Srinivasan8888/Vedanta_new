@@ -6,6 +6,7 @@ import {
   signRefreshToken,
   verifyRefreshToken,
   generateAccessToken,
+  verifyAccessToken,
 } from "../../Helpers/jwt_helper.js";
 import { client as redisClient, redisPromise } from "../../Helpers/init_redis.js";
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
@@ -127,10 +128,11 @@ export const login = async (req, res, next) => {
     // Remove sensitive data before response
     user.password = undefined;
 
-    // Generate tokens
-    const accessToken = await signAccessToken(user._id);
-    const refreshToken = await signRefreshToken(user._id);
 
+    // Generate tokens
+    const accessToken = await signAccessToken(user._id, user.role);
+    const refreshToken = await signRefreshToken(user._id);
+    user.role = undefined;
     res.status(200).json({
       success: true,
       accessToken,
@@ -249,3 +251,64 @@ export const refreshAccessToken = async (req, res, next) => {
   }
 };
   
+export const getRole = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Verify the JWT token
+    const decoded = await verifyAccessToken(token);
+    
+    // Find user in database
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if the user has admin access
+    if (user.role !== 'admin' && user.role !== 'superadmin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      role: user.role,
+      message: 'Access verified'
+    });
+
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token'
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+}

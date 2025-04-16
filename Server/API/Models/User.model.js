@@ -15,6 +15,11 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    required: true,
+    enum: ["admin", "user", "superadmin"],
+  },
 });
 
 UserSchema.pre("save", async function (next) {

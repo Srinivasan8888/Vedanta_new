@@ -1,5 +1,5 @@
 import express from 'express'
-import { register, login, refreshToken, verifyToken, logout, withRateLimiters, refreshAccessToken } from '../Controller/Auth.Controller.js'
+import { register, login, refreshToken, verifyToken, logout, withRateLimiters, refreshAccessToken, getRole } from '../Controller/Auth.Controller.js'
 import { verifyAccessToken, verifyRefreshToken, generateAccessToken, verifyRefreshTokenMiddleware } from '../../Helpers/jwt_helper.js'
 
 const router = express.Router()
@@ -8,6 +8,7 @@ router.post('/register', register)
 router.post('/login', withRateLimiters(login))
 router.post('/refresh-token', refreshToken)
 router.delete('/logout', logout)
+router.post('/get-role', getRole)
 
 
 //JWT Helper

@@ -234,11 +234,12 @@ const Sidebar = (props) => {
           );
 
           // Process all alert types
-          const alertTypes = ["critical", "warnings", "info"];
+          const alertTypes = ["critical", "warnings", "warning", "info"];
           let newAlerts = [];
 
           alertTypes.forEach((type) => {
             if (response.data.data.alerts[type]) {
+              console.log(`Processing ${type} alerts:`, response.data.data.alerts[type]);
               const typeAlerts = response.data.data.alerts[type].map(
                 (item) => ({
                   id: `${item.id}-${new Date(item.timestamp).getTime()}`,
@@ -253,6 +254,7 @@ const Sidebar = (props) => {
                   ),
                 }),
               );
+              console.log(`Processed ${type} alerts:`, typeAlerts);
               newAlerts = [...newAlerts, ...typeAlerts];
             }
           });
@@ -265,6 +267,7 @@ const Sidebar = (props) => {
                 !newAlerts.some((newAlert) => newAlert.id === existing.id),
             ),
           ];
+          console.log('Updated alerts:', updatedAlerts);
           setAlerts(updatedAlerts);
           localStorage.setItem("alerts", JSON.stringify(updatedAlerts));
         }
@@ -430,7 +433,7 @@ const Sidebar = (props) => {
           <div className="overflow-x-auto scrollbar-custom">
             {alerts.length > 0 ? (
               alerts.map((alert) => (
-                <div key={alert.id} className="relative w-full border h-28">
+                <div key={alert.id} className="relative w-full h-32 border">
                   <div className="absolute left-[36px] top-[30px] inline-flex h-10 w-96 items-start justify-start gap-6">
                     <div data-svg-wrapper className="relative">
                       <svg
@@ -450,10 +453,10 @@ const Sidebar = (props) => {
                     </div>
                     <div className="w-full font-['Poppins'] text-sm font-normal leading-loose text-white">
                       {new Date(alert.timestamp).toLocaleString()} reported a
-                      error: {alert.message}
+                      error: {alert.message} (ID: {alert.id.split('-')[0]})
                     </div>
                   </div>
-                  <div className="absolute left-0 top-0 h-28 w-full bg-[#b6b6b6]/20" />
+                  <div className="absolute left-0 top-0 h-full w-full bg-[#b6b6b6]/20" />
                 </div>
               ))
             ) : (

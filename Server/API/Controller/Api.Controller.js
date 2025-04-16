@@ -1319,7 +1319,7 @@ export const getNotifications = async (req, res) => {
                   } else if (value >= 450) {
                       severity = "warning";
                       message = "Attention Required";
-                  } else if (value >= 270) {
+                  } else if (value >= 370) {
                       severity = "info";
                       message = "Monitoring recommended";
                   } else {

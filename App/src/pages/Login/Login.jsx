@@ -20,14 +20,18 @@ const Login = () => {
     // Check existing cooldown
     const storedCooldown = localStorage.getItem("loginCooldown");
     if (storedCooldown && Date.now() < parseInt(storedCooldown)) {
-      const remaining = Math.ceil((parseInt(storedCooldown) - Date.now()) / 1000);
-      setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+      const remaining = Math.ceil(
+        (parseInt(storedCooldown) - Date.now()) / 1000,
+      );
+      setErrorMessage(
+        `Too many attempts. Try again in ${formatTime(remaining)}`,
+      );
       setCooldownTime(parseInt(storedCooldown));
     }
-    
+
     const token = localStorage.getItem("accessToken");
     const token2 = localStorage.getItem("refreshToken");
-    
+
     // const token3 = document.cookie
     //   .split("; ")
     //   .find((row) => row.startsWith("accessToken="));
@@ -44,7 +48,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!cooldownTime) return;
-  
+
     const interval = setInterval(() => {
       const remaining = Math.ceil((cooldownTime - Date.now()) / 1000);
       if (remaining <= 0) {
@@ -53,17 +57,19 @@ const Login = () => {
         localStorage.removeItem("loginCooldown");
         clearInterval(interval);
       } else {
-        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+        setErrorMessage(
+          `Too many attempts. Try again in ${formatTime(remaining)}`,
+        );
         localStorage.setItem("loginCooldown", cooldownTime);
       }
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [cooldownTime]);
 
   const Loginuser = async (event) => {
     event.preventDefault();
-    
+
     // Disable button during cooldown
     if (cooldownTime > Date.now()) {
       return;
@@ -73,35 +79,50 @@ const Login = () => {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}auth/login`,
         { email, password },
-        { 
+        {
           headers: {
-            'X-Client-IP': '', // Server should track attempts by IP
-            'X-Client-ID': '' // Or device fingerprint
-          }
-        }
+            "X-Client-IP": "", // Server should track attempts by IP
+            "X-Client-ID": "", // Or device fingerprint
+          },
+        },
       );
 
       // Reset success state
       localStorage.removeItem("failedAttempts");
       setSuccessMessage("Login Successful");
       navigate("/Dashboard");
-      
+
       const { accessToken, refreshToken } = response.data;
+      
+      // Decode the accessToken to get the role
+      const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+      const userRole = tokenPayload.role;
+
+      // Store tokens and role
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem('id', "1604" );
+      localStorage.setItem("role", userRole);
+      localStorage.setItem("id", "1604");
+      localStorage.setItem("email", email);
+      
+      // Set cookies
       document.cookie = `accessToken=${accessToken}; path=/; secure`;
       document.cookie = `refreshToken=${refreshToken}; path=/; secure`;
-
+      document.cookie = `role=${userRole}; path=/; secure`;
+      document.cookie = `email=${email}; path=/; secure`;
     } catch (error) {
       if (error.response?.status === 429) {
         // Get cooldown time from server response
-        const retryAfter = error.response.headers['retry-after'] || 900; // 15min default
-        const cooldownEnd = Date.now() + (retryAfter * 1000);
-        setErrorMessage(`Too many attempts. Try again in ${formatTime(retryAfter)}`);
+        const retryAfter = error.response.headers["retry-after"] || 900; // 15min default
+        const cooldownEnd = Date.now() + retryAfter * 1000;
+        setErrorMessage(
+          `Too many attempts. Try again in ${formatTime(retryAfter)}`,
+        );
         setCooldownTime(cooldownEnd);
       } else {
-        const errorMsg = error.response?.data?.message || "Check your email and password and try again.";
+        const errorMsg =
+          error.response?.data?.message ||
+          "Check your email and password and try again.";
         setErrorMessage(errorMsg);
       }
       console.error("Error during login:", error);
@@ -111,7 +132,7 @@ const Login = () => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
@@ -125,7 +146,9 @@ const Login = () => {
         localStorage.removeItem("loginCooldown");
         clearInterval(interval);
       } else {
-        setErrorMessage(`Too many attempts. Try again in ${formatTime(remaining)}`);
+        setErrorMessage(
+          `Too many attempts. Try again in ${formatTime(remaining)}`,
+        );
         localStorage.setItem("loginCooldown", cooldownTime); // Update storage
       }
     }, 1000);
@@ -147,8 +170,8 @@ const Login = () => {
           >
             <img className="w-32 h-auto mr-2" src={xyma} alt="logo" />
           </a>
-          <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <div className="w-full bg-white rounded-lg shadow sm:max-w-md md:mt-0 xl:p-0 dark:border dark:border-gray-700 dark:bg-gray-800">
+            <div className="p-6 space-y-4 sm:p-8 md:space-y-6">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Sign in to your account
               </h1>
@@ -165,7 +188,7 @@ const Login = () => {
                     name="email"
                     id="email"
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     placeholder="name@company.com"
                     required=""
                   />
@@ -184,7 +207,7 @@ const Login = () => {
                       id="password"
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       required
                     />
                     <button
@@ -217,10 +240,10 @@ const Login = () => {
                 <button
                   onClick={() => setErrorMessage("")}
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                   disabled={cooldownTime > Date.now()}
                 >
-                  {cooldownTime > Date.now() ? 'Please wait...' : 'Sign in'}
+                  {cooldownTime > Date.now() ? "Please wait..." : "Sign in"}
                 </button>
                 {/* <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                     Don't have an account yet? <a href="/Signup" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>

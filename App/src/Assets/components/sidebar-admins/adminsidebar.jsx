@@ -130,16 +130,18 @@ const AdminSidebar = ({ children, onToggle }) => {
                         </ul>
                     </SidebarContext.Provider>
 
-                    {/* <div className="flex p-3 border-t">
-                        <img src={profile} className="w-10 h-10 rounded-md" />
+                    <div className="flex p-3 text-white border-t">
+                    
+
+                        <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-blue-600 rounded-md">{localStorage.getItem("email")?.charAt(0).toUpperCase() || "U"}</div>
                         <div className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"} `}>
-                            <div className="leading-4">
-                                <h4 className="font-semibold">constGenius</h4>
-                                <span className="text-xs text-gray-600">constgenius@gmail.com</span>
+                            <div className="flex flex-col items-start leading-4">
+                                <h4 className="font-semibold ">{localStorage.getItem("role")}</h4>
+                                <span className="text-xs text-white">{localStorage.getItem("email")}</span>
                             </div>
-                            <MoreVertical size={20} />
+                            {/* <MoreVertical size={20} /> */}
                         </div>
-                    </div> */}
+                    </div>
                 </nav>
             </aside>
         </>

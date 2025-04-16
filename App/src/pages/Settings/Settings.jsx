@@ -7,7 +7,7 @@ import Alert from "../../Assets/components/sidebar-admins/components/Alert";
 import ColorRange from "../../Assets/components/sidebar-admins/components/ColorRange";
 import User from "../../Assets/components/sidebar-admins/components/User";
 import Alertslogs from "../../Assets/components/sidebar-admins/components/Alertslogs";
-
+// import { Sidebar } from "../../Assets/Sidebar/Sidebar";
 const Settings = () => {
   const location = useLocation();
 
@@ -16,6 +16,7 @@ const Settings = () => {
       className="relative flex flex-col w-screen h-screen bg-fixed bg-center bg-cover"
       style={{ backgroundImage: `url(${bg})` }}
     >
+      {/* <Sidebar /> */}
       <div className="flex flex-row w-full h-full">
         <div className="w-auto h-full">
           <Adminsidebar />
