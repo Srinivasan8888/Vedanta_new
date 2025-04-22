@@ -17,7 +17,8 @@ const Table = ({
   headerClassName = "bg-[#101010]/90",
   rowClassName = "border-b border-gray-700",
   cellClassName = "px-4 py-4",
-  headerCellClassName = "px-4 py-3 text-center whitespace-nowrap"
+  headerCellClassName = "px-4 py-3 text-center whitespace-nowrap",
+  actions = [] // New prop for multiple actions
 }) => {
   // Render loading state
   if (isLoading) {
@@ -84,14 +85,31 @@ const Table = ({
                   ))}
                   {showActionColumn && (
                     <td className={cellClassName}>
-                      {actionIcon && (
-                        <button
-                          type="button"
-                          onClick={() => onActionClick && onActionClick(row)}
-                          className="p-2 rounded-full hover:bg-gray-700"
-                        >
-                          {actionIcon}
-                        </button>
+                      {actions.length > 0 ? (
+                        // Render multiple action buttons
+                        <div className="flex items-center justify-center space-x-1">
+                          {actions.map((action, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => action.onClick && action.onClick(row)}
+                              className="p-2 rounded-full hover:bg-gray-700"
+                              title={action.label || ""}
+                            >
+                              {action.icon}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        actionIcon && (
+                          <button
+                            type="button"
+                            onClick={() => onActionClick && onActionClick(row)}
+                            className="p-2 rounded-full hover:bg-gray-700"
+                          >
+                            {actionIcon}
+                          </button>
+                        )
                       )}
                     </td>
                   )}

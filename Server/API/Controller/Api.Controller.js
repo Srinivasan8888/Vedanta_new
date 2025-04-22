@@ -1315,13 +1315,13 @@ export const getNotifications = async (req, res) => {
                   let severity, message;
                   if (value >= 700) {
                       severity = "critical";
-                      message = "Critical: Immediate action required";
+                      message = "Critical: Immediate action required!!!";
                   } else if (value >= 450) {
                       severity = "warning";
-                      message = "Attention Required";
+                      message = "Attention Required!!!";
                   } else if (value >= 370) {
                       severity = "info";
-                      message = "Monitoring recommended";
+                      message = "Monitoring recommended!!!";
                   } else {
                       return;
                   }

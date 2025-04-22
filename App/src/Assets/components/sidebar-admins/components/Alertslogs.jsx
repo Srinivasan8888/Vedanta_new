@@ -4,9 +4,9 @@ const Alertslogs = () => {
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-col flex-1 gap-4 px-4 py-4">
-        <div className="h-full rounded-2xl border-2 border-white bg-[#101010]/75 backdrop-blur-sm">
+        <div className="h-full rounded-2xl border-2 border-white bg-[rgba(16,16,16,0.75)] backdrop-blur-sm">
           <div className="lg:flex md:h-[10%] items-center justify-between px-6">
-            <div>
+            <div className="flex gap-10">
               <button
                 type="button"
                 className="inline-flex items-center rounded-full border border-blue-700 p-2.5 text-center text-sm font-medium text-blue-700 hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-500 dark:hover:text-white dark:focus:ring-blue-800"
@@ -28,6 +28,8 @@ const Alertslogs = () => {
 
                 <span className="sr-only">Add User</span>
               </button>
+              
+             
             </div>
             <div className="items-center justify-start font-['Poppins'] text-3xl font-semibold text-white">
               Alert Logs
@@ -81,15 +83,15 @@ const Alertslogs = () => {
                       scope="col"
                       className="px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Name
+                      Logs
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Email
+                      TimeStamp
                     </th>
-                    <th
+                    {/* <th
                       scope="col"
                       className="px-4 py-3 text-center whitespace-nowrap"
                     >
@@ -100,22 +102,20 @@ const Alertslogs = () => {
                       className="px-4 py-3 text-center whitespace-nowrap"
                     >
                       Status
-                    </th>
-                    <th
+                    </th> */}
+                    {/* <th
                       scope="col"
                       className="px-4 py-3 text-center whitespace-nowrap"
                     >
                       {" "}
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b border-gray-700">
                     <td className="px-4 py-4">John Doe</td>
-                    <td className="px-4 py-4">john.doe@example.com</td>
                     <td className="px-4 py-4">1234567890</td>
-                    <td className="px-4 py-4">1234 Main St</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button
                         type="button"
                         className="p-2 rounded-full hover:bg-gray-700"
@@ -135,14 +135,12 @@ const Alertslogs = () => {
                           />
                         </svg>
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                   <tr className="border-b border-gray-700">
                     <td className="px-4 py-4">John Doe</td>
-                    <td className="px-4 py-4">john.doe@example.com</td>
                     <td className="px-4 py-4">1234567890</td>
-                    <td className="px-4 py-4">1234 Main St</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button
                         type="button"
                         className="p-2 rounded-full hover:bg-gray-700"
@@ -162,14 +160,12 @@ const Alertslogs = () => {
                           />
                         </svg>
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                   <tr className="border-b border-gray-700">
                     <td className="px-4 py-4">John Doe</td>
-                    <td className="px-4 py-4">john.doe@example.com</td>
                     <td className="px-4 py-4">1234567890</td>
-                    <td className="px-4 py-4">1234 Main St</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button
                         type="button"
                         className="p-2 rounded-full hover:bg-gray-700"
@@ -189,14 +185,12 @@ const Alertslogs = () => {
                           />
                         </svg>
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                   <tr className="border-b border-gray-700">
                     <td className="px-4 py-4">John Doe</td>
-                    <td className="px-4 py-4">john.doe@example.com</td>
                     <td className="px-4 py-4">1234567890</td>
-                    <td className="px-4 py-4">1234 Main St</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button
                         type="button"
                         className="p-2 rounded-full hover:bg-gray-700"
@@ -216,14 +210,12 @@ const Alertslogs = () => {
                           />
                         </svg>
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                   <tr className="border-b border-gray-700">
                     <td className="px-4 py-4">John Doe</td>
-                    <td className="px-4 py-4">john.doe@example.com</td>
                     <td className="px-4 py-4">1234567890</td>
-                    <td className="px-4 py-4">1234 Main St</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button
                         type="button"
                         className="p-2 rounded-full hover:bg-gray-700"
@@ -243,7 +235,7 @@ const Alertslogs = () => {
                           />
                         </svg>
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 </tbody>
               </table>

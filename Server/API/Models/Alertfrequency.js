@@ -18,4 +18,4 @@ const AlertfrequencySchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model("Alert-Frequency", AlertfrequencySchema);
+export default mongoose.model("Report-Frequency", AlertfrequencySchema);

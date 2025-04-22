@@ -251,7 +251,7 @@ const Generatereport = () => {
                   <th scope="col" className="px-4 py-3 text-center whitespace-nowrap">Email</th>
                   <th scope="col" className="px-4 py-3 text-center whitespace-nowrap">Emp No</th>
                   <th scope="col" className="px-4 py-3 text-center whitespace-nowrap">Frequency</th>
-                  <th scope="col" className="px-4 py-3 text-center whitespace-nowrap">{" "}</th>
+                  <th scope="col" className="px-4 py-3 text-center whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -365,6 +365,7 @@ const Generatereport = () => {
                   </div>
                 )}
               </div>
+              
             </div>
           </div>
           <div className="flex h-[55.5%] flex-col items-center justify-center overflow-hidden px-6 py-4">
@@ -417,7 +418,7 @@ const Generatereport = () => {
             type="button"
             onClick={handleSaveChanges}
             disabled={isSaving || !selectedRadioFrequency || !selectedFrequency}
-            className="mt-4 inline-flex h-12 w-32 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm md:mt-0 md:h-20 md:w-56 md:font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 inline-flex h-12 w-32 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <>

@@ -4,15 +4,10 @@ import "../../miscellaneous/Scrollbar.css";
 import Switcher from "./comp/switcher";
 import Table from "../../common/Table";
 import axios from "axios";
+import { toast } from "sonner";
 
 const User = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phoneno: '',
-    employeeNo: ''
-  });
   const [activeTable, setActiveTable] = useState("UserP");
   const [tableAData, setTableAData] = useState([]);
   const [tableBData, setTableBData] = useState([]);
@@ -28,6 +23,46 @@ const User = () => {
   const [empid, setEmpid] = useState(""); 
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Function to fetch users from API
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get('http://34.100.168.176:4000/api/admin/getUsers');
+      
+      if (response.data && response.data.data) {
+        // Transform the API data to match our table structure
+        const transformedData = response.data.data.map((user, index) => ({
+          sno: index + 1, // Increment serial number starting from 1
+          name: user.name || 'N/A',
+          email: user.email || 'N/A',
+          role: user.role || 'N/A',
+          Employee: user.empid || 'N/A',
+          phone: user.phoneno ? `+91 ${user.phoneno}` : 'N/A' // Add +91 prefix to phone number
+        }));
+        
+        setTableAData(transformedData);
+        
+        // For Table B (User Activity Log), we'll use mock data for now
+        // In a real app, you would fetch this from another API endpoint
+        setTableBData(mockTableBData);
+      } else {
+        setError("No data received from the server");
+      }
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError("Failed to fetch users. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load data when component mounts
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   const registerUser = async (event) => {
     event.preventDefault();
     if (confirmpassword === password) {
@@ -35,40 +70,34 @@ const User = () => {
         const response = await axios.post(
           `${process.env.REACT_APP_SERVER_URL}auth/register`,
           {
+            name,
             email,
             password,
+            phoneno,
             role,
+            empid
           },
         );
 
         if (response.data.email) {
-          alert("user created successfully");
-          window.location.href = `${process.env.REACT_APP_URL}`;
+          toast.success("User created successfully");
+          setIsModalOpen(false);
+          // Refresh the user list after adding a new user
+          fetchUsers();
         } else {
-          alert("Unknown error has occurred");
+          toast.error("Unknown error has occurred");
         }
       } catch (error) {
         setErrorMessage(
           `Failed to register: ${error.response?.data?.error?.message || error.message}`,
         );
+        toast.error(`Failed to register: ${error.response?.data?.error?.message || error.message}`);
       }
     } else {
-      alert("Password is not matching");
+      toast.error("Password is not matching");
     }
   };
   
-  // Mock data for Table A - Employee Information
-  const mockTableAData = [
-    { sno: 1, name: "John Doe", email: "john.doe@example.com", role: "Admin", Employee: "EMP001", phone: "+1 234-567-8901" },
-    { sno: 2, name: "Jane Smith", email: "jane.smith@example.com", role: "Editor", Employee: "EMP002", phone: "+1 234-567-8902" },
-    { sno: 3, name: "Bob Johnson", email: "bob.johnson@example.com", role: "User", Employee: "EMP003", phone: "+1 234-567-8903" },
-    { sno: 4, name: "Alice Brown", email: "alice.brown@example.com", role: "Editor", Employee: "EMP004", phone: "+1 234-567-8904" },
-    { sno: 5, name: "Charlie Wilson", email: "charlie.wilson@example.com", role: "User", Employee: "EMP005", phone: "+1 234-567-8905" },
-    { sno: 6, name: "Diana Miller", email: "diana.miller@example.com", role: "Admin", Employee: "EMP006", phone: "+1 234-567-8906" },
-    { sno: 7, name: "Edward Davis", email: "edward.davis@example.com", role: "User", Employee: "EMP007", phone: "+1 234-567-8907" },
-    { sno: 8, name: "Fiona Clark", email: "fiona.clark@example.com", role: "Editor", Employee: "EMP008", phone: "+1 234-567-8908" },
-  ];
-
   // Mock data for Table B - User Activity Log
   const mockTableBData = [
     { sno: 1, user: "john.doe@example.com", method: "Login", city: "New York", country: "USA", ip: "192.168.1.1", latitute: "40.7128", longitute: "-74.0060", service: "Web", region: "North America", Time: "2023-06-15 09:30:45" },
@@ -80,46 +109,6 @@ const User = () => {
     { sno: 7, user: "edward.davis@example.com", method: "Login", city: "Mumbai", country: "India", ip: "192.168.1.7", latitute: "19.0760", longitute: "72.8777", service: "Mobile", region: "Asia", Time: "2023-06-15 18:05:20" },
     { sno: 8, user: "fiona.clark@example.com", method: "Update Settings", city: "São Paulo", country: "Brazil", ip: "192.168.1.8", latitute: "-23.5505", longitute: "-46.6333", service: "Web", region: "South America", Time: "2023-06-15 20:15:40" },
   ];
-
-  // Function to fetch data from API - to be implemented in the future
-  const fetchData = async (tableType) => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // This is where you would make your API call
-      // Example:
-      // const response = await fetch(`/api/users/${tableType}`);
-      // const data = await response.json();
-      
-      // For now, using mock data
-      const data = tableType === "UserP" ? mockTableAData : mockTableBData;
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (tableType === "UserP") {
-        setTableAData(data);
-      } else {
-        setTableBData(data);
-      }
-    } catch (err) {
-      setError("Failed to fetch data. Please try again later.");
-      console.error("Error fetching data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load initial data
-  useEffect(() => {
-    fetchData("UserP");
-    fetchData("UserL");
-  }, []);
-
-  const handleSwitch = (value) => {
-    setActiveTable(value);
-  };
 
   // Table A column headers
   const tableAHeaders = [
@@ -146,8 +135,15 @@ const User = () => {
     { id: "Time", label: "time" }
   ];
 
-  // Action icon for the table
-  const actionIcon = (
+  // Action icons for the table
+  const editIcon = (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+      <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+      <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+    </svg>
+  );
+
+  const deleteIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -164,10 +160,35 @@ const User = () => {
     </svg>
   );
 
-  // Handle action button click
-  const handleActionClick = (row) => {
-    console.log("Action clicked for row:", row);
-    // Implement your action logic here
+  // Handle action button clicks
+  const handleEditClick = (row) => {
+    console.log("Edit clicked for row:", row);
+    // Implement edit functionality
+    // For example, open a modal with the user's data for editing
+  };
+
+  const handleDeleteClick = (row) => {
+    console.log("Delete clicked for row:", row);
+    // Implement delete functionality
+    // For example, show a confirmation dialog and then delete the user
+  };
+
+  // Define table actions
+  const tableActions = [
+    {
+      icon: editIcon,
+      onClick: handleEditClick,
+      label: "Edit"
+    },
+    {
+      icon: deleteIcon,
+      onClick: handleDeleteClick,
+      label: "Delete"
+    }
+  ];
+
+  const handleSwitch = (value) => {
+    setActiveTable(value);
   };
 
   return (
@@ -214,13 +235,13 @@ const User = () => {
             data={activeTable === "UserP" ? tableAData : tableBData}
             isLoading={isLoading}
             error={error}
-            actionIcon={actionIcon}
-            onActionClick={handleActionClick}
+            actions={tableActions}
             headerClassName="bg-[rgba(59,59,59)]"
             className="h-[80%]"
           />
         </div>
       </div>
+      
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop with blur */}
@@ -245,8 +266,7 @@ const User = () => {
               </button>
             </div>
 
-            {/* <form onSubmit={handleSubmit} className="space-y-4"> */}
-            <form  className="space-y-4">
+            <form onSubmit={registerUser} className="space-y-4">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Name
@@ -254,7 +274,7 @@ const User = () => {
                 <input
                   type="text"
                   name="name"
-                  value={formData.name}
+                  value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   required="true"
@@ -267,6 +287,7 @@ const User = () => {
                 <input
                   type="email"
                   name="email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   placeholder="name@company.com"
@@ -283,6 +304,7 @@ const User = () => {
                   <input
                     type="password"
                     name="password"
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
@@ -299,6 +321,7 @@ const User = () => {
                   <input
                     type="password"
                     name="confirm-password"
+                    value={confirmpassword}
                     onChange={(e) => setconfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
@@ -309,14 +332,28 @@ const User = () => {
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Phone Number
                 </label>
-                <input
-                  type="number"
-                  name="phoneno"
-                  value={formData.phoneno}
-                  onChange={(e) => setPhoneno(e.target.value)}
-                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  required="true"
-                />
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    +91
+                  </span>
+                  <input
+                    type="text"
+                    name="phoneno"
+                    value={phoneno}
+                    onChange={(e) => {
+                      // Only allow digits and limit to 10 characters
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhoneno(value);
+                    }}
+                    className="w-full p-2.5 pl-12 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="Enter 10-digit mobile number"
+                    maxLength="10"
+                    required="true"
+                  />
+                </div>
+                {/* <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Format: +91 followed by 10-digit mobile number
+                </p> */}
               </div>
 
               <div>
@@ -347,8 +384,8 @@ const User = () => {
                 </label>
                 <input
                   type="text"
-                  name="employeeNo"
-                  value={formData.employeeNo}
+                  name="empid"
+                  value={empid}
                   onChange={(e) => setEmpid(e.target.value)}
                   className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                  required="true"
@@ -385,6 +422,7 @@ const User = () => {
           </div>
         </div>
       )}
+      
     </div>
   );
 };
