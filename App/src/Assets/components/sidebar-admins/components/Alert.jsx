@@ -13,10 +13,17 @@ const Alert = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phoneno: "",
+    phoneNo: "",
+    employeeNo: "",
+  });
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    email: "",
+    phoneNo: "",
     employeeNo: "",
   });
   const [alertRangeData, setAlertRangeData] = useState({
@@ -74,29 +81,14 @@ const Alert = () => {
   const tableHeaders = [
     { id: "name", label: "Name" },
     { id: "email", label: "Email" },
-    { id: "phoneno", label: "Phone Number" },
+    { id: "phoneNo", label: "Phone Number" },
     { id: "employeeNo", label: "Employee Number" },
     { id: "mode", label: "Mode" },
     { id: "frequency", label: "Frequency" },
   ];
 
   // Action icon for the table
-  const actionIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth="1.5"
-      stroke="currentColor"
-      className="w-8 h-8"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-      />
-    </svg>
-  );
+  
 
   // Handle action button click
   const handleActionClick = (row) => {
@@ -114,7 +106,7 @@ const Alert = () => {
         {
           name: formData.name,
           email: formData.email,
-          phoneno: formData.phoneno,
+          phoneNo: formData.phoneNo,
           employeeNo: formData.employeeNo,
         },
       );
@@ -127,7 +119,7 @@ const Alert = () => {
       setFormData({
         name: "",
         email: "",
-        phoneno: "",
+        phoneNo: "",
         employeeNo: "",
       });
 
@@ -141,11 +133,130 @@ const Alert = () => {
     }
   };
 
+  const handleEditClick = (user) => {
+    console.log("Edit clicked for user:", user);
+    setEditFormData({
+      name: user.name,
+      email: user.email,
+      phoneNo: user.phoneNo.replace("+91 ", ""), // Remove the +91 prefix
+      employeeNo: user.employeeNo
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = async (user) => {
+    console.log("Delete clicked for user:", user);
+    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
+      try {
+        setIsLoading(true);
+        const response = await API.delete(
+          `${process.env.REACT_APP_SERVER_URL}api/admin/deleteAlertUser/${user.email}`
+        );
+        
+        console.log('Alert user deleted:', response.data);
+        toast.success('User has been deleted successfully');
+        
+        // Refresh the user list
+        fetchAlertUsers();
+      } catch (error) {
+        console.error("Error deleting alert user:", error);
+        toast.error(error.response?.data?.message || "Failed to delete user");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setIsSaving(true);
+      const response = await API.put(
+        `${process.env.REACT_APP_SERVER_URL}api/admin/updateAlertUser`,
+        {
+          name: editFormData.name,
+          email: editFormData.email,
+          phoneNo: editFormData.phoneNo,
+          employeeNo: editFormData.employeeNo
+        }
+      );
+      
+      console.log('Alert user updated:', response.data);
+      toast.success('User has been updated successfully');
+      setIsEditModalOpen(false);
+      
+      // Refresh the user list
+      fetchAlertUsers();
+    } catch (error) {
+      console.error("Error updating alert user:", error);
+      toast.error(error.response?.data?.message || "Failed to update user");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Special handling for phone number to limit to 10 digits
+    if (name === "phoneNo") {
+      // Convert to string and take only the first 10 digits
+      const limitedValue = String(value).slice(0, 10);
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: limitedValue,
+      }));
+    } else {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+  
+  const editIcon = (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+      <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+      <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+    </svg>
+  );
+
+  const deleteIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-8 h-8"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+  );
+  
+  const tableActions = [
+    {
+      icon: editIcon,
+      onClick: handleEditClick,
+      label: "Edit"
+    },
+    {
+      icon: deleteIcon,
+      onClick: handleDeleteClick,
+      label: "Delete"
+    }
+  ];
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     // Special handling for phone number to limit to 10 digits
-    if (name === "phoneno") {
+    if (name === "phoneNo") {
       // Convert to string and take only the first 10 digits
       const limitedValue = String(value).slice(0, 10);
       setFormData((prev) => ({
@@ -528,7 +639,7 @@ const Alert = () => {
               return {
                 name: user.name,
                 email: user.email,
-                phoneno: `+91 ${user.phoneno}`,
+                phoneNo: `+91 ${user.phoneNo}`,
                 employeeNo: user.employeeNo,
                 mode: userFrequencyData ? userFrequencyData.mode : "Not set",
                 frequency: userFrequencyData
@@ -537,7 +648,7 @@ const Alert = () => {
               };
             })}
             isLoading={isLoadingAlertUsers}
-            actionIcon={actionIcon}
+            actions={tableActions}
             onActionClick={handleActionClick}
             className="h-[80%]"
           />
@@ -754,8 +865,8 @@ const Alert = () => {
                   </span>
                   <input
                     type="number"
-                    name="phoneno"
-                    value={formData.phoneno}
+                    name="phoneNo"
+                    value={formData.phoneNo}
                     onChange={handleInputChange}
                     min="0"
                     max="9999999999"
@@ -1080,6 +1191,124 @@ const Alert = () => {
                     </>
                   ) : (
                     "Save Changes"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+            onClick={() => setIsEditModalOpen(false)}
+          />
+          
+          <div className="relative z-50 w-full max-w-md p-6 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Edit User
+              </h3>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editFormData.name}
+                  onChange={handleEditInputChange}
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditInputChange}
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    +91
+                  </span>
+                  <input
+                    type="number"
+                    name="phoneNo"
+                    value={editFormData.phoneNo}
+                    onChange={handleEditInputChange}
+                    min="0"
+                    max="9999999999"
+                    className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-12 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter 10-digit mobile number"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Employee Number
+                </label>
+                <input
+                  type="text"
+                  name="employeeNo"
+                  value={editFormData.employeeNo}
+                  onChange={handleEditInputChange}
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end mt-6 space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {isSaving ? (
+                    <>
+                      <svg className="w-5 h-5 mr-3 -ml-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Updating...
+                    </>
+                  ) : (
+                    'Update User'
                   )}
                 </button>
               </div>

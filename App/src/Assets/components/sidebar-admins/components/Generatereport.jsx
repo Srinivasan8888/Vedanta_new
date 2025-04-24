@@ -6,7 +6,14 @@ import API from '../../Axios/AxiosInterceptor';
 
 const Generatereport = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    employeeNo: ''
+  });
+  const [editFormData, setEditFormData] = useState({
+    id: '',
     name: '',
     email: '',
     employeeNo: ''
@@ -90,6 +97,14 @@ const Generatereport = () => {
     }));
   };
 
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleFrequencyChange = (e) => {
     setSelectedFrequency(e.target.value);
   };
@@ -136,6 +151,34 @@ const Generatereport = () => {
     } catch (error) {
       console.error("Error creating report:", error);
       toast.error("Failed to add user");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setIsSaving(true);
+      const response = await API.put(
+        `${process.env.REACT_APP_SERVER_URL}api/admin/updateReport`,
+        {
+          name: editFormData.name,
+          email: editFormData.email,
+          employeeNo: editFormData.employeeNo
+        }
+      );
+      
+      console.log('Report updated:', response.data);
+      toast.success('User has been updated successfully');
+      setIsEditModalOpen(false);
+      
+      // Refresh the user list
+      fetchReportUsers();
+    } catch (error) {
+      console.error("Error updating report:", error);
+      toast.error(error.response?.data?.message || "Failed to update user");
     } finally {
       setIsSaving(false);
     }
@@ -205,6 +248,41 @@ const Generatereport = () => {
       }
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleEditClick = (user) => {
+    console.log("Edit clicked for user:", user);
+    setEditFormData({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      employeeNo: user.employeeNo
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = async (user) => {
+    console.log("Delete clicked for user:", user);
+    
+    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
+      try {
+        setIsLoading(true);
+        const response = await API.delete(
+          `${process.env.REACT_APP_SERVER_URL}api/admin/deleteReport/${user.email}`
+        );
+        
+        console.log('Report deleted:', response.data);
+        toast.success('User has been deleted successfully');
+        
+        // Refresh the user list
+        fetchReportUsers();
+      } catch (error) {
+        console.error("Error deleting report:", error);
+        toast.error(error.response?.data?.message || "Failed to delete user");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -294,6 +372,7 @@ const Generatereport = () => {
                           <td className="px-4 py-4">
                             <button
                               type="button"
+                              onClick={() => handleEditClick(user)}
                               className="p-2 rounded-full hover:bg-gray-700"
                             >
                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
@@ -303,6 +382,7 @@ const Generatereport = () => {
                             </button>
                             <button
                               type="button"
+                              onClick={() => handleDeleteClick(user)}
                               className="p-2 rounded-full hover:bg-gray-700"
                             >
                               <svg
@@ -436,7 +516,7 @@ const Generatereport = () => {
         
       </div>
 
-      {/* Modal */}
+      {/* Add User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop with blur */}
@@ -526,6 +606,104 @@ const Generatereport = () => {
                     </>
                   ) : (
                     'Add User'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop with blur */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+            onClick={() => setIsEditModalOpen(false)}
+          />
+          
+          {/* Modal content */}
+          <div className="relative z-50 w-full max-w-md p-6 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Edit User
+              </h3>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editFormData.name}
+                  onChange={handleEditInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Employee Number
+                </label>
+                <input
+                  type="text"
+                  name="employeeNo"
+                  value={editFormData.employeeNo}
+                  onChange={handleEditInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end mt-6 space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {isSaving ? (
+                    <>
+                      <svg className="w-5 h-5 mr-3 -ml-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Updating...
+                    </>
+                  ) : (
+                    'Update User'
                   )}
                 </button>
               </div>

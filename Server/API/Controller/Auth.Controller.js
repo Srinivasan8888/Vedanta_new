@@ -74,7 +74,14 @@ export const register = async (req, res, next) => {
     const accessToken = await signAccessToken(savedUser.id);
     const refreshToken = await signRefreshToken(savedUser.id);
 
-    res.send({ accessToken, refreshToken });
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: {
+        accessToken,
+        refreshToken,
+      },
+    });
   } catch (error) {
     if (error.isJoi === true) error.status = 422;
     next(error);

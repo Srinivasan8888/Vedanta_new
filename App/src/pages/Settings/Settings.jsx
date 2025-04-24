@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import bg from "../../Assets/images/bg.png";
 import Adminsidebar from "../../Assets/components/sidebar-admins/adminsidebar";
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -8,8 +8,21 @@ import ColorRange from "../../Assets/components/sidebar-admins/components/ColorR
 import User from "../../Assets/components/sidebar-admins/components/User";
 import Alertslogs from "../../Assets/components/sidebar-admins/components/Alertslogs";
 // import { Sidebar } from "../../Assets/Sidebar/Sidebar";
+import API from "../../Assets/components/Axios/AxiosInterceptor";
 const Settings = () => {
   const location = useLocation();
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (email) {
+      API.post(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserDetails`, { email })
+        .then(response => {
+          setUserData(response.data.data);
+        })
+        .catch(error => console.error("Error fetching user data:", error));
+    }
+  }, []);
 
   return (
     <div
@@ -27,20 +40,20 @@ const Settings = () => {
             <div className="flex h-[45%] w-full rounded-2xl border-2 border-white bg-[rgba(16,16,16,0.75)] backdrop-blur-sm">
               <div className="w-full">
                 <div className="flex h-[20%] items-center justify-start pl-5 font-['Poppins'] text-lg font-bold">
-                  Welcome Srinivasan
+                  Welcome {userData ? userData.name : "Error"}
                 </div>
                 <div className="flex h-[60%] items-center justify-center">
-                  <div className="font-['Poppins] flex h-28 w-28 items-center justify-center rounded-full border-[5px] border-white text-3xl font-bold">
-                    S
+                  <div className="font-['Poppins'] flex h-28 w-28 items-center justify-center rounded-full border-[5px] border-white text-3xl font-bold">
+                    {userData ? userData.name.charAt(0) : "Error"}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center justify-center w-full">
-                <table class="h-[40%] w-full table-auto py-14">
+                <table className="h-[40%] w-full table-auto py-14">
                   <tbody>
                     <tr>
-                      <th class="flex h-full items-center justify-center pr-4">
+                      <th className="flex items-center justify-center h-full pr-4">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -56,13 +69,13 @@ const Settings = () => {
                           />
                         </svg>
                       </th>
-                      <td class="text-center">
-                        Srinivasan
+                      <td className="text-center">
+                        {userData ? userData.name : "Error"}
                       </td>
                     </tr>
                     <tr>
-                      <th class="flex h-full items-center justify-center pr-4">
-                      <svg
+                      <th className="flex items-center justify-center h-full pr-4">
+                        <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -77,19 +90,15 @@ const Settings = () => {
                           />
                         </svg>
                       </th>
-                      <td class="text-center">Super Admin</td>
+                      <td className="text-center">{userData ? userData.role : "Error"}</td>
                     </tr>
                     <tr>
-                      <th class="flex h-full items-center justify-center pr-4">
-                        
-
+                      <th className="flex items-center justify-center h-full pr-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
-</svg>
-
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+                        </svg>
                       </th>
-                      
-                      <td class="text-center">XY0041</td>
+                      <td className="text-center">{userData ? userData.empid : "Error"}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -123,38 +132,37 @@ const Settings = () => {
                   Personal Information
                 </div>
                 <div className="flex h-[50%] w-full justify-center">
-                  {/* <table class="h-[50%] w-[40%] table-auto"> */}
-                  <table class="table-auto w-[60%]">
+                  <table className="table-auto w-[60%]">
                     <tbody>
                       <tr>
-                        <th class="pr-4 text-center text-base font-semibold text-zinc-400 ">First Name
-                        <td class="flex items-center justify-center  text-white text-base font-normal">
-                          Srinivasan
+                        <th className="pr-4 text-base font-semibold text-center text-zinc-400 ">First Name
+                        <td className="flex items-center justify-center text-base font-normal text-white">
+                          {userData ? userData.name : "Error"}
                         </td>
                         </th>
-                        <th class="pr-4 text-center text-base font-semibold text-zinc-400 ">Email Address
-                        <td class="flex items-center justify-center  text-white text-base font-normal">
-                          srinivasan@xyma.in
+                        <th className="pr-4 text-base font-semibold text-center text-zinc-400 ">Email Address
+                        <td className="flex items-center justify-center text-base font-normal text-white">
+                          {userData ? userData.email : "Error"}
                         </td>
                         </th>
                       </tr>
                       <tr>
-                      <th class="pr-4 text-center text-base font-semibold text-zinc-400 ">Phone Number
-                        <td class="flex items-center justify-center  text-white text-base font-normal">
-                          +91 7788992200
+                      <th className="pr-4 text-base font-semibold text-center text-zinc-400 ">Phone Number
+                        <td className="flex items-center justify-center text-base font-normal text-white">
+                          {userData ? userData.phoneno : "Error"}
                         </td>
                         </th>
-                        <th class="pr-4 text-center text-base font-semibold text-zinc-400 ">Employee Id
-                        <td class="flex items-center justify-center  text-white text-base font-normal">
-                          XY0041
+                        <th className="pr-4 text-base font-semibold text-center text-zinc-400 ">Employee Id
+                        <td className="flex items-center justify-center text-base font-normal text-white">
+                          {userData ? userData.empid : "Error"}
                         </td>
                         </th>
                       </tr>
                       
                       <tr>
-                      <th class="pr-4 text-center text-base font-semibold text-zinc-400 ">User Role
-                        <td class="flex items-center justify-center  text-white text-base font-normal">
-                          Super Admin
+                      <th className="pr-4 text-base font-semibold text-center text-zinc-400 ">User Role
+                        <td className="flex items-center justify-center text-base font-normal text-white">
+                          {userData ? userData.role : "Error"}
                         </td>
                         </th>
                       </tr>

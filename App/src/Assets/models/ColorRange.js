@@ -41,13 +41,8 @@ const ColorRangeSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    email: {
-        type: String,
-        required: true,
-        lowercase: true
-    },
 }, {
     timestamps: true
 });
 
-export default mongoose.model("Color-Range", ColorRangeSchema);
+export default mongoose.model("Color-Range", ColorRangeSchema); 

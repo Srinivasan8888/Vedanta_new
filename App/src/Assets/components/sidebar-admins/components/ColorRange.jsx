@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import API from "../../Axios/AxiosInterceptor";
+import { Toaster, toast } from "sonner";
 
 const ColorRange = () => {
   // State to manage the values for each range
@@ -9,6 +11,50 @@ const ColorRange = () => {
     high: { min: 0, max: 0 },
     veryHigh: { min: 0, max: 0 },
   });
+
+  const [loading, setLoading] = useState(false);
+
+  // Fetch the latest color range on component mount
+  useEffect(() => {
+    fetchLatestColorRange();
+  }, []);
+
+  // Function to fetch the latest color range
+  const fetchLatestColorRange = async () => {
+    try {
+      setLoading(true);
+      console.log("Fetching color range from:", `${process.env.REACT_APP_SERVER_URL}api/admin/getColorRange`);
+      
+      const response = await API.get(
+        `${process.env.REACT_APP_SERVER_URL}api/admin/getColorRange`
+      );
+      
+      console.log("API Response:", response.data);
+      
+      if (response.data && response.data.data) {
+        const data = response.data.data;
+        console.log("Setting ranges with data:", data);
+        
+        setRanges({
+          veryLow: { min: data.vlmin || 0, max: data.vlmax || 0 },
+          low: { min: data.lmin || 0, max: data.lmax || 0 },
+          medium: { min: data.medmin || 0, max: data.medmax || 0 },
+          high: { min: data.highmin || 0, max: data.highmax || 0 },
+          veryHigh: { min: data.vhighmin || 0, max: data.vhighmax || 0 },
+        });
+        toast.success(response.data.message || "Color range loaded successfully");
+      } else {
+        console.log("No data found in response:", response.data);
+        toast.error("No color range data found");
+      }
+    } catch (error) {
+      console.error("Error fetching color range:", error);
+      console.error("Error details:", error.response?.data);
+      toast.error(error.response?.data?.message || "Failed to load color range data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Function to handle increment/decrement
   const handleChange = (range, field, increment) => {
@@ -37,8 +83,49 @@ const ColorRange = () => {
     }));
   };
 
+  // Function to save color range to database
+  const handleSaveColorRange = async () => {
+    try {
+      setLoading(true);
+      const userEmail = localStorage.getItem("email");
+        if (!userEmail) {
+          toast.error("User email not found. Please log in again.");
+          return;
+        }
+
+      const dataToSave = {
+        vlmin: ranges.veryLow.min,
+        vlmax: ranges.veryLow.max,
+        lmin: ranges.low.min,
+        lmax: ranges.low.max,
+        medmin: ranges.medium.min,
+        medmax: ranges.medium.max,
+        highmin: ranges.high.min,
+        highmax: ranges.high.max,
+        vhighmin: ranges.veryHigh.min,
+        vhighmax: ranges.veryHigh.max,
+        email: userEmail
+      };
+
+      const response = await API.post(
+        `${process.env.REACT_APP_SERVER_URL}api/admin/SaveColorRange`,
+        dataToSave
+      );
+      
+      if (response.data && response.data.message) {
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error saving color range:", error);
+      toast.error(error.response?.data?.message || "Failed to save color range");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
+      <Toaster position="top-right" richColors />
       <div className="flex flex-col flex-1 gap-4 px-4 py-4">
         <div className="h-[100%] rounded-2xl border-2 border-white bg-[rgba(16,16,16,0.75)] backdrop-blur-sm">
           <div className="flex h-[10%] items-center justify-between px-6">
@@ -692,9 +779,11 @@ const ColorRange = () => {
             <div className="flex h-[10%] items-center justify-between px-6">
               <button
                 type="button"
-                className="mt-4 inline-flex h-10 w-28 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium"
+                onClick={handleSaveColorRange}
+                disabled={loading}
+                className="mt-4 inline-flex h-10 w-28 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium disabled:opacity-50"
               >
-                Set Value
+                {loading ? "Saving..." : "Set Value"}
               </button>
             </div>
           </div>
@@ -706,38 +795,3 @@ const ColorRange = () => {
 
 export default ColorRange;
 
-{
-  /* <table className="flex h-[80%] w-full table-auto flex-col items-center border px-6 text-white">
-              <thead>
-                <tr>
-                  <th>Song</th>
-                  <th>Song</th>
-                  <th>Artist</th>
-                  <th>Year</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {" "}
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Malcolm Lockyer</td>
-                  <td>1961</td>
-                </tr>
-                <tr>
-                  {" "}
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Witchy Woman</td>
-                  <td>The Eagles</td>
-                  <td>1972</td>
-                </tr>
-                <tr>
-                  {" "}
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Shining Star</td>
-                  <td>Earth, Wind, and Fire</td>
-                  <td>1975</td>
-                </tr>
-              </tbody>
-            </table> */
-}

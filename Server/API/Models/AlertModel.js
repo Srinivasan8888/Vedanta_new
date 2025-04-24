@@ -17,6 +17,11 @@ const notificationSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    severity: {
+        type: String,
+        enum: ['critical', 'warning', 'info'],
+        required: true
+      },
     message: {
         type: String,
         required: true,

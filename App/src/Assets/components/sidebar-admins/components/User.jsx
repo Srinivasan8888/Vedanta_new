@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import adduser from "./img/Vector.svg";
 import "../../miscellaneous/Scrollbar.css";
-import Switcher from "./comp/switcher";
+import Switcher from "./comp/switcher.jsx"
 import Table from "../../common/Table";
 import axios from "axios";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
+import API from "../../Axios/AxiosInterceptor.jsx";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const User = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +24,10 @@ const User = () => {
   const [phoneno, setPhoneno] = useState(""); 
   const [empid, setEmpid] = useState(""); 
   const [errorMessage, setErrorMessage] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Function to fetch users from API
   const fetchUsers = async () => {
@@ -29,7 +35,7 @@ const User = () => {
     setError(null);
     
     try {
-      const response = await axios.get('http://34.100.168.176:4000/api/admin/getUsers');
+      const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`);
       
       if (response.data && response.data.data) {
         // Transform the API data to match our table structure
@@ -65,9 +71,12 @@ const User = () => {
 
   const registerUser = async (event) => {
     event.preventDefault();
+    if (confirmpassword != password) {
+      alert("Password is not matching, please check the password and try again!!!")
+    }
     if (confirmpassword === password) {
       try {
-        const response = await axios.post(
+        const response = await API.post(
           `${process.env.REACT_APP_SERVER_URL}auth/register`,
           {
             name,
@@ -76,14 +85,16 @@ const User = () => {
             phoneno,
             role,
             empid
-          },
+          }
         );
 
-        if (response.data.email) {
-          toast.success("User created successfully");
+        // Check if the response indicates success
+        if (response.status === 201 && response.data.success) {
+          toast.success("User registered successfully");
+          // Close the modal
           setIsModalOpen(false);
           // Refresh the user list after adding a new user
-          fetchUsers();
+          await fetchUsers(); // Ensure this is awaited to handle any async issues
         } else {
           toast.error("Unknown error has occurred");
         }
@@ -162,15 +173,52 @@ const User = () => {
 
   // Handle action button clicks
   const handleEditClick = (row) => {
-    console.log("Edit clicked for row:", row);
-    // Implement edit functionality
-    // For example, open a modal with the user's data for editing
+    // Set the selected user for editing
+    setSelectedUser(row);
+    
+    // Extract phone number without the +91 prefix
+    const phoneNumber = row.phone.replace('+91 ', '');
+    
+    // Populate the form fields with the user's data
+    setName(row.name);
+    setEmail(row.email);
+    setRole(row.role);
+    setPhoneno(phoneNumber);
+    setEmpid(row.Employee);
+    
+    // Clear password fields as we don't want to show the hashed password
+    setPassword('');
+    setconfirmPassword('');
+    
+    // Set edit mode to true
+    setIsEditMode(true);
+    
+    // Open the modal
+    setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (row) => {
-    console.log("Delete clicked for row:", row);
-    // Implement delete functionality
-    // For example, show a confirmation dialog and then delete the user
+  const handleDeleteClick = async (row) => {
+    // Show confirmation dialog
+    if (window.confirm(`Are you sure you want to delete user ${row.name}?`)) {
+      try {
+        // Make API call to delete the user
+        const response = await API.delete(
+          `${process.env.REACT_APP_SERVER_URL}api/admin/deleteUsers/${row.email}`
+        );
+
+        // Check if the response indicates success
+        if (response.data && response.data.success) {
+          toast.success("User deleted successfully");
+          // Refresh the user list
+          await fetchUsers(); // Ensure this is awaited to handle any async issues
+        } else {
+          toast.error(response.data?.message || "Failed to delete user");
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast.error(`Failed to delete user: ${error.response?.data?.message || error.message}`);
+      }
+    }
   };
 
   // Define table actions
@@ -191,8 +239,91 @@ const User = () => {
     setActiveTable(value);
   };
 
+  // Handle form submission for both create and update
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    // If in edit mode, update the user
+    if (isEditMode) {
+      try {
+        setIsSaving(true);
+        
+        // Prepare update data
+        const updateData = {
+          name,
+          role,
+          phoneno,
+          empid
+        };
+        
+        // Only include password if it's provided
+        if (password) {
+          if (password !== confirmpassword) {
+            toast.error("Passwords do not match");
+            setIsSaving(false);
+            return;
+          }
+          updateData.password = password;
+        }
+        
+        // Make API call to update the user using API instance
+        const response = await API.put(
+          `${process.env.REACT_APP_SERVER_URL}api/admin/updateUsers/${email}`,
+          updateData
+        );
+        
+        if (response.data && response.data.success) {
+          toast.success("User updated successfully");
+          setIsModalOpen(false);
+          // Reset form and edit mode
+          resetForm();
+          // Refresh the user list
+          fetchUsers();
+        } else {
+          toast.error(response.data?.message || "Failed to update user");
+        }
+      } catch (error) {
+        console.error("Error updating user:", error);
+        toast.error(`Failed to update user: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // If not in edit mode, register a new user
+      registerUser(event);
+    }
+  };
+
+  // Reset form fields
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setconfirmPassword("");
+    setRole("user");
+    setPhoneno("");
+    setEmpid("");
+    setIsEditMode(false);
+    setSelectedUser(null);
+  };
+
+  // Close modal and reset form
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    resetForm();
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
+      <Toaster position="top-right" richColors />
       <div className="flex flex-col justify-between md:flex-row">
         <div className="flex items-start justify-start gap-5 p-4">
           <Switcher onSwitch={handleSwitch} />
@@ -220,7 +351,10 @@ const User = () => {
         <div className="flex items-center justify-center p-4 md:items-end md:justify-end">
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              resetForm();
+              setIsModalOpen(true);
+            }}
             class="mb-2 me-2 inline-flex items-center rounded-lg bg-[#050708] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#050708]/90 focus:outline-none focus:ring-4 focus:ring-[#050708]/50 md:h-16 md:w-44 dark:hover:bg-[#050708]/30 dark:focus:ring-[#050708]/50"
           >
             <img src={adduser} alt="adduser" className="w-5 h-5 -ms-1 me-2" />
@@ -235,7 +369,8 @@ const User = () => {
             data={activeTable === "UserP" ? tableAData : tableBData}
             isLoading={isLoading}
             error={error}
-            actions={tableActions}
+            actions={activeTable === "UserP" ? tableActions : []}
+            actionLabel={activeTable === "UserP" ? "Actions" : null}
             headerClassName="bg-[rgba(59,59,59)]"
             className="h-[80%]"
           />
@@ -247,17 +382,17 @@ const User = () => {
           {/* Backdrop with blur */}
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
+            onClick={handleCloseModal}
           />
           
           {/* Modal content */}
           <div className="relative z-50 w-full max-w-md p-6 bg-white rounded-lg shadow-lg dark:bg-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Add New User
+                {isEditMode ? "Edit User" : "Add New User"}
               </h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={handleCloseModal}
                 className="text-gray-400 hover:text-gray-500"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +401,7 @@ const User = () => {
               </button>
             </div>
 
-            <form onSubmit={registerUser} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Name
@@ -292,42 +427,69 @@ const User = () => {
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   placeholder="name@company.com"
                   required="true"
+                  disabled={isEditMode} // Disable email field in edit mode
                 />
               </div>
               <div>
-                  <label
-                    for="password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Password
-                  </label>
+                <label
+                  htmlFor="password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Password {isEditMode && "(Leave blank to keep current password)"}
+                </label>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    required="true"
+                    required={!isEditMode} // Only required for new users
                   />
-                </div>
-                <div>
-                  <label
-                    for="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
                   >
-                    Confirm Password
-                  </label>
+                    {showPassword ? (
+                      <FaEyeSlash className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <FaEye className="w-5 h-5 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="confirm-password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Confirm Password {isEditMode && "(Leave blank to keep current password)"}
+                </label>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     name="confirm-password"
                     value={confirmpassword}
                     onChange={(e) => setconfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    required="true"
+                    required={!isEditMode} // Only required for new users
                   />
+                  <button
+                    type="button"
+                    onClick={toggleConfirmPasswordVisibility}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  >
+                    {showConfirmPassword ? (
+                      <FaEyeSlash className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <FaEye className="w-5 h-5 text-gray-500" />
+                    )}
+                  </button>
                 </div>
+              </div>
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Phone Number
@@ -395,7 +557,7 @@ const User = () => {
               <div className="flex justify-end mt-6 space-x-3">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   Cancel
@@ -411,10 +573,10 @@ const User = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Adding...
+                      {isEditMode ? 'Updating...' : 'Adding...'}
                     </>
                   ) : (
-                    'Add User'
+                    isEditMode ? 'Update User' : 'Add User'
                   )}
                 </button>
               </div>

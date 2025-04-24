@@ -10,7 +10,8 @@ import SensorModel7 from '../Models/sensorModel7.js';
 import SensorModel8 from '../Models/sensorModel8.js';
 import SensorModel9 from '../Models/sensorModel9.js';
 import SensorModel10 from '../Models/sensorModel10.js';
-
+import AlertModel from '../Models/AlertModel.js';
+import UserAlertModel from '../Models/UserAlertModel.js';
 
 export const Aside = async (req, res) => {
   try {
@@ -1207,6 +1208,14 @@ export const cbname = async (req, res) => {
 
 export const getNotifications = async (req, res) => {
   try {
+    // Fetch the latest alert thresholds
+    const alertThresholds = await UserAlertModel.find().sort({ createdAt: -1 }).limit(1);
+    const thresholds = alertThresholds.length > 0 ? alertThresholds[0] : {
+      info: "370",
+      warning: "450",
+      critical: "700"
+    };
+
     const models = {
       model1: [
           "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
@@ -1286,6 +1295,7 @@ export const getNotifications = async (req, res) => {
 
       const results = [];
       const uniqueIds = new Set();
+      const alertsToSave = [];
 
       // Collect all unique IDs
       const idPromises = Object.values(modelMap).map(async (model) => {
@@ -1313,20 +1323,20 @@ export const getNotifications = async (req, res) => {
                   if (isNaN(value)) return;
 
                   let severity, message;
-                  if (value >= 700) {
+                  if (value >= parseFloat(thresholds.critical)) {
                       severity = "critical";
                       message = "Critical: Immediate action required!!!";
-                  } else if (value >= 450) {
+                  } else if (value >= parseFloat(thresholds.warning)) {
                       severity = "warning";
                       message = "Attention Required!!!";
-                  } else if (value >= 370) {
+                  } else if (value >= parseFloat(thresholds.info)) {
                       severity = "info";
                       message = "Monitoring recommended!!!";
                   } else {
                       return;
                   }
 
-                  results.push({
+                  const alert = {
                       id,
                       model: modelName,
                       sensor: field,
@@ -1334,7 +1344,10 @@ export const getNotifications = async (req, res) => {
                       severity,
                       message,
                       timestamp: doc.createdAt
-                  });
+                  };
+
+                  results.push(alert);
+                  alertsToSave.push(alert);
               });
           });
 
@@ -1342,6 +1355,11 @@ export const getNotifications = async (req, res) => {
       });
 
       await Promise.all(processIdPromises);
+
+      // Save alerts to database
+      if (alertsToSave.length > 0) {
+          await AlertModel.insertMany(alertsToSave);
+      }
 
       // Categorize results by severity
       const categorized = results.reduce((acc, alert) => {
@@ -1370,6 +1388,174 @@ export const getNotifications = async (req, res) => {
       });
   }
 };
+
+// export const getNotifications = async (req, res) => {
+//   try {
+//     const models = {
+//       model1: [
+//           "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+//           "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+//           "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+//           "CBT7A1", "CBT7A2"
+//       ],
+//       model2: [
+//           "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+//           "CBT10A1", "CBT10A2"
+//       ],
+//       model3: [
+//           "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+//           "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+//       ],
+//       model4: [
+//           "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+//       ],
+//       model5: [
+//           "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+//           "CBT19A1", "CBT19A2"
+//       ],
+//       model6: [
+//           "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+//           "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+//           "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+//           "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+//       ],
+//       model7: [
+//           "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+//           "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+//           "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+//           "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+//           "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+//       ],
+//       model8: [
+//           "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+//           "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+//       ],
+//       model9: [
+//           "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+//           "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+//       ],
+//       model10: [
+//           "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+//           "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+//           "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+//           "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+//           "CBT27B1", "CBT27B2"
+//       ]
+//   };
+//   const modelMap = {
+//       SensorModel1,
+//       SensorModel2,
+//       SensorModel3,
+//       SensorModel4,
+//       SensorModel5,
+//       SensorModel6,
+//       SensorModel7,
+//       SensorModel8,
+//       SensorModel9,
+//       SensorModel10,
+//   };
+
+//   const modelFieldMap = {
+//       SensorModel1: models.model1,
+//       SensorModel2: models.model2,
+//       SensorModel3: models.model3,
+//       SensorModel4: models.model4,
+//       SensorModel5: models.model5,
+//       SensorModel6: models.model6,
+//       SensorModel7: models.model7,
+//       SensorModel8: models.model8,
+//       SensorModel9: models.model9,
+//       SensorModel10: models.model10
+//   };
+
+//       const results = [];
+//       const uniqueIds = new Set();
+
+//       // Collect all unique IDs
+//       const idPromises = Object.values(modelMap).map(async (model) => {
+//           const docs = await model.find().select('id -_id').lean();
+//           docs.forEach(doc => doc.id && uniqueIds.add(doc.id));
+//       });
+
+//       await Promise.all(idPromises);
+
+//       // Process each ID
+//       const processIdPromises = Array.from(uniqueIds).map(async (id) => {
+//           const modelPromises = Object.entries(modelMap).map(async ([modelName, model]) => {
+//               const sensorFields = modelFieldMap[modelName];
+//               if (!sensorFields?.length) return;
+
+//               const doc = await model.findOne({ id })
+//                   .sort({ createdAt: -1 })
+//                   .select([...sensorFields, 'createdAt'])
+//                   .lean();
+
+//               if (!doc) return;
+
+//               sensorFields.forEach(field => {
+//                   const value = parseFloat(doc[field]);
+//                   if (isNaN(value)) return;
+
+//                   let severity, message;
+//                   if (value >= 700) {
+//                       severity = "critical";
+//                       message = "Critical: Immediate action required!!!";
+//                   } else if (value >= 450) {
+//                       severity = "warning";
+//                       message = "Attention Required!!!";
+//                   } else if (value >= 370) {
+//                       severity = "info";
+//                       message = "Monitoring recommended!!!";
+//                   } else {
+//                       return;
+//                   }
+
+//                   results.push({
+//                       id,
+//                       model: modelName,
+//                       sensor: field,
+//                       value,
+//                       severity,
+//                       message,
+//                       timestamp: doc.createdAt
+//                   });
+//               });
+//           });
+
+//           await Promise.all(modelPromises);
+//       });
+
+//       await Promise.all(processIdPromises);
+
+//       // Categorize results by severity
+//       const categorized = results.reduce((acc, alert) => {
+//           acc[alert.severity] = acc[alert.severity] || [];
+//           acc[alert.severity].push(alert);
+//           return acc;
+//       }, {});
+
+//       res.status(200).json({
+//           status: "success",
+//           data: {
+//               alerts: categorized,
+//               total: results.length,
+//               critical: categorized.critical?.length || 0,
+//               warnings: categorized.warning?.length || 0,
+//               info: categorized.info?.length || 0
+//           }
+//       });
+
+//   } catch (error) {
+//       console.error("Notification error:", error);
+//       res.status(500).json({
+//           status: "error",
+//           message: "Failed to fetch notifications",
+//           error: error.message
+//       });
+//   }
+// };
+
+// for chart page
 
 // for chart page
 export const fetchSensorDataByaverage = async (req, res) => {
