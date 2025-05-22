@@ -31,6 +31,7 @@ export const signAccessToken = (userId, role) => {
       console.log("Setting access token in Redis...");
       
       client.SETEX(redisKey, 24 * 60 * 60, token)
+      // client.SETEX(redisKey, 60, token)
         .then(reply => {
           console.log("Finished setting access token in Redis.");
           resolve(token);

@@ -55,10 +55,11 @@ const Generatereport = () => {
         `${process.env.REACT_APP_SERVER_URL}api/admin/getFrequency`
       );
       
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        setFrequencyData(response.data.data);
+      if (response.data && response.data.data) {
+        // Store the single frequency object
+        setFrequencyData([response.data.data]);
         // Set the frequency from API response
-        setSelectedRadioFrequency(response.data.data[0].frequency);
+        setSelectedRadioFrequency(response.data.data.frequency);
       }
     } catch (error) {
       console.error("Error fetching frequency data:", error);
@@ -353,11 +354,8 @@ const Generatereport = () => {
                     </tr>
                   ) : (
                     reportUsers.map((user) => {
-                      // Find the frequency data for this user
-                      const userFrequency = frequencyData.find(f => f.email === user.email);
-                      
-                      // Get the frequency value
-                      const frequencyValue = userFrequency ? userFrequency.frequency : 'Not set';
+                      // Get the frequency value from the single frequency object
+                      const frequencyValue = frequencyData[0]?.frequency || 'Not set';
                       
                       return (
                         <tr key={user._id} className="border-b border-gray-700">
@@ -366,7 +364,7 @@ const Generatereport = () => {
                           <td className="px-4 py-4">{user.employeeNo}</td>
                           <td className="px-4 py-4">
                             <span className="capitalize">
-                              {frequencyData[0]?.frequency || 'Not set'}
+                              {frequencyValue}
                             </span>
                           </td>
                           <td className="px-4 py-4">

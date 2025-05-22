@@ -278,7 +278,7 @@ const Sidebar = (props) => {
 
     // Initial fetch and set up polling
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 1000);
+    const interval = setInterval(fetchAlerts, 3000);
     return () => clearInterval(interval);
   }, [alerts]);
 

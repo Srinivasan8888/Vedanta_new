@@ -11,7 +11,7 @@ const ReportSchema = new mongoose.Schema({
         lowercase: true
     },
     phoneNo: {
-        type: Number,
+        type: String,
         required: true,
         unique: true
     },

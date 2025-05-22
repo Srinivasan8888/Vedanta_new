@@ -19,7 +19,7 @@ def create_sensor(sensor_number, data):
 def generate_sensor_data(sensor_id, start_sensor, end_sensor):
     # Generate temperature values and include current time
     data = {
-        'id':'1604',
+        'id':'1605',
         'busbar': f'bb{sensor_id}',
         'time': datetime.now().isoformat() + 'Z'  # Current IST time in ISO 8601 format
     }

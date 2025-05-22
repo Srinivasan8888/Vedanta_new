@@ -101,12 +101,15 @@ const Alert = () => {
 
     try {
       setIsSaving(true);
+      // Convert phoneNo to string and ensure it's 10 digits
+      const phoneNoString = String(formData.phoneNo).padStart(10, '0');
+      
       const response = await API.post(
         `${process.env.REACT_APP_SERVER_URL}api/admin/createAlertUsers`,
         {
           name: formData.name,
           email: formData.email,
-          phoneNo: formData.phoneNo,
+          phoneNo: phoneNoString,
           employeeNo: formData.employeeNo,
         },
       );
@@ -127,7 +130,9 @@ const Alert = () => {
       fetchAlertUsers();
     } catch (error) {
       console.error("Error creating report:", error);
-      toast.error("Failed to add user");
+      // Show more specific error message if available
+      const errorMessage = error.response?.data?.message || "Failed to add user";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -149,8 +154,9 @@ const Alert = () => {
     if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
       try {
         setIsLoading(true);
+        const encodedEmail = encodeURIComponent(user.email);
         const response = await API.delete(
-          `${process.env.REACT_APP_SERVER_URL}api/admin/deleteAlertUser/${user.email}`
+          `${process.env.REACT_APP_SERVER_URL}api/admin/deleteAlertUser/${encodedEmail}`
         );
         
         console.log('Alert user deleted:', response.data);
@@ -297,24 +303,18 @@ const Alert = () => {
         `${process.env.REACT_APP_SERVER_URL}api/admin/getAlertFrequency`,
       );
 
-      if (
-        response.data &&
-        response.data.data &&
-        response.data.data.length > 0
-      ) {
-        setFrequencyData(response.data.data);
-
-        // Get the most recent entry (last in the array)
-        const latestEntry = response.data.data[response.data.data.length - 1];
-
-        // Set the mode and frequency from the API response
-        setSelectedRadioFrequency(latestEntry.mode);
-        setFrequencyOptions(latestEntry.frequency);
+      if (response.data && response.data.data) {
+        // Store the single frequency object
+        setFrequencyData([response.data.data]);
+        
+        // Set mode and frequency from the API response
+        setSelectedRadioFrequency(response.data.data.mode);
+        setFrequencyOptions(response.data.data.frequency);
 
         // Update URL with the values from API
-        updateUrlWithOptions(latestEntry.mode, latestEntry.frequency);
+        updateUrlWithOptions(response.data.data.mode, response.data.data.frequency);
 
-        console.log("Loaded frequency data:", latestEntry);
+        console.log("Loaded frequency data:", response.data.data);
       }
     } catch (error) {
       console.error("Error fetching frequency data:", error);
@@ -631,20 +631,16 @@ const Alert = () => {
           <Table
             headers={tableHeaders}
             data={alertUsers.map((user) => {
-              // Find the frequency data for this user
-              const userFrequencyData = frequencyData.find(
-                (f) => f.email === user.email,
-              );
+              // Get the frequency value from the single frequency object
+              const frequencyDataObj = frequencyData[0];
 
               return {
                 name: user.name,
                 email: user.email,
                 phoneNo: `+91 ${user.phoneNo}`,
                 employeeNo: user.employeeNo,
-                mode: userFrequencyData ? userFrequencyData.mode : "Not set",
-                frequency: userFrequencyData
-                  ? userFrequencyData.frequency
-                  : "Not set",
+                mode: frequencyDataObj?.mode || "Not set",
+                frequency: frequencyDataObj?.frequency || "Not set",
               };
             })}
             isLoading={isLoadingAlertUsers}

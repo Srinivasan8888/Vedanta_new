@@ -5,7 +5,10 @@ import setAlert from '../Models/SetAlertModel.js'
 import SetAlertfrequency from '../Models/SetAlertfrequency.js';
 import UserAlertModel from '../Models/UserAlertModel.js';
 import ColorRangeModel from '../Models/ColorRangeModel.js';
+import AlertModel from '../Models/AlertModel.js';
 import bcrypt from 'bcrypt';
+import SetAlertModel from '../Models/SetAlertModel.js';
+
 
 export const createReport = async (req, res) => {
     const { name, email, employeeNo } = req.body;
@@ -23,21 +26,21 @@ export const createReport = async (req, res) => {
     }
 }
 
-export const SaveAlertRange = async (req, res)=> {
-    const {info, warning, critical, email } = req.body;
-    if(!info || !warning || !critical || !email ) {
-        return res.status(400).json({ message: 'All the fields are required'});
+export const SaveAlertRange = async (req, res) => {
+    const { info, warning, critical, email } = req.body;
+    if (!info || !warning || !critical || !email) {
+        return res.status(400).json({ message: 'All the fields are required' });
     }
     try {
-        const savealert = await UserAlertModel.create({info, warning, critical, email });
+        const savealert = await UserAlertModel.create({ info, warning, critical, email });
         res.status(201).json({
             message: 'Alerts Limit have been saved successfully.',
             data: savealert,
         })
-        
+
     } catch (error) {
-        res.status(500).json({ message: error.message});
-        
+        res.status(500).json({ message: error.message });
+
     }
 }
 
@@ -71,7 +74,7 @@ export const createAlert = async (req, res) => {
 //         });
 
 //         const savedRange = await newColorRange.save();
-        
+
 //         res.status(201).json({
 //             message: "Color range saved successfully.",
 //             data: savedRange,
@@ -105,19 +108,19 @@ export const SetColorRange = async (req, res) => {
         .map(field => field.name);
 
     if (missingFields.length > 0) {
-        return res.status(400).json({ 
-            message: `The following fields are missing: ${missingFields.join(', ')}` 
+        return res.status(400).json({
+            message: `The following fields are missing: ${missingFields.join(', ')}`
         });
     }
 
     try {
         const newColorRange = new ColorRangeModel({
-            vlmin, vlmax, lmin, lmax, medmin, medmax, 
+            vlmin, vlmax, lmin, lmax, medmin, medmax,
             highmin, highmax, vhighmin, vhighmax, email
         });
 
         const savedRange = await newColorRange.save();
-        
+
         res.status(201).json({
             message: "Color range saved successfully.",
             data: savedRange,
@@ -129,16 +132,30 @@ export const SetColorRange = async (req, res) => {
 
 export const createSetAlert = async (req, res) => {
     const { name, email, phoneNo, employeeNo } = req.body;
+    console.log('Received request body:', req.body);
+    
     if (!name || !email || !employeeNo || !phoneNo) {
+        console.log('Missing required fields:', { name, email, employeeNo, phoneNo });
         return res.status(400).json({ message: 'All fields are required' });
     }
+    
     try {
+        console.log('Attempting to create alert user with data:', { name, email, employeeNo, phoneNo });
         const datas = await setAlert.create({ name, email, employeeNo, phoneNo });
+        console.log('Successfully created alert user:', datas);
         res.status(201).json({
             message: "Sensor data created successfully.",
             data: datas,
         });
     } catch (error) {
+        console.error('Error creating alert user:', error);
+        if (error.code === 11000) {
+            // Duplicate key error
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({ 
+                message: `This ${field} is already registered. Please use a different ${field}.` 
+            });
+        }
         res.status(500).json({ message: error.message });
     }
 }
@@ -225,25 +242,37 @@ export const AlertfreqUsers = async (req, res) => {
 
 export const getFrequency = async (req, res) => {
     try {
-        const frequencyData = await Frequency.find().sort({ createdAt: -1 });
-        if (!frequencyData) {
-            return res.status(404).json({ message: "No frequency data found for this email" });
+        // Fetch the latest frequency data (single document)
+        const latestFrequencyData = await Frequency.findOne()
+            .sort({ createdAt: -1 }); // Sort by createdAt in descending order
+
+        // If no data is found, return a 404 response
+        if (!latestFrequencyData) {
+            return res.status(404).json({
+                success: false,
+                message: "No frequency data found",
+            });
         }
 
+        // Return the latest frequency data
         res.status(200).json({
-            message: "Frequency data retrieved successfully",
-            data: frequencyData,
+            success: true,
+            message: "Latest frequency data retrieved successfully",
+            data: latestFrequencyData,
         });
     } catch (error) {
         console.error("Error fetching frequency data:", error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal Server Error",
+        });
     }
 };
 
 export const getAlertFrequency = async (req, res) => {
     try {
 
-        const Entry = await SetAlertfrequency.find().sort({ createdAt: -1 });
+        const Entry = await SetAlertfrequency.findOne().sort({ createdAt: -1 });
         if (!Entry) {
             return res.status(400).json({ message: 'No data found' });
         }
@@ -255,6 +284,48 @@ export const getAlertFrequency = async (req, res) => {
     } catch (error) {
         console.error("Error saving AlertSetFrequency data:", error);
         res.status(500).json({ message: error.message });
+    }
+};
+
+export const getCombinedAlertAndFrequency = async (req, res) => {
+    try {
+        // Fetch both data sources in parallel
+        const [reports, frequencyData] = await Promise.all([
+            setAlert.find().sort({ createdAt: -1 }),
+            SetAlertfrequency.findOne().sort({ _id: -1 }).select('frequency mode')
+        ]);
+
+        // Check if reports exist
+        if (!reports || reports.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No user reports found"
+            });
+        }
+
+        // Prepare response object
+        const response = {
+            success: true,
+            message: "Data fetched successfully",
+            data: {
+                reports: reports,
+                frequency: frequencyData?.frequency || null,
+                mode: frequencyData?.mode || null
+            }
+        };
+
+        // Optional: Add warning if frequency data is missing
+        if (!frequencyData) {
+            response.message += " (No frequency settings found)";
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error("Error fetching combined data:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
     }
 };
 
@@ -276,14 +347,14 @@ export const getUsers = async (req, res) => {
 };
 
 export const getUserDetails = async (req, res) => {
-    const {email} = req.body;
-    if(!email){
-        return(res.status(500).json({messege: 'email not found!!!'}));
+    const { email } = req.body;
+    if (!email) {
+        return (res.status(500).json({ messege: 'email not found!!!' }));
     }
     try {
         const finduserdetail = await User.findOne({ email }, { password: 0 });
-        if(!finduserdetail){
-            return res.status(404).json({ message: error.message});
+        if (!finduserdetail) {
+            return res.status(404).json({ message: error.message });
         }
         res.status(200).json({
             message: "Frequency data retrieved successfully",
@@ -295,18 +366,18 @@ export const getUserDetails = async (req, res) => {
     }
 }
 
-export const getUserAlertRange = async (req, res)=> {
+export const getUserAlertRange = async (req, res) => {
 
     try {
-        const savealert = await UserAlertModel.find().sort({updated : -1})
+        const savealert = await UserAlertModel.find().sort({ updated: -1 })
         res.status(201).json({
             message: 'Alerts Limit have fetched successfully.',
             data: savealert,
         })
-        
+
     } catch (error) {
-        res.status(500).json({ message: error.message});
-        
+        res.status(500).json({ message: error.message });
+
     }
 }
 
@@ -326,24 +397,67 @@ export const getColorRangeModel = async (req, res) => {
     }
 };
 
+
+export const getAllAlerts = async (req, res) => {
+
+    try {
+        const savealert = await AlertModel.find().sort({ updated: -1 })
+        res.status(201).json({
+            message: 'Alerts Limit have fetched successfully.',
+            data: savealert,
+        })
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+
+    }
+}
+
+
+export const getAlertsByDateRange = async (req, res) => {
+    const { startDate, endDate } = req.query;
+    try {
+        const date1 = new Date(startDate);
+        date1.setHours(0, 0, 0, 0); // Start of the day
+
+        const date2 = new Date(endDate);
+        date2.setHours(23, 59, 59, 999); // End of the day
+
+        const savealert = await AlertModel.find({
+            timestamp: { $gte: date1, $lte: date2 }
+        })
+        .lean()
+        .sort({ timestamp: -1 });
+
+        res.status(200).json({
+            message: 'Alerts have been fetched successfully.',
+            data: savealert,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
 //update request
 export const updateReport = async (req, res) => {
     const { name, email, employeeNo } = req.body;
     if (!name || !email || !employeeNo) {
         return res.status(400).json({ message: 'All fields are required' });
     }
-    
+
     try {
         const report = await Report.findOne({ email: email });
         if (!report) {
             return res.status(404).json({ message: 'Report not found with this email' });
         }
-        
+
         report.name = name;
         report.employeeNo = employeeNo;
-        
+
         const updatedReport = await report.save();
-        
+
         res.status(200).json({
             message: "Report updated successfully.",
             data: updatedReport,
@@ -353,7 +467,7 @@ export const updateReport = async (req, res) => {
     }
 };
 
-export const  updateAlert = async (req, res) => {
+export const updateAlert = async (req, res) => {
     try {
         const { email } = req.params;
         const updateData = req.body;
@@ -457,15 +571,17 @@ export const updateUser = async (req, res) => {
 //delete request
 export const deleteReport = async (req, res) => {
     const { email } = req.params;
-    
-    try {console.log('Attempting to delete report with email:', email);
+
+    try {
+        console.log('Attempting to delete report with email:', email);
         const report = await Report.findOne({ email: email });
         console.log('Found report:', report);
-        
-        if (!report) {   console.log('No report found with email:', email);
+
+        if (!report) {
+            console.log('No report found with email:', email);
             return res.status(404).json({ message: 'Report not found with this email' });
         }
-        
+
         await Report.deleteOne({ email: email });
         console.log('Report deleted successfully');
         res.status(200).json({
@@ -480,40 +596,53 @@ export const deleteReport = async (req, res) => {
 export const deleteAlert = async (req, res) => {
     try {
         const { email } = req.params;
-        const deletedAlert = await Alert.findOneAndDelete({ email });
-
-        if (!deletedAlert) {
+        
+        // Check if user exists first
+        const existingUser = await SetAlertModel.findOne({ email });
+        if (!existingUser) {
             return res.status(404).json({ message: 'Alert user not found' });
         }
 
-        res.status(200).json({ message: 'Alert user deleted successfully' });
+        // Delete the user
+        const deletedUser = await SetAlertModel.findOneAndDelete({ email });
+        
+        res.status(200).json({ 
+            message: 'Alert user deleted successfully', 
+            data: deletedUser 
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting alert user', error: error.message });
+        console.error('Error in deleteAlert:', error);
+        res.status(500).json({ 
+            message: 'Error deleting alert user', 
+            error: error.message 
+        });
     }
 };
 
+
+
 export const deleteUser = async (req, res) => {
     try {
-      const { email } = req.params;
-      
-      const deletedUser = await User.findOneAndDelete({ email });
-      
-      if (!deletedUser) {
-        return res.status(404).json({ 
-          success: false,
-          message: "User not found" 
+        const { email } = req.params;
+
+        const deletedUser = await User.findOneAndDelete({ email });
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User deleted successfully"
         });
-      }
-      
-      return res.status(200).json({
-        success: true,
-        message: "User deleted successfully"
-      });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      return res.status(500).json({ 
-        success: false,
-        message: error.message 
-      });
+        console.error("Error deleting user:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
-  };
+};

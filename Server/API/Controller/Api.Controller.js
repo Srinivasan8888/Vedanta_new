@@ -1358,7 +1358,14 @@ export const getNotifications = async (req, res) => {
 
       // Save alerts to database
       if (alertsToSave.length > 0) {
-          await AlertModel.insertMany(alertsToSave);
+          const upsertPromises = alertsToSave.map(alert =>
+              AlertModel.updateOne(
+                  { id: alert.id, model: alert.model, sensor: alert.sensor, severity: alert.severity, timestamp: alert.timestamp },
+                  { $setOnInsert: alert },
+                  { upsert: true }
+              )
+          );
+          await Promise.all(upsertPromises);
       }
 
       // Categorize results by severity
