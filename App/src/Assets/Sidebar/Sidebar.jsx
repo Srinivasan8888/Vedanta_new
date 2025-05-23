@@ -117,13 +117,14 @@ const Sidebar = (props) => {
       }
 
       const refreshToken = localStorage.getItem("refreshToken");
+      const email = localStorage.getItem('email');
       // const accessToken = localStorage.getItem('accessToken');
 
       // Make logout request first
       const response = await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}auth/logout`,
         {
-          data: { refreshToken },
+          data: { refreshToken, email },
           headers: {
             "Content-Type": "application/json",
           },
@@ -278,7 +279,7 @@ const Sidebar = (props) => {
 
     // Initial fetch and set up polling
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 3000);
+    const interval = setInterval(fetchAlerts, 5000);
     return () => clearInterval(interval);
   }, [alerts]);
 
@@ -324,41 +325,37 @@ const Sidebar = (props) => {
           />
         </div>
         <button
-          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${
-            location.pathname === "/Dashboard"
+          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${location.pathname === "/Dashboard"
               ? "border-4 border-white"
               : "border border-white"
-          }`}
+            }`}
           onClick={gotoDashboard}
         >
           Home
         </button>
         <button
-          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${
-            location.pathname === "/Report"
+          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${location.pathname === "/Report"
               ? "border-4 border-white"
               : "border border-white"
-          }`}
+            }`}
           onClick={gotoReport}
         >
           Report
         </button>
         <button
-          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${
-            location.pathname === "/Analytics"
+          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${location.pathname === "/Analytics"
               ? "border-4 border-white"
               : "border border-white"
-          }`}
+            }`}
           onClick={gotoAnalytics}
         >
           Analytics
         </button>
         <button
-          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${
-            location.pathname === "/Heatmap"
+          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[14%] md:text-[12px] xl:text-[16px] xl:font-medium 2xl:text-[22px] ${location.pathname === "/Heatmap"
               ? "border-4 border-white"
               : "border border-white"
-          }`}
+            }`}
           onClick={gotoHeatmap}
         >
           Heatmap
@@ -377,11 +374,10 @@ const Sidebar = (props) => {
         />
 
         <button
-          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] text-[22px] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[4%] ${
-            location.pathname === '/Settings' 
-             ? "border-4 border-white"
+          className={`font-poppins hidden items-center justify-center rounded-xl bg-[rgba(14,14,14,0.75)] text-[22px] font-semibold leading-[33px] text-white backdrop-blur-sm md:flex md:w-[4%] ${location.pathname === '/Settings'
+              ? "border-4 border-white"
               : 'border border-white'
-          }`}
+            }`}
           onClick={() => gotoSettings()}
         >
           <IoMdSettings />
@@ -410,7 +406,7 @@ const Sidebar = (props) => {
             src={xyma_logo}
             alt="xyma logo"
             className="xl-fit h-auto max-h-[30px] w-16 xl:max-w-[60px] 2xl:max-w-[70px]"
-            //  className="lg:w-[50px] 2xl:w-[180px] lg:h-[70px]"
+          //  className="lg:w-[50px] 2xl:w-[180px] lg:h-[70px]"
           />
         </div>
       </div>

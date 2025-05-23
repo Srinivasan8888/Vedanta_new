@@ -1,0 +1,11 @@
+srinivasan@xyma.in
+admin@123
+
+superadmin@xyma.in
+superadmin@123
+
+admin@xyma.in
+admin@123
+
+user@xyma.in
+user@123

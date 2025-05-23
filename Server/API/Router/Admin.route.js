@@ -1,8 +1,8 @@
 import express from 'express';
 import {
     createReport, createAlert, SetColorRange, deleteReport,
-    updateReport, getColorRangeModel, updateUser, deleteUser, getUserDetails, 
-    updateAlert, deleteAlert, createSetAlert, getCombinedAlertAndFrequency,getAlertsByDateRange, getAllAlerts, getUserAlertRange, SaveAlertRange, SetAlertFrequency, getAlertFrequency, AlertfreqUsers, alertFrequency, reportUsers, getFrequency, getUsers
+    updateReport, getColorRangeModel, updateUser, deleteUser, getUserDetails,
+    updateAlert, deleteAlert, createSetAlert, getCombinedAlertAndFrequency, getAlertsByDateRange, getUserLogs, getAllAlerts, getUserAlertRange, SaveAlertRange, SetAlertFrequency, getAlertFrequency, AlertfreqUsers, alertFrequency, reportUsers, getFrequency, getUsers
 } from '../Controller/Admin.Controller.js';
 
 const router = express.Router();
@@ -27,6 +27,7 @@ router.get('/getColorRange', getColorRangeModel);
 router.get('/getUsers', getUsers)
 router.get('/getAllAlerts', getAllAlerts)
 router.get('/getAlertsByDateRange', getAlertsByDateRange)
+router.get('/getUserLogs', getUserLogs)
 //update request
 router.put('/updateReport', updateReport)
 router.put('/updateAlertUser/:email', updateAlert)

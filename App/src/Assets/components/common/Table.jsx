@@ -49,7 +49,7 @@ const Table = ({
 
   return (
     <div className={`scrollbar-customd overflow-x-auto ${className}`}>
-      <div className="min-w-[30px] overflow-x-auto  rounded-2xl">
+      <div className="min-w-[30px] overflow-x-auto   rounded-2xl">
         <table className="w-full text-white">
           <thead className={`sticky top-0 ${headerClassName} text-base backdrop-blur-sm`}>
             <tr>

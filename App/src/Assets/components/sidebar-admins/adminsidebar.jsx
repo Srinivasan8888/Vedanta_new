@@ -40,33 +40,40 @@ const AdminSidebar = ({ children, onToggle }) => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
+ const handleLogout = async () => {
+  try {
+  
 
-      const response = await axios.delete(
-        `${process.env.REACT_APP_SERVER_URL}auth/logout`,
-        {
-          data: { refreshToken },
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    const refreshToken = localStorage.getItem("refreshToken");
+    const email = localStorage.getItem('email'); 
+    // const accessToken = localStorage.getItem('accessToken');
 
-      if (response.status === 200) {
-        localStorage.clear();
-        sessionStorage.clear();
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
+    // Make logout request first
+    const response = await axios.delete(
+      `${process.env.REACT_APP_SERVER_URL}auth/logout`,
+      {
+        data: { refreshToken, email },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    // Clear storage only after successful response
+    if (response.status === 200) {
       localStorage.clear();
       sessionStorage.clear();
-      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      navigate("/");
+      window.location.replace(`/`);
     }
-  };
+  } catch (error) {
+    console.error("Logout error:", error);
+    localStorage.clear();
+    sessionStorage.clear();
+    document.cookie =
+      "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.replace(`/`);
+  }
+};
 
     return (
         <>

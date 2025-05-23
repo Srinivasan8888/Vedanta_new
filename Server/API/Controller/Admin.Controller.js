@@ -8,6 +8,7 @@ import ColorRangeModel from '../Models/ColorRangeModel.js';
 import AlertModel from '../Models/AlertModel.js';
 import bcrypt from 'bcrypt';
 import SetAlertModel from '../Models/SetAlertModel.js';
+import UserLog from '../Models/UserLogs.js';
 
 
 export const createReport = async (req, res) => {
@@ -437,6 +438,15 @@ export const getAlertsByDateRange = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getUserLogs = async (req, res) => {
+    try {
+        const userLogs = await UserLog.find().sort({ createdAt: -1 });
+        res.status(200).json({ message: 'User logs fetched successfully.', data: userLogs });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
 
 

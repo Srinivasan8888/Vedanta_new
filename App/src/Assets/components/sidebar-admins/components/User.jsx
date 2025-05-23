@@ -50,9 +50,8 @@ const User = () => {
         
         setTableAData(transformedData);
         
-        // For Table B (User Activity Log), we'll use mock data for now
-        // In a real app, you would fetch this from another API endpoint
-        setTableBData(mockTableBData);
+        // For Table B (User Activity Log), we'll fetch real data from the API
+        setTableBData([]); // This will be populated by fetchUserLogs useEffect
       } else {
         setError("No data received from the server");
       }
@@ -109,17 +108,62 @@ const User = () => {
     }
   };
   
-  // Mock data for Table B - User Activity Log
-  const mockTableBData = [
-    { sno: 1, user: "john.doe@example.com", method: "Login", city: "New York", country: "USA", ip: "192.168.1.1", latitute: "40.7128", longitute: "-74.0060", service: "Web", region: "North America", Time: "2023-06-15 09:30:45" },
-    { sno: 2, user: "jane.smith@example.com", method: "Logout", city: "London", country: "UK", ip: "192.168.1.2", latitute: "51.5074", longitute: "-0.1278", service: "Mobile", region: "Europe", Time: "2023-06-15 10:15:22" },
-    { sno: 3, user: "bob.johnson@example.com", method: "Login", city: "Tokyo", country: "Japan", ip: "192.168.1.3", latitute: "35.6762", longitute: "139.6503", service: "Web", region: "Asia", Time: "2023-06-15 11:45:10" },
-    { sno: 4, user: "alice.brown@example.com", method: "Update Profile", city: "Sydney", country: "Australia", ip: "192.168.1.4", latitute: "-33.8688", longitute: "151.2093", service: "Web", region: "Oceania", Time: "2023-06-15 12:30:15" },
-    { sno: 5, user: "charlie.wilson@example.com", method: "Login", city: "Toronto", country: "Canada", ip: "192.168.1.5", latitute: "43.6532", longitute: "-79.3832", service: "Mobile", region: "North America", Time: "2023-06-15 14:20:30" },
-    { sno: 6, user: "diana.miller@example.com", method: "Logout", city: "Berlin", country: "Germany", ip: "192.168.1.6", latitute: "52.5200", longitute: "13.4050", service: "Web", region: "Europe", Time: "2023-06-15 16:10:45" },
-    { sno: 7, user: "edward.davis@example.com", method: "Login", city: "Mumbai", country: "India", ip: "192.168.1.7", latitute: "19.0760", longitute: "72.8777", service: "Mobile", region: "Asia", Time: "2023-06-15 18:05:20" },
-    { sno: 8, user: "fiona.clark@example.com", method: "Update Settings", city: "São Paulo", country: "Brazil", ip: "192.168.1.8", latitute: "-23.5505", longitute: "-46.6333", service: "Web", region: "South America", Time: "2023-06-15 20:15:40" },
-  ];
+  // Function to fetch user logs from API
+    const fetchUserLogs = async () => {
+      // setIsLoading(true); // You might want to set loading for this table too
+      // setError(null);
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserLogs`);
+  
+        if (response.data && response.data.data) {
+          // Transform the API data to match our table structure
+          const transformedData = response.data.data.map((log, index) => {
+            let methodDisplay;
+            const methodName = log.method ? log.method.toLowerCase() : '';
+  
+            if (methodName === 'login') {
+              methodDisplay = <span className="text-green-500 font-medium">{log.method}</span>;
+            } else if (methodName === 'logout') {
+              methodDisplay = <span className="text-red-500 font-medium">{log.method}</span>;
+            } else {
+              // Default styling if method is neither login nor logout, or is undefined/null
+              methodDisplay = <span className="text-gray-700 dark:text-gray-300 font-medium">{log.method || 'N/A'}</span>;
+            }
+  
+            return {
+              sno: index + 1,
+              userId: log.userId || 'N/A',
+              email: log.email || 'N/A',
+              ip: log.ip || 'N/A',
+              method: methodDisplay, // Use the JSX element here
+              city: log.city || 'N/A',
+              country: log.country || 'N/A',
+              latitude: log.latitude || 'N/A',
+              longitude: log.longitude || 'N/A',
+              service: log.service || 'N/A',
+              region: log.region || 'N/A',
+              loginAt: log.loginAt ? new Date(parseInt(log.loginAt)).toLocaleString() : 'N/A'
+            };
+          });
+  
+          setTableBData(transformedData);
+        } else {
+          setError("No user logs received from the server"); // This error might conflict if fetchUsers also sets errors
+        }
+      } catch (err) {
+        console.error("Error fetching user logs:", err);
+        // setError("Failed to fetch user logs. Please try again later."); // Be mindful of error state shared with fetchUsers
+        toast.error("Failed to fetch user logs."); // Use toast for specific log errors
+      } finally {
+        // setIsLoading(false); // Corresponding loading state for this fetch
+      }
+    };
+  
+
+  // Load user logs when component mounts
+  useEffect(() => {
+    fetchUserLogs();
+  }, []);
 
   // Table A column headers
   const tableAHeaders = [
@@ -134,16 +178,16 @@ const User = () => {
   // Table B column headers
   const tableBHeaders = [
     { id: "sno", label: "S.No" },
-    { id: "user", label: "User" },
-    { id: "method", label: "Method" },
+    { id: "email", label: "Email" },
+    { id: "ip", label: "IP Address" },
+    { id: "method", label: "Method"},
     { id: "city", label: "City" },
     { id: "country", label: "Country" },
-    { id: "ip", label: "IP" },
-    { id: "latitute", label: "Latitute" },
-    { id: "longitute", label: "Longitute" },
-    { id: "service", label: "Service" },
+    { id: "latitude", label: "Latitude" },
+    { id: "longitude", label: "Longitude" },
+    { id: "service", label: "Service Provider" },
     { id: "region", label: "Region" },
-    { id: "Time", label: "time" }
+    { id: "loginAt", label: "Login Time" }
   ];
 
   // Action icons for the table
@@ -363,7 +407,7 @@ const User = () => {
         </div>
       </div>
       <div className="flex flex-col flex-1 gap-4 px-4 py-4 rounded-2xl">
-        <div className="h-[100%] rounded-2xl border-2 border-white bg-[#101010]/90 backdrop-blur-sm">
+        <div className="h-[95%] rounded-2xl border-2 border-white bg-[#101010]/90 backdrop-blur-sm">
           <Table 
             headers={activeTable === "UserP" ? tableAHeaders : tableBHeaders}
             data={activeTable === "UserP" ? tableAData : tableBData}
@@ -372,7 +416,7 @@ const User = () => {
             actions={activeTable === "UserP" ? tableActions : []}
             actionLabel={activeTable === "UserP" ? "Actions" : null}
             headerClassName="bg-[rgba(59,59,59)]"
-            className="h-[80%]"
+            className="h-[100%]"
           />
         </div>
       </div>

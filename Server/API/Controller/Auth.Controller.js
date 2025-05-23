@@ -11,6 +11,7 @@ import {
 import { client as redisClient, redisPromise } from "../../Helpers/init_redis.js";
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import bcrypt from 'bcrypt';
+import UserLog from "../Models/UserLogs.js";
 
 const maxWrongAttemptsByIPperDay = 100;
 const maxConsecutiveFailsByEmail = 5;
@@ -57,6 +58,48 @@ const createLimiters = () => {
   });
 };
 
+const getIpDetails = async (req, user, method, ipOverride) => {
+  let ip = ipOverride ||
+           req.headers['x-forwarded-for']?.split(',')[0] ||
+           req.connection?.remoteAddress ||
+           req.ip;
+
+  if (ip && ip.includes('::ffff:')) {
+    ip = ip.split('::ffff:')[1];
+  }
+
+  let geoData = {};
+  try {
+    const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+    geoData = await geoRes.json();
+    console.log('Captured IP:', ip);
+    console.log('Geo Data:', geoData);
+  } catch (err) {
+    console.error("GeoIP lookup failed:", err.message);
+  }
+
+  try {
+    await UserLog.create({
+      userId: user._id,
+      email: user.email,
+      ip: geoData.query || ip,
+      city: geoData.city || 'Unknown',
+      country: geoData.country || 'Unknown',
+      latitude: geoData.lat?.toString() || 'Unknown',
+      longitude: geoData.lon?.toString() || 'Unknown',
+      service: geoData.isp || 'Unknown',
+      region: geoData.regionName || 'Unknown',
+      method
+    });
+    console.log('Successfully logged:', method, 'event');
+  } catch (err) {
+    console.error("Failed to save login/logout event:", {
+      message: err.message,
+      stack: err.stack
+    });
+  }
+};
+
 export const register = async (req, res, next) => {
   try {
     // const { email, password } = req.body
@@ -100,10 +143,10 @@ export const login = async (req, res, next) => {
 
     // Check IP-based limit
     await limiterSlowBruteByIP.consume(ipAddr);
-    
+
     // Check email+IP attempts
     const resEmail = await limiterConsecutiveFailsByEmail.get(emailKey);
-    
+
     if (resEmail?.consumedPoints >= maxConsecutiveFailsByEmail) {
       const retrySecs = Math.round(resEmail.msBeforeNext / 1000) || 1;
       res.set('Retry-After', retrySecs);
@@ -140,13 +183,15 @@ export const login = async (req, res, next) => {
     const accessToken = await signAccessToken(user._id, user.role);
     const refreshToken = await signRefreshToken(user._id);
     user.role = undefined;
+
+    await getIpDetails(req, user, 'login');
     res.status(200).json({
       success: true,
       accessToken,
       refreshToken,
       user
     });
-
+   
   } catch (error) {
     console.error(`Login error for ${email}:`, error.stack);
 
@@ -182,10 +227,11 @@ export const login = async (req, res, next) => {
     // Preserve original error status if available
     const status = error.status || 500;
     const message = status === 500 ? 'Internal server error' : error.message;
-    
+
     next(createError(status, message));
   }
 };
+
 
 export const refreshToken = async (req, res, next) => {
   try {
@@ -214,26 +260,32 @@ export const verifyToken = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken, email } = req.body;
     if (!refreshToken) throw createError.BadRequest("Refresh token is required");
 
     const userId = await verifyRefreshToken(refreshToken);
-    
-    // Delete refresh token from Redis
+    const user = await User.findById(userId);
+
+    console.log("Calling getIpDetails...");
+    await getIpDetails(req, user, 'logout');
+
     await redisClient.del(userId);
-    
-    // Clear cookies
+
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: '/'
+      path: '/',
     });
-    
+
     res.sendStatus(204);
   } catch (error) {
-    // Even if token is invalid, clear client-side storage
     console.error("Logout error:", error.message);
+
+    // Use email from request if available
+    const { email } = req.body;
+    await getIpDetails(req, { _id: "unknown", email: email || "unknown" }, 'logout');
+
     res.clearCookie('refreshToken');
     next(createError.Unauthorized("Session terminated"));
   }

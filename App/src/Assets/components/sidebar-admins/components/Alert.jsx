@@ -141,8 +141,8 @@ const Alert = () => {
   const handleEditClick = (user) => {
     console.log("Edit clicked for user:", user);
     setEditFormData({
-      name: user.name,
       email: user.email,
+      name: user.name,
       phoneNo: user.phoneNo.replace("+91 ", ""), // Remove the +91 prefix
       employeeNo: user.employeeNo
     });
@@ -179,10 +179,9 @@ const Alert = () => {
     try {
       setIsSaving(true);
       const response = await API.put(
-        `${process.env.REACT_APP_SERVER_URL}api/admin/updateAlertUser`,
+        `${process.env.REACT_APP_SERVER_URL}api/admin/updateAlertUser/${encodeURIComponent(editFormData.email)}`,
         {
           name: editFormData.name,
-          email: editFormData.email,
           phoneNo: editFormData.phoneNo,
           employeeNo: editFormData.employeeNo
         }
@@ -191,6 +190,14 @@ const Alert = () => {
       console.log('Alert user updated:', response.data);
       toast.success('User has been updated successfully');
       setIsEditModalOpen(false);
+      
+      // Reset edit form data
+      setEditFormData({
+        name: "",
+        email: "",
+        phoneNo: "",
+        employeeNo: ""
+      });
       
       // Refresh the user list
       fetchAlertUsers();
