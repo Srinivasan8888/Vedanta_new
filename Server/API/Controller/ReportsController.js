@@ -129,6 +129,41 @@ export const generateAndSendReports = async (req, res) => {
   }
 };
 
+// Controller to send test email
+export const sendTestEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email address is required' });
+    }
+
+    // Create test data
+    const testData = {
+      subject: 'Test Email from Vedanta Application',
+      text: 'This is a test email to verify the email functionality.',
+      html: '<h2>Test Email</h2><p>This is a test email to verify the email functionality is working correctly.</p>'
+    };
+
+    // Send the test email
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: testData.subject,
+      text: testData.text,
+      html: testData.html
+    });
+
+    res.status(200).json({
+      message: 'Test email sent successfully',
+      response: info.response
+    });
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ error: 'Failed to send test email', details: error.message });
+  }
+};
+
 // Controller to update user's report frequency
 export const updateReportFrequency = async (req, res) => {
   try {
