@@ -1,3 +1,8 @@
+// In your main server file
+import reportsRouter from './API/Router/ReportsRouter.js';
+import reportCron from './API/Cron/ReportCron.js';
+
+
 import express from "express";
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
@@ -63,6 +68,8 @@ app.use('/auth', AuthRoute);
 app.use('/api/v1', InsertRoute);
 app.use('/api/v2', ApiRoute);
 app.use('/api/admin', AdminRoute);
+app.use('/api/reports', reportsRouter);
+app.use('/api/cron', reportCron);
 
 app.get('/health', (req, res) => {
     res.json({ 
