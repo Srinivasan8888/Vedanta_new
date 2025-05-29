@@ -40,8 +40,11 @@ app.use(cors({
     'Authorization',
     'x-client-id',
     'x-client-ip',
-    'x-user-id'
-  ],
+    'x-user-id',
+    'Cache-Control', 
+    'Pragma', 
+    'Expires'
+],
   credentials: true
 }));
 

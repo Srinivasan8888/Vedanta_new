@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import bg from "../../Assets/images/bg.png";
 import Adminsidebar from "../../Assets/components/sidebar-admins/adminsidebar";
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -7,36 +7,128 @@ import Alert from "../../Assets/components/sidebar-admins/components/Alert";
 import ColorRange from "../../Assets/components/sidebar-admins/components/ColorRange";
 import User from "../../Assets/components/sidebar-admins/components/User";
 import Alertslogs from "../../Assets/components/sidebar-admins/components/Alertslogs";
-// import { Sidebar } from "../../Assets/Sidebar/Sidebar";
+import Sidebar from "../../Assets/Sidebar/Sidebar";
 import API from "../../Assets/components/Axios/AxiosInterceptor";
 const Settings = () => {
   const location = useLocation();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(() => {
+    // Initialize with cached data if available
+    const cachedData = {};
+    const cachedKeys = Object.keys(localStorage).filter(key => key.startsWith('settings'));
+    cachedKeys.forEach(key => {
+      cachedData[key.replace('settings', '').charAt(0).toLowerCase() + key.replace('settings', '').slice(1)] = localStorage.getItem(key);
+    });
+    return Object.keys(cachedData).length > 0 ? cachedData : null;
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUserData = useCallback(() => {
+    const email = localStorage.getItem("email");
+    if (email) {
+      setIsLoading(true);
+      API.post(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserDetails`, { email })
+        .then(response => {
+          const userData = response.data.data;
+          if (userData) {
+            setUserData(userData);
+            // Store each user data field in localStorage with 'settings' prefix
+            Object.entries(userData).forEach(([key, value]) => {
+              if (value !== null && value !== undefined) {
+                localStorage.setItem(`settings${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
+              }
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching user data:", error);
+          // If we have cached data, don't show an error to the user
+          if (!userData) {
+            // Handle error state if needed
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsLoading(false);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    fetchUserData();
+    
+    // Set up a refresh interval (e.g., every 5 minutes)
+    const refreshInterval = setInterval(fetchUserData, 5 * 60 * 1000);
+    
+    // Also refresh when the page becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchUserData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearInterval(refreshInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchUserData]);
 
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (email) {
-      API.post(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserDetails`, { email })
+      API.post(`${process.env.REACT_APP_SERVER_URL}auth/get-role`, { email })
         .then(response => {
-          setUserData(response.data.data);
+          if (response.data.success) {
+            setUserData({
+              ...userData,
+              role: response.data.role
+            });
+            localStorage.setItem('userData', JSON.stringify({
+              ...userData,
+              role: response.data.role
+            })); // Optional: cache it
+          } else {
+            throw new Error("Failed to fetch user role");
+          }
         })
-        .catch(error => console.error("Error fetching user data:", error));
+        .catch(error => {
+          console.error("Error fetching user role:", error);
+          const storedUser = localStorage.getItem('userData');
+          if (storedUser) {
+            setUserData(JSON.parse(storedUser));
+          }
+        });
     }
   }, []);
+
+  // Check if user is admin or superadmin
+  const isAdminUser = userData && (userData.role === 'admin' || userData.role === 'superadmin');
 
   return (
     <div
       className="relative flex flex-col w-screen h-screen bg-fixed bg-center bg-cover"
       style={{ backgroundImage: `url(${bg})` }}
-    >
-      {/* <Sidebar /> */}
+    > <>
+    {isAdminUser ? "" : <Sidebar
+      onLogout={() => {
+        // if (socketRef.current) {
+        //   socketRef.current.disconnect();
+        // }
+      }}
+    />}</>
+      
       <div className="flex flex-row w-full h-full">
-        <div className="w-auto h-full">
-          <Adminsidebar />
+        <div className="w-auto h-full overflow-hidden">
+          {isAdminUser ? <Adminsidebar /> : ""}
         </div>
 
         <div className="w-full h-full text-white">
+          
+        
           <div className="flex h-[100%] flex-1 flex-col content-between gap-16 px-4 py-4">
+          
             <div className="flex h-[45%] w-full rounded-2xl border-2 border-white bg-[rgba(16,16,16,0.75)] backdrop-blur-sm">
               <div className="w-full">
                 <div className="flex h-[20%] items-center justify-start pl-5 font-['Poppins'] text-lg font-bold">
@@ -44,7 +136,7 @@ const Settings = () => {
                 </div>
                 <div className="flex h-[60%] items-center justify-center">
                   <div className="font-['Poppins'] flex h-28 w-28 items-center justify-center rounded-full border-[5px] border-white text-3xl font-bold">
-                    {userData ? userData.name.charAt(0) : "Error"}
+                    {userData?.name?.charAt(0).toUpperCase() || "E"}
                   </div>
                 </div>
               </div>
@@ -105,7 +197,7 @@ const Settings = () => {
               </div>
 
               <div>
-                <button className="m-14 rounded-lg bg-[#101010]/70 outline outline-1 outline-offset-[-0.50px] outline-white">
+                {/* <button className="m-14 rounded-lg bg-[#101010]/70 outline outline-1 outline-offset-[-0.50px] outline-white">
                   <div className="flex items-center justify-center w-24 h-12 gap-3 text-center">
                     Edit
                     <svg
@@ -123,7 +215,7 @@ const Settings = () => {
                       />
                     </svg>
                   </div>
-                </button>
+                </button> */}
               </div>
             </div>
             <div className="flex h-[50%] rounded-2xl border-2 border-white bg-[rgba(16,16,16,0.75)] backdrop-blur-sm">
@@ -175,7 +267,7 @@ const Settings = () => {
                
               </div>
               <div>
-                <button className="m-14 rounded-lg bg-[#101010]/70 outline outline-1 outline-offset-[-0.50px] outline-white">
+                {/* <button className="m-14 rounded-lg bg-[#101010]/70 outline outline-1 outline-offset-[-0.50px] outline-white">
                   <div className="flex items-center justify-center w-24 h-12 gap-3 text-center">
                     Edit
                     <svg
@@ -193,7 +285,7 @@ const Settings = () => {
                       />
                     </svg>
                   </div>
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

@@ -300,7 +300,12 @@ const Generatereport = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center rounded-full border border-blue-700 p-2.5 text-center text-sm font-medium text-blue-700 hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-500 dark:hover:text-white dark:focus:ring-blue-800"
+                disabled={localStorage.getItem('role') !== 'superadmin'}
+                className={`inline-flex items-center rounded-full border p-2.5 text-center text-sm font-medium focus:outline-none focus:ring-4 ${
+                  localStorage.getItem('role') === 'superadmin'
+                    ? 'border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-500 dark:hover:text-white dark:focus:ring-blue-800 cursor-pointer'
+                    : 'border-gray-400 text-gray-400 cursor-not-allowed dark:border-gray-600 dark:text-gray-600'
+                }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +376,13 @@ const Generatereport = () => {
                             <button
                               type="button"
                               onClick={() => handleEditClick(user)}
-                              className="p-2 rounded-full hover:bg-gray-700"
+                              disabled={localStorage.getItem('role') !== 'superadmin'}
+                              className={`p-2 rounded-full ${
+                                localStorage.getItem('role') === 'superadmin'
+                                  ? 'hover:bg-gray-700 cursor-pointer'
+                                  : 'opacity-50 cursor-not-allowed'
+                              }`}
+                              title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can edit' : 'Edit'}
                             >
                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
                                 <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
@@ -381,7 +392,13 @@ const Generatereport = () => {
                             <button
                               type="button"
                               onClick={() => handleDeleteClick(user)}
-                              className="p-2 rounded-full hover:bg-gray-700"
+                              disabled={localStorage.getItem('role') !== 'superadmin'}
+                              className={`p-2 rounded-full ${
+                                localStorage.getItem('role') === 'superadmin'
+                                  ? 'hover:bg-gray-700 cursor-pointer'
+                                  : 'opacity-50 cursor-not-allowed'
+                              }`}
+                              title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can delete' : 'Delete'}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -455,7 +472,10 @@ const Generatereport = () => {
                   value="daily"
                   checked={selectedRadioFrequency === 'daily'}
                   onChange={handleRadioFrequencyChange}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  disabled={localStorage.getItem('role') !== 'superadmin'}
+                  className={`w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 ${
+                    localStorage.getItem('role') !== 'superadmin' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 />
                 <span className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">
                   Daily
@@ -468,7 +488,10 @@ const Generatereport = () => {
                   value="weekly"
                   checked={selectedRadioFrequency === 'weekly'}
                   onChange={handleRadioFrequencyChange}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  disabled={localStorage.getItem('role') !== 'superadmin'}
+                  className={`w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 ${
+                    localStorage.getItem('role') !== 'superadmin' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 />
                 <span className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">
                   Weekly
@@ -481,7 +504,10 @@ const Generatereport = () => {
                   value="monthly"
                   checked={selectedRadioFrequency === 'monthly'}
                   onChange={handleRadioFrequencyChange}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  disabled={localStorage.getItem('role') !== 'superadmin'}
+                  className={`w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 ${
+                    localStorage.getItem('role') !== 'superadmin' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 />
                 <span className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300">
                   Monthly
@@ -495,8 +521,13 @@ const Generatereport = () => {
           <button
             type="button"
             onClick={handleSaveChanges}
-            disabled={isSaving || !selectedRadioFrequency || !selectedFrequency}
-            className="mt-4 inline-flex h-12 w-32 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSaving || !selectedRadioFrequency || !selectedFrequency || localStorage.getItem('role') !== 'superadmin'}
+            className={`mt-4 inline-flex h-12 w-32 items-center justify-center rounded-2xl px-5 py-2.5 text-center text-sm backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium ${
+              localStorage.getItem('role') === 'superadmin' 
+                ? 'bg-white text-black hover:bg-gray-100' 
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            } ${(isSaving || !selectedRadioFrequency || !selectedFrequency) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can save changes' : ''}
           >
             {isSaving ? (
               <>

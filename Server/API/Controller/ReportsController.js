@@ -17,9 +17,13 @@ const transporter = nodemailer.createTransport({
 
 // Helper function to calculate date range based on frequency
 const calculateDateRange = (frequency, lastSentDate) => {
+  // Get current IST time
   const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+  const nowIST = new Date(now.getTime() + istOffset);
   let startDate;
 
+  // Calculate start date based on frequency
   switch (frequency.toLowerCase()) {
     case 'daily':
       startDate = moment(lastSentDate).add(1, 'days').toDate();
@@ -34,9 +38,14 @@ const calculateDateRange = (frequency, lastSentDate) => {
       startDate = moment(lastSentDate).toDate();
   }
 
+  // Ensure start date is always before end date
+  if (startDate > nowIST) {
+    startDate = new Date(nowIST.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+  }
+
   return {
     startDate: startDate.toISOString().split('T')[0],
-    endDate: now.toISOString().split('T')[0]
+    endDate: nowIST.toISOString().split('T')[0]
   };
 };
 

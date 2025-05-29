@@ -20,9 +20,9 @@ const User = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmpassword, setconfirmPassword] = useState(""); 
-  const [phoneno, setPhoneno] = useState(""); 
-  const [empid, setEmpid] = useState(""); 
+  const [confirmpassword, setconfirmPassword] = useState("");
+  const [phoneno, setPhoneno] = useState("");
+  const [empid, setEmpid] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -33,10 +33,10 @@ const User = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`);
-      
+
       if (response.data && response.data.data) {
         // Transform the API data to match our table structure
         const transformedData = response.data.data.map((user, index) => ({
@@ -47,9 +47,9 @@ const User = () => {
           Employee: user.empid || 'N/A',
           phone: user.phoneno ? `+91 ${user.phoneno}` : 'N/A' // Add +91 prefix to phone number
         }));
-        
+
         setTableAData(transformedData);
-        
+
         // For Table B (User Activity Log), we'll fetch real data from the API
         setTableBData([]); // This will be populated by fetchUserLogs useEffect
       } else {
@@ -107,58 +107,58 @@ const User = () => {
       toast.error("Password is not matching");
     }
   };
-  
+
   // Function to fetch user logs from API
-    const fetchUserLogs = async () => {
-      // setIsLoading(true); // You might want to set loading for this table too
-      // setError(null);
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserLogs`);
-  
-        if (response.data && response.data.data) {
-          // Transform the API data to match our table structure
-          const transformedData = response.data.data.map((log, index) => {
-            let methodDisplay;
-            const methodName = log.method ? log.method.toLowerCase() : '';
-  
-            if (methodName === 'login') {
-              methodDisplay = <span className="text-green-500 font-medium">{log.method}</span>;
-            } else if (methodName === 'logout') {
-              methodDisplay = <span className="text-red-500 font-medium">{log.method}</span>;
-            } else {
-              // Default styling if method is neither login nor logout, or is undefined/null
-              methodDisplay = <span className="text-gray-700 dark:text-gray-300 font-medium">{log.method || 'N/A'}</span>;
-            }
-  
-            return {
-              sno: index + 1,
-              userId: log.userId || 'N/A',
-              email: log.email || 'N/A',
-              ip: log.ip || 'N/A',
-              method: methodDisplay, // Use the JSX element here
-              city: log.city || 'N/A',
-              country: log.country || 'N/A',
-              latitude: log.latitude || 'N/A',
-              longitude: log.longitude || 'N/A',
-              service: log.service || 'N/A',
-              region: log.region || 'N/A',
-              loginAt: log.loginAt ? new Date(parseInt(log.loginAt)).toLocaleString() : 'N/A'
-            };
-          });
-  
-          setTableBData(transformedData);
-        } else {
-          setError("No user logs received from the server"); // This error might conflict if fetchUsers also sets errors
-        }
-      } catch (err) {
-        console.error("Error fetching user logs:", err);
-        // setError("Failed to fetch user logs. Please try again later."); // Be mindful of error state shared with fetchUsers
-        toast.error("Failed to fetch user logs."); // Use toast for specific log errors
-      } finally {
-        // setIsLoading(false); // Corresponding loading state for this fetch
+  const fetchUserLogs = async () => {
+    // setIsLoading(true); // You might want to set loading for this table too
+    // setError(null);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserLogs`);
+
+      if (response.data && response.data.data) {
+        // Transform the API data to match our table structure
+        const transformedData = response.data.data.map((log, index) => {
+          let methodDisplay;
+          const methodName = log.method ? log.method.toLowerCase() : '';
+
+          if (methodName === 'login') {
+            methodDisplay = <span className="text-green-500 font-medium">{log.method}</span>;
+          } else if (methodName === 'logout') {
+            methodDisplay = <span className="text-red-500 font-medium">{log.method}</span>;
+          } else {
+            // Default styling if method is neither login nor logout, or is undefined/null
+            methodDisplay = <span className="text-gray-700 dark:text-gray-300 font-medium">{log.method || 'N/A'}</span>;
+          }
+
+          return {
+            sno: index + 1,
+            userId: log.userId || 'N/A',
+            email: log.email || 'N/A',
+            ip: log.ip || 'N/A',
+            method: methodDisplay, // Use the JSX element here
+            city: log.city || 'N/A',
+            country: log.country || 'N/A',
+            latitude: log.latitude || 'N/A',
+            longitude: log.longitude || 'N/A',
+            service: log.service || 'N/A',
+            region: log.region || 'N/A',
+            loginAt: log.loginAt ? new Date(parseInt(log.loginAt)).toLocaleString() : 'N/A'
+          };
+        });
+
+        setTableBData(transformedData);
+      } else {
+        setError("No user logs received from the server"); // This error might conflict if fetchUsers also sets errors
       }
-    };
-  
+    } catch (err) {
+      console.error("Error fetching user logs:", err);
+      // setError("Failed to fetch user logs. Please try again later."); // Be mindful of error state shared with fetchUsers
+      toast.error("Failed to fetch user logs."); // Use toast for specific log errors
+    } finally {
+      // setIsLoading(false); // Corresponding loading state for this fetch
+    }
+  };
+
 
   // Load user logs when component mounts
   useEffect(() => {
@@ -180,7 +180,7 @@ const User = () => {
     { id: "sno", label: "S.No" },
     { id: "email", label: "Email" },
     { id: "ip", label: "IP Address" },
-    { id: "method", label: "Method"},
+    { id: "method", label: "Method" },
     { id: "city", label: "City" },
     { id: "country", label: "Country" },
     { id: "latitude", label: "Latitude" },
@@ -219,24 +219,24 @@ const User = () => {
   const handleEditClick = (row) => {
     // Set the selected user for editing
     setSelectedUser(row);
-    
+
     // Extract phone number without the +91 prefix
     const phoneNumber = row.phone.replace('+91 ', '');
-    
+
     // Populate the form fields with the user's data
     setName(row.name);
     setEmail(row.email);
     setRole(row.role);
     setPhoneno(phoneNumber);
     setEmpid(row.Employee);
-    
+
     // Clear password fields as we don't want to show the hashed password
     setPassword('');
     setconfirmPassword('');
-    
+
     // Set edit mode to true
     setIsEditMode(true);
-    
+
     // Open the modal
     setIsModalOpen(true);
   };
@@ -286,12 +286,12 @@ const User = () => {
   // Handle form submission for both create and update
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     // If in edit mode, update the user
     if (isEditMode) {
       try {
         setIsSaving(true);
-        
+
         // Prepare update data
         const updateData = {
           name,
@@ -299,7 +299,7 @@ const User = () => {
           phoneno,
           empid
         };
-        
+
         // Only include password if it's provided
         if (password) {
           if (password !== confirmpassword) {
@@ -309,13 +309,13 @@ const User = () => {
           }
           updateData.password = password;
         }
-        
+
         // Make API call to update the user using API instance
         const response = await API.put(
           `${process.env.REACT_APP_SERVER_URL}api/admin/updateUsers/${email}`,
           updateData
         );
-        
+
         if (response.data && response.data.success) {
           toast.success("User updated successfully");
           setIsModalOpen(false);
@@ -396,19 +396,27 @@ const User = () => {
           <button
             type="button"
             onClick={() => {
-              resetForm();
-              setIsModalOpen(true);
+              if (localStorage.getItem('role') === 'superadmin') {
+                resetForm();
+                setIsModalOpen(true);
+              }
             }}
-            class="mb-2 me-2 inline-flex items-center rounded-lg bg-[#050708] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#050708]/90 focus:outline-none focus:ring-4 focus:ring-[#050708]/50 md:h-16 md:w-44 dark:hover:bg-[#050708]/30 dark:focus:ring-[#050708]/50"
+            disabled={localStorage.getItem('role') !== 'superadmin'}
+            className={`mb-2 me-2 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium ${
+              localStorage.getItem('role') === 'superadmin'
+                ? 'bg-[#050708] text-white hover:bg-[#050708]/90 focus:ring-4 focus:ring-[#050708]/50 dark:hover:bg-[#050708]/30 dark:focus:ring-[#050708]/50 cursor-pointer'
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-70'
+            } md:h-16 md:w-44`}
+            title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can add users' : 'Add new user'}
           >
-            <img src={adduser} alt="adduser" className="w-5 h-5 -ms-1 me-2" />
+            <img src={adduser} alt="adduser" className={`w-5 h-5 -ms-1 me-2 ${localStorage.getItem('role') !== 'superadmin' ? 'opacity-50' : ''}`} />
             Add User
           </button>
         </div>
       </div>
-      <div className="flex flex-col flex-1 gap-4 px-4 py-4 rounded-2xl">
-        <div className="h-[95%] rounded-2xl border-2 border-white bg-[#101010]/90 backdrop-blur-sm">
-          <Table 
+      <div className="flex flex-col flex-1 gap-4 px-4 py-4 rounded-2xl overflow-hidden">
+        <div className="rounded-2xl border-2 border-white bg-[#101010]/90 backdrop-blur-sm h-full min-h-[95%] max-h-[calc(100vh-250px)] flex flex-col">
+          <Table
             headers={activeTable === "UserP" ? tableAHeaders : tableBHeaders}
             data={activeTable === "UserP" ? tableAData : tableBData}
             isLoading={isLoading}
@@ -416,19 +424,19 @@ const User = () => {
             actions={activeTable === "UserP" ? tableActions : []}
             actionLabel={activeTable === "UserP" ? "Actions" : null}
             headerClassName="bg-[rgba(59,59,59)]"
-            className="h-[100%]"
+            className="overflow-y-hidden"
           />
         </div>
       </div>
-      
+
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop with blur */}
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
             onClick={handleCloseModal}
           />
-          
+
           {/* Modal content */}
           <div className="relative z-50 w-full max-w-md p-6 bg-white rounded-lg shadow-lg dark:bg-gray-800">
             <div className="flex items-center justify-between mb-4">
@@ -536,7 +544,7 @@ const User = () => {
               </div>
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Phone Number
+                  Phone Number
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
@@ -563,27 +571,27 @@ const User = () => {
               </div>
 
               <div>
-                  <label
-                    for="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    User Role
-                  </label>
+                <label
+                  for="confirm-password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  User Role
+                </label>
 
-                  <select 
-                    required 
-                    value={role}
-                    onChange={(e) => {
-                      setRole(e.target.value);
-                    }} 
-                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="superadmin">Super-Admin</option>
-                  </select>
-                </div>
-              
+                <select
+                  required
+                  value={role}
+                  onChange={(e) => {
+                    setRole(e.target.value);
+                  }}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="superadmin">Super-Admin</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Employee ID
@@ -594,7 +602,7 @@ const User = () => {
                   value={empid}
                   onChange={(e) => setEmpid(e.target.value)}
                   className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                 required="true"
+                  required="true"
                 />
               </div>
 
@@ -628,7 +636,7 @@ const User = () => {
           </div>
         </div>
       )}
-      
+
     </div>
   );
 };

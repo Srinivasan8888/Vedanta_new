@@ -14,35 +14,16 @@ import "../components/miscellaneous/Scrollbar.css";
 
 // Ref to track current socket
 
-const SearchInput = ({
-  iddropdown,
-  searchText,
-  handleSearchChange,
-  filteredData,
-  handleSuggestionClick,
-  showSuggestions,
-  setShowSuggestions,
-  refreshUniqueIds,
-  className,
-}) => {
-  const containerRef = useRef(null);
+const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick }) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const handleSuggestionSelect = (item) => {
+    handleSuggestionClick(item);
+    setShowSuggestions(false);
+  };
 
   return (
-    <div
-      className={`font-poppins z-30 flex items-center justify-center rounded-xl border border-white font-medium text-white backdrop-blur-sm md:w-[30%] md:text-[14px] lg:w-[25%] lg:text-[16px] xl:w-[22%] xl:text-[18px] 2xl:w-[20%] 2xl:text-[22px] ${className}`}
-      ref={containerRef}
-    >
+    <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30">
       <div className="relative flex items-center w-full">
         <input
           id="search"
@@ -51,24 +32,18 @@ const SearchInput = ({
           value={searchText}
           onChange={handleSearchChange}
           placeholder="Search"
-          className="h-full w-full rounded-xl bg-transparent py-1.5 pl-5 pr-16 text-white placeholder:text-white/70 focus:outline-none md:pl-4 md:pr-12 placeholder:md:text-[10px] lg:pl-5 lg:pr-14 lg:placeholder:text-[12px] xl:pl-6 xl:pr-16 xl:placeholder:text-[14px]"
-          onFocus={() => {
-            refreshUniqueIds();
-            setShowSuggestions(true);
-          }}
+          className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
+          onFocus={() => setShowSuggestions(true)}
         />
-
+        
         {showSuggestions && searchText && (
-          <ul className="absolute left-0 right-0 top-full max-h-[30vh] overflow-y-auto rounded-xl border border-gray-300 bg-white text-[14px] text-black shadow-lg lg:text-[16px] xl:text-[18px]">
+          <ul className="absolute left-0 right-0 z-40 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
                 <li
                   key={index}
                   className="p-2 cursor-pointer hover:bg-gray-200"
-                  onClick={() => {
-                    handleSuggestionClick(item);
-                    setShowSuggestions(false);
-                  }}
+                  onClick={() => handleSuggestionSelect(item)}
                 >
                   {item}
                 </li>
@@ -233,8 +208,6 @@ const Sidebar = (props) => {
           const seenIds = new Set(
             JSON.parse(localStorage.getItem("seenAlerts") || "[]"),
           );
-
-          // Process all alert types
           const alertTypes = ["critical", "warnings", "warning", "info"];
           let newAlerts = [];
 
@@ -277,9 +250,8 @@ const Sidebar = (props) => {
       }
     };
 
-    // Initial fetch and set up polling
-    fetchAlerts();
     const interval = setInterval(fetchAlerts, 5000);
+    fetchAlerts();
     return () => clearInterval(interval);
   }, [alerts]);
 
@@ -299,16 +271,13 @@ const Sidebar = (props) => {
           </div>
 
           <div className="flex-1 mx-2">
-            <SearchInput
-              iddropdown={iddropdown}
-              searchText={searchText}
-              handleSearchChange={handleSearchChange}
-              filteredData={filteredData}
-              handleSuggestionClick={handleSuggestionClick}
-              showSuggestions={showSuggestions}
-              setShowSuggestions={setShowSuggestions}
-              refreshUniqueIds={refreshUniqueIds}
-            />
+          <SearchInput
+          iddropdown={iddropdown}
+          searchText={searchText}
+          handleSearchChange={handleSearchChange}
+          filteredData={filteredData}
+          handleSuggestionClick={handleSuggestionClick}
+        />
           </div>
 
           <div className="flex w-[16%] items-end p-4">

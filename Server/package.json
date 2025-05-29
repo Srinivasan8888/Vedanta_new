@@ -32,6 +32,7 @@
         "dev": "nodemon server.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
+    "proxy": "http://34.100.168.176:4000",
     "keywords": [],
     "author": "",
     "license": "ISC",

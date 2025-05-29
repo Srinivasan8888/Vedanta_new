@@ -9,6 +9,7 @@ import NoPage from "./pages/Nopage/Nopage";
 import Report from "./pages/Report/Report";
 import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./Assets/components/ProtectedRouter/ProtectedRouter";
+import ProtectedAdminRoute from "./Assets/components/ProtectedRouter/ProtectedAdminRouter";
 import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 import CollectorBar from "./pages/CollectorBar/CollectorBar";
@@ -33,20 +34,23 @@ function App() {
           {/* Protected routes */}
           
             <Route path="/admin/*" element={
-              <div className="flex min-h-screen bg-center bg-no-repeat bg-cover" style={{ backgroundImage: `url(${bg})` }}>
-                <AdminSidebar />
-                <div className="flex-1">
+            <div className="flex min-h-screen bg-center bg-no-repeat bg-cover" style={{ backgroundImage: `url(${bg})` }}>
+              <AdminSidebar />
+              <div className="flex-1">
+                <ProtectedAdminRoute>
                   <Routes>
-                    <Route index element={<Navigate to="/admin/generate-report" replace />} />
+                    <Route index element={<Navigate to="generate-report" replace />} />
                     <Route path="generate-report" element={<Generatereport />} />
                     <Route path="set-alert" element={<Alert />} />
                     <Route path="color-range" element={<ColorRange />} />
                     <Route path="user" element={<User />} />
                     <Route path="alerts-logs" element={<Alertslogs />} />
+                    <Route path="*" element={<Navigate to="Settings" replace />} />
                   </Routes>
-                </div>
+                </ProtectedAdminRoute>
               </div>
-            } />
+            </div>
+          } />
             <Route element={<ProtectedRoute />}>
             <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/CollectorBar" element={<CollectorBar />} />

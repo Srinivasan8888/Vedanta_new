@@ -15,8 +15,8 @@ const Table = ({
   customRowRender,
   className = "",
   headerClassName = "bg-[#101010]/90",
-  rowClassName = "border-b border-gray-700",
-  cellClassName = "px-4 py-4",
+  rowClassName = "border-b border-gray-700 overflow-y-auto",
+  cellClassName = "px-4 py-4 ",
   headerCellClassName = "px-4 py-3 text-center whitespace-nowrap",
   actions = [] // New prop for multiple actions
 }) => {
@@ -48,9 +48,10 @@ const Table = ({
   }
 
   return (
-    <div className={`scrollbar-customd overflow-x-auto ${className}`}>
-      <div className="min-w-[30px] overflow-x-auto   rounded-2xl">
-        <table className="w-full text-white">
+    <div className={`scrollbar-customd rounded-2xl overflow-y-auto ${className}`}>
+      <div className="min-w-[30px] rounded-2xl">
+        <div>
+          <table className="w-full text-white">
           <thead className={`sticky top-0 ${headerClassName} text-base backdrop-blur-sm`}>
             <tr>
               {headers.map((header, index) => (
@@ -72,7 +73,7 @@ const Table = ({
               )}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="overflow-y-scroll">
             {customRowRender ? (
               customRowRender(data)
             ) : (
@@ -92,9 +93,14 @@ const Table = ({
                             <button
                               key={index}
                               type="button"
-                              onClick={() => action.onClick && action.onClick(row)}
-                              className="p-2 rounded-full hover:bg-gray-700"
-                              title={action.label || ""}
+                              onClick={(e) => {
+                                if (localStorage.getItem('role') === 'superadmin' && action.onClick) {
+                                  action.onClick(row);
+                                }
+                              }}
+                              className={`p-2 rounded-full ${localStorage.getItem('role') === 'superadmin' ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}`}
+                              title={localStorage.getItem('role') === 'superadmin' ? (action.label || '') : 'Only superadmin can perform this action'}
+                              disabled={localStorage.getItem('role') !== 'superadmin'}
                             >
                               {action.icon}
                             </button>
@@ -104,8 +110,14 @@ const Table = ({
                         actionIcon && (
                           <button
                             type="button"
-                            onClick={() => onActionClick && onActionClick(row)}
-                            className="p-2 rounded-full hover:bg-gray-700"
+                            onClick={(e) => {
+                              if (localStorage.getItem('role') === 'superadmin' && onActionClick) {
+                                onActionClick(row);
+                              }
+                            }}
+                            className={`p-2 rounded-full ${localStorage.getItem('role') === 'superadmin' ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}`}
+                            title={localStorage.getItem('role') === 'superadmin' ? '' : 'Only superadmin can perform this action'}
+                            disabled={localStorage.getItem('role') !== 'superadmin'}
                           >
                             {actionIcon}
                           </button>
@@ -118,6 +130,7 @@ const Table = ({
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

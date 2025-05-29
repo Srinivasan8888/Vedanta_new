@@ -310,17 +310,9 @@ export const refreshAccessToken = async (req, res, next) => {
   }
 };
   
-export const getRole = async (req, res) => {
+export const getRole = async (req, res, next) => {
   try {
-    const email = req.body.email;
-    const token = req.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'No token provided'
-      });
-    }
+    const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -329,9 +321,6 @@ export const getRole = async (req, res) => {
       });
     }
 
-    // Verify the JWT token
-    const decoded = await verifyAccessToken(token);
-    
     // Find user in database
     const user = await User.findOne({ email });
     
@@ -346,7 +335,7 @@ export const getRole = async (req, res) => {
     if (user.role !== 'admin' && user.role !== 'superadmin') {
       return res.status(403).json({
         success: false,
-        message: 'Access denied'
+        message: 'Access denied. Admin or Superadmin role required.'
       });
     }
 
@@ -357,17 +346,7 @@ export const getRole = async (req, res) => {
     });
 
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token'
-      });
-    }
-    
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.error('Error in getRole:', error);
+    next(error);
   }
 }
