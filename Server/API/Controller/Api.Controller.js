@@ -335,11 +335,447 @@ export const Bside = async (req, res) => {
 
 // collectorbar page
 
+// export const getallsensorw = async (req, res) => {
+//   try {
+//     const userId = req.headers['x-user-id'];
+//     const { time } = req.query; // Extract `time` and `userId` from query parameters
+//     console.log("userId", userId);
+//     // Array of sensor models
+//     const collectionModels = [
+//       SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
+//       SensorModel6, SensorModel7, SensorModel8, SensorModel9, SensorModel10
+//     ];
+
+//     // Helper function to calculate the start time based on the `time` parameter
+//     const setChangedTime = (time) => {
+//       const currentDateTime = new Date();
+//       switch (time) {
+//         case "1D":
+//           return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
+//         case "3D":
+//           return new Date(currentDateTime.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago
+//         case "1W":
+//           return new Date(currentDateTime.getTime() - (7 * 24 * 60 * 60 * 1000)); // 1 week ago
+//         case "1M":
+//           return new Date(currentDateTime.getTime() - (30 * 24 * 60 * 60 * 1000)); // 1 month ago
+//         case "6M":
+//           return new Date(currentDateTime.getTime() - (6 * 30 * 24 * 60 * 60 * 1000)); // 6 months ago
+//         default:
+//           return new Date(currentDateTime.getTime() - (24 * 60 * 60 * 1000)); // Default to 1 day ago
+//       }
+//     };
+//     const modelMap = {
+//       model1: SensorModel1,
+//       model2: SensorModel2,
+//       model3: SensorModel3,
+//       model4: SensorModel4,
+//       model5: SensorModel5,
+//       model6: SensorModel6,
+//       model7: SensorModel7,
+//       model8: SensorModel8,
+//       model9: SensorModel9,
+//       model10: SensorModel10,
+//     };
+
+//     const models = {
+//       model1: [
+//         "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+//         "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+//         "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+//         "CBT7A1", "CBT7A2"
+//       ],
+//       model2: [
+//         "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+//         "CBT10A1", "CBT10A2"
+//       ],
+//       model3: [
+//         "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+//         "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2"
+//       ],
+//       model4: [
+//         "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2"
+//       ],
+//       model5: [
+//         "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+//         "CBT19A1", "CBT19A2"
+//       ],
+//       model6: [
+//         "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+//         "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+//         "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+//         "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2"
+//       ],
+//       model7: [
+//         "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+//         "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+//         "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+//         "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+//         "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2"
+//       ],
+//       model8: [
+//         "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+//         "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2"
+//       ],
+//       model9: [
+//         "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+//         "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2"
+//       ],
+//       model10: [
+//         "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+//         "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+//         "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+//         "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+//         "CBT27B1", "CBT27B2"
+//       ]
+//     };
+//     const changedTime = setChangedTime(time); // Calculate the start time
+//     const limitPerModel = 2; // Get current and previous value
+//     const projection = '-_id -id -TIME -createdAt -updatedAt -__v -busbar';
+
+//     const asideData = {};
+//     const bsideData = {};
+
+//     // Fetch latest document from each model within the specified time range
+//     for (let i = 0; i < collectionModels.length; i++) {
+//       try {
+//         const documents = await collectionModels[i]
+//           .find({ id: userId })
+//           .sort({ updatedAt: -1 }) // Sort by most recent
+//           .limit(limitPerModel) // Get 2 documents (current and previous)
+//           .lean()
+//           .select(projection);
+
+//         if (documents.length > 0) {
+//           const current = documents[0]; // Current value
+//           const previous = documents[1]; // Previous value
+          
+//           // Get the relevant CBT value based on model index
+//           const cbtName = nameMapping[i];
+          
+//           // Compare current and previous values
+//           const currentValue = current[cbtName];
+//           const previousValue = previous ? previous[cbtName] : null;
+          
+//           // Calculate trend
+//           let trend = 'stable';
+//           if (previousValue !== null) {
+//             if (currentValue > previousValue) {
+//               trend = 'up';
+//             } else if (currentValue < previousValue) {
+//               trend = 'down';
+//             }
+//           }
+          
+//           // Format the data with trend
+//           const formattedValue = {
+//             value: currentValue,
+//             trend: trend
+//           };
+          
+//           if (i < 6) {
+//             asideData[cbtName] = formattedValue; // Models 1 to 5 → Aside
+//           } else {
+//             bsideData[cbtName] = formattedValue; // Models 6 to 10 → Bside
+//           }
+//         }
+//       } catch (error) {
+//         console.error(`Error fetching data from model ${i + 1}:`, error.message);
+//         return res.status(500).json({ error: `Error fetching sensor data from model ${i + 1}`, details: error.message });
+//       }
+//     }
+//     const nameMapping = [
+//       "CBT1A1", "CBT1A2", "CBT2A1", "CBT2A2",
+//       "CBT3A1", "CBT3A2", "CBT4A1", "CBT4A2",
+//       "CBT5A1", "CBT5A2", "CBT6A1", "CBT6A2",
+//       "CBT7A1", "CBT7A2", "CBT8A1", "CBT8A2", "CBT9A1", "CBT9A2",
+//       "CBT10A1", "CBT10A2", "CBT11A1", "CBT11A2", "CBT12A1", "CBT12A2",
+//       "CBT13A1", "CBT13A2", "CBT14A1", "CBT14A2",
+
+//       "CBT15A1", "CBT15A2", "CBT16A1", "CBT16A2",
+//       "CBT17A1", "CBT17A2", "CBT18A1", "CBT18A2",
+//       "CBT19A1", "CBT19A2",
+//       "CBT20A1", "CBT20A2", "CBT21A1", "CBT21A2",
+//       "CBT22A1", "CBT22A2", "CBT23A1", "CBT23A2",
+//       "CBT24A1", "CBT24A2", "CBT25A1", "CBT25A2",
+//       "CBT26A1", "CBT26A2", "CBT27A1", "CBT27A2",
+
+//       "CBT1B1", "CBT1B2", "CBT2B1", "CBT2B2",
+//       "CBT3B1", "CBT3B2", "CBT4B1", "CBT4B2",
+//       "CBT5B1", "CBT5B2", "CBT6B1", "CBT6B2",
+//       "CBT7B1", "CBT7B2", "CBT8B1", "CBT8B2",
+//       "CBT9B1", "CBT9B2", "CBT10B1", "CBT10B2",
+//       "CBT11B1", "CBT11B2", "CBT12B1", "CBT12B2",
+//       "CBT13B1", "CBT13B2", "CBT14B1", "CBT14B2",
+//       "CBT15B1", "CBT15B2", "CBT16B1", "CBT16B2",
+//       "CBT17B1", "CBT17B2", "CBT18B1", "CBT18B2",
+//       "CBT19B1", "CBT19B2", "CBT20B1", "CBT20B2",
+//       "CBT21B1", "CBT21B2", "CBT22B1", "CBT22B2",
+//       "CBT23B1", "CBT23B2", "CBT24B1", "CBT24B2",
+//       "CBT25B1", "CBT25B2", "CBT26B1", "CBT26B2",
+//       "CBT27B1", "CBT27B2"];
+
+//     // Fetch sensor data using the new getSensorData function
+//     const getSensorData = async (changedTime) => {
+//       try {
+//         const maxMinValues = [];
+//         const parameterModelMap = Object.entries(models).reduce((acc, [modelKey, params]) => {
+//           params.forEach(param => acc[param] = modelMap[modelKey]);
+//           return acc;
+//         }, {});
+
+//         await Promise.all(nameMapping.map(async (parameter) => {
+//           const model = parameterModelMap[parameter];
+//           if (!model) {
+//             maxMinValues.push({ name: parameter, value: null, maxTemp: null, minTemp: null });
+//             return;
+//           }
+
+//           try {
+//             const data = await model.aggregate([
+//               {
+//                 $facet: {
+//                   inTimeRange: [
+//                     {
+//                       $match: {
+//                         id: userId,
+//                         createdAt: { $gte: changedTime },
+//                         [parameter]: { $exists: true, $ne: null, $type: ["number", "string"] }
+//                       }
+//                     },
+//                     {
+//                       $limit: 1
+//                     },
+//                     {
+//                       $addFields: {
+//                         numericValue: {
+//                           $convert: {
+//                             input: `$${parameter}`,
+//                             to: "double",
+//                             onError: null,
+//                             onNull: null
+//                           }
+//                         }
+//                       }
+//                     },
+//                     {
+//                       $group: {
+//                         _id: null,
+//                         max: { $max: "$numericValue" },
+//                         min: { $min: "$numericValue" }
+//                       }
+//                     }
+//                   ],
+//                   latest: [
+//                     {
+//                       $match: {
+//                         id: userId,
+//                         [parameter]: { $exists: true, $ne: null }
+//                       }
+//                     },
+//                     { $sort: { TIME: -1 } },
+//                     { $limit: 1 },
+//                     {
+//                       $project: {
+//                         value: {
+//                           $convert: {
+//                             input: `$${parameter}`,
+//                             to: "double",
+//                             onError: null,
+//                             onNull: null
+//                           }
+//                         }
+//                       }
+//                     }
+//                   ]
+//                 }
+//               }
+//             ]);
+
+//             const result = data[0];
+//             let entry = { name: parameter, value: null, maxTemp: null, minTemp: null };
+
+//             // Set latest value first
+//             if (result.latest.length > 0 && result.latest[0].value !== null) {
+//               entry.value = result.latest[0].value;
+//             }
+
+//             // Set max/min temperatures
+//             if (result.inTimeRange.length > 0 && result.inTimeRange[0].max !== null) {
+//               entry.maxTemp = result.inTimeRange[0].max;
+//               entry.minTemp = result.inTimeRange[0].min;
+//             }
+
+//             maxMinValues.push(entry);
+//           } catch (error) {
+//             console.error(`Error processing ${parameter}:`, error);
+//             maxMinValues.push({ name: parameter, value: null, maxTemp: null, minTemp: null });
+//           }
+//         }));
+
+//         return maxMinValues;
+//       } catch (error) {
+//         console.error("Error in getSensorData:", error);
+//         return [];
+//       }
+//     };
+
+//     // Fetch aggregated sensor data
+//     const sensorData = await getSensorData(changedTime);
+
+//     // Function to fetch aggregated data for charts
+//     const combinedDataChart = async (startDateTime) => {
+//       const allData = {
+//         data: {},
+//         timestamps: []
+//       };
+
+//       for (let i = 0; i < collectionModels.length; i++) {
+//         const currentModel = collectionModels[i];
+//         const query = {
+//           createdAt: { $gte: startDateTime },
+//           id: userId,
+//         };
+
+//         try {
+//           const data = await currentModel.aggregate([
+//             { $match: query },
+//             { $sort: { createdAt: -1 } },
+//             {
+//               $project: {
+//                 _id: 0,
+//                 createdAt: 1,
+//                 day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+//                 ...Object.keys(currentModel.schema.paths).reduce((acc, key) => {
+//                   if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id' && key !== 'TIME' && key !== '_id' && key !== 'timestamps') {
+//                     acc[key] = 1;
+//                   }
+//                   return acc;
+//                 }, {}),
+//               },
+//             },
+//             {
+//               $group: {
+//                 _id: "$day",
+//                 createdAt: { $first: "$createdAt" },
+//                 ...Object.keys(currentModel.schema.paths).reduce((acc, key) => {
+//                   if (key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v' && key !== 'busbar' && key !== 'id' && key !== 'TIME' && key !== '_id' && key !== 'timestamps') {
+//                     acc[key] = { $first: `$${key}` };
+//                   }
+//                   return acc;
+//                 }, {}),
+//               },
+//             },
+//             { $sort: { createdAt: -1 } },
+//           ]);
+
+//           // Modified date handling
+//           data.forEach((doc) => {
+//             const dateString = doc._id; // This is the grouped day string
+//             if (!allData.timestamps.includes(dateString)) {
+//               allData.timestamps.push(dateString);
+//             }
+
+//             Object.keys(doc).forEach((key) => {
+//               if (key !== 'createdAt' && key !== '_id') {
+//                 if (!allData.data[key]) {
+//                   allData.data[key] = [];
+//                 }
+//                 // Store values in the same order as timestamps
+//                 const index = allData.timestamps.indexOf(dateString);
+//                 allData.data[key][index] = doc[key];
+//               }
+//             });
+//           });
+
+//         } catch (error) {
+//           console.error(`Error fetching data from model ${i + 1}:`, error.message);
+//         }
+//       }
+
+//       // Sort timestamps chronologically
+//       allData.timestamps.sort((a, b) => new Date(a) - new Date(b));
+
+//       // Fill in empty slots in the data arrays
+//       Object.keys(allData.data).forEach(key => {
+//         allData.data[key] = allData.timestamps.map((ts, index) =>
+//           allData.data[key][index] || null
+//         );
+//       });
+
+//       const calculatePositionalAverages = (sensorData) => {
+//         const keys = Object.keys(sensorData);
+//         const numPositions = keys.length > 0 ? sensorData[keys[0]].length : 0;
+//         const averages = [];
+
+//         for (let i = 0; i < numPositions; i++) {
+//           let sum = 0;
+//           let count = 0;
+
+//           keys.forEach(key => {
+//             const value = parseFloat(sensorData[key][i]);
+//             if (!isNaN(value)) {
+//               sum += value;
+//               count++;
+//             }
+//           });
+
+//           averages.push(count > 0 ? sum / count : null);
+//         }
+
+//         return averages;
+//       };
+
+//       // Add averaged data to final output
+//       allData.averages = calculatePositionalAverages(allData.data);
+
+//       // After calculating positional averages
+//       const validAverages = allData.averages.filter(avg => avg !== null && !isNaN(avg));
+
+//       // Calculate min and max averages
+//       allData.minAverage = validAverages.length > 0 ?
+//         Math.min(...validAverages) :
+//         null;
+
+//       allData.Average = validAverages.length > 0 ?
+//         validAverages.reduce((sum, val) => sum + val, 0) / validAverages.length :
+//         null;
+
+//       allData.maxAverage = validAverages.length > 0 ?
+//         Math.max(...validAverages) :
+//         null;
+
+//       return {
+//         status: 'success',
+//         timestamps: allData.timestamps,
+//         averages: allData.averages,
+//         minAverage: allData.minAverage,
+//         Average: allData.Average,
+//         maxAverage: allData.maxAverage
+//       };
+//     };
+
+//     // Fetch aggregated data for charts
+//     const aggregatedData = await combinedDataChart(changedTime);
+
+//     // Send response
+//     res.status(200).json({
+//       status: 'success',
+//       Model: sensorData, // Include the computed min/max data
+//       Aside: asideData, // Include Aside data
+//       Bside: bsideData, // Include Bside data
+//       Average: aggregatedData,
+//     });
+//   } catch (error) {
+//     console.error("Unexpected error:", error.message);
+//     return res.status(500).json({ error: "Unexpected server error", details: error.message });
+//   }
+// };
+
 export const getallsensor = async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     const { time } = req.query; // Extract `time` and `userId` from query parameters
-
+    console.log("userId", userId);
     // Array of sensor models
     const collectionModels = [
       SensorModel1, SensorModel2, SensorModel3, SensorModel4, SensorModel5,
@@ -435,23 +871,52 @@ export const getallsensor = async (req, res) => {
     const asideData = {};
     const bsideData = {};
 
-    // Fetch latest document from each model within the specified time range
+    // Fetch latest and previous document from each model within the specified time range
     for (let i = 0; i < collectionModels.length; i++) {
       try {
-        const documents = await collectionModels[i]
-          //.find({ updatedAt: { $gte: changedTime } }) // Filter by `updatedAt` >= `changedTime`
-          .find()
-          .sort({ updatedAt: -1 }) // Sort by most recent
-          .limit(limitPerModel) // Limit to one document per model
+        // Fetch latest document
+        const latestDocuments = await collectionModels[i]
+          .find({ id: userId })
+          .sort({ updatedAt: -1 })
+          .limit(2) // Get 2 documents to compare current and previous
           .lean()
           .select(projection);
 
-        if (documents.length > 0) {
-          const document = documents[0]; // Get the first (latest) document
+        if (latestDocuments.length > 0) {
+          const currentDoc = latestDocuments[0]; // Current document
+          const previousDoc = latestDocuments[1] || {}; // Previous document, or empty if no previous
+
+          // Function to compare values and determine trend
+          const getTrend = (current, previous) => {
+            const currentValue = parseFloat(current) || 0;
+            const previousValue = parseFloat(previous) || 0;
+            
+            if (currentValue > previousValue) return 'up';
+            if (currentValue < previousValue) return 'down';
+            return 'stable';
+          };
+
+          // Process Aside data (models 1-5)
           if (i < 6) {
-            Object.assign(asideData, document); // Models 1 to 5 → Aside
-          } else {
-            Object.assign(bsideData, document); // Models 6 to 10 → Bside
+            Object.entries(currentDoc).forEach(([key, value]) => {
+              if (key.startsWith('CBT')) {
+                asideData[key] = {
+                  value: value,
+                  trend: getTrend(value, previousDoc[key])
+                };
+              }
+            });
+          }
+          // Process Bside data (models 6-10)
+          else {
+            Object.entries(currentDoc).forEach(([key, value]) => {
+              if (key.startsWith('CBT')) {
+                bsideData[key] = {
+                  value: value,
+                  trend: getTrend(value, previousDoc[key])
+                };
+              }
+            });
           }
         }
       } catch (error) {
@@ -513,9 +978,13 @@ export const getallsensor = async (req, res) => {
                   inTimeRange: [
                     {
                       $match: {
+                        id: userId,
                         createdAt: { $gte: changedTime },
                         [parameter]: { $exists: true, $ne: null, $type: ["number", "string"] }
                       }
+                    },
+                    {
+                      $limit: 1
                     },
                     {
                       $addFields: {
@@ -540,10 +1009,11 @@ export const getallsensor = async (req, res) => {
                   latest: [
                     {
                       $match: {
+                        id: userId,
                         [parameter]: { $exists: true, $ne: null }
                       }
                     },
-                    { $sort: { TIME: -1 } }, // Changed from createdAt to TIME
+                    { $sort: { TIME: -1 } },
                     { $limit: 1 },
                     {
                       $project: {

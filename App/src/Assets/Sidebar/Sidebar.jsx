@@ -15,44 +15,39 @@ import "../components/miscellaneous/Scrollbar.css";
 // Ref to track current socket
 
 const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData, handleSuggestionClick }) => {
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const handleSuggestionSelect = (item) => {
-    handleSuggestionClick(item);
-    setShowSuggestions(false);
+  const handleSelectChange = (e) => {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      handleSuggestionClick(selectedValue);
+    }
   };
 
   return (
     <div className="hidden md:flex md:w-[25%] rounded-xl border border-white bg-[rgba(14,14,14,0.75)] text-white font-poppins text-[22px] font-semibold leading-[33px] items-center justify-center backdrop-blur-sm z-30">
       <div className="relative flex items-center w-full">
-        <input
+        <select
           id="search"
           name="search"
-          type="number"
-          value={searchText}
-          onChange={handleSearchChange}
-          placeholder="Search"
-          className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] placeholder:text-gray-400 focus:outline-none rounded-xl py-1.5 pl-7 pr-20"
-          onFocus={() => setShowSuggestions(true)}
-        />
-        
-        {showSuggestions && searchText && (
-          <ul className="absolute left-0 right-0 z-40 overflow-y-auto text-black bg-white border border-gray-300 shadow-lg top-full max-h-40 rounded-xl">
-            {filteredData.length > 0 ? (
-              filteredData.map((item, index) => (
-                <li
-                  key={index}
-                  className="p-2 cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleSuggestionSelect(item)}
-                >
-                  {item}
-                </li>
-              ))
-            ) : (
-              <li className="p-2 text-gray-500">No results found</li>
-            )}
-          </ul>
-        )}
+          value={searchText || ''}
+          onChange={handleSelectChange}
+          className="w-full h-full bg-transparent text-white font-poppins text-[22px] font-semibold leading-[33px] focus:outline-none rounded-xl py-1.5 pl-7 pr-10 appearance-none"
+        >
+          <option value="" disabled>Select an ID</option>
+          {filteredData.map((item, index) => (
+            <option 
+              key={index} 
+              value={item}
+              className="text-black"
+            >
+              {item}
+            </option>
+          ))}
+        </select>
+        <div className="absolute right-3 pointer-events-none">
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
     </div>
   );

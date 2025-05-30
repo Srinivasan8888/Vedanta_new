@@ -24,20 +24,13 @@ const ASide = ({ socketData }) => {
         return aKey.main - bKey.main || aKey.sub - bKey.sub;
       });
 
-      // Calculate trends by comparing with previous data
-      const newData = entries.map(([key, value]) => {
-        const previousValue = previousDataRef.current[key];
-        const trend = previousValue !== undefined 
-          ? parseFloat(value) > parseFloat(previousValue) ? 'up' : 'down'
-          : 'up'; // Default to 'up' for first render
-        
-        return {
-          key,
-          value: `${value} °C`,
-          arrow: trend === 'up' ? up : down,
-          trend
-        };
-      });
+      // Map the data to include value, trend and arrow
+      const newData = entries.map(([key, entry]) => ({
+        key,
+        value: `${entry.value} °C`,
+        trend: entry.trend,
+        arrow: entry.trend === 'up' ? up : down
+      }));
 
       // Update previous data reference
       previousDataRef.current = socketData;

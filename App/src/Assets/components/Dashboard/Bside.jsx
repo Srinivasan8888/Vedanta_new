@@ -18,51 +18,45 @@ const Bside = ({ socketData }) => {
         return match ? { main: parseInt(match[1]), sub: parseInt(match[2].replace('B', '')) } : { main: 0, sub: 0 };
       };
 
-      const entries = Object.entries(socketData).sort((a, b) => {
-        const aKey = parseKey(a[0]);
-        const bKey = parseKey(b[0]);
-        return aKey.main - bKey.main || aKey.sub - bKey.sub;
-      });
-
-      // Calculate trends by comparing with previous data
-      const newData = entries.map(([key, value]) => {
-        const previousValue = previousDataRef.current[key];
-        const trend = previousValue !== undefined 
-          ? parseFloat(value) > parseFloat(previousValue) ? 'up' : 'down'
-          : 'up'; // Default to 'up' for first render
-        
-        return {
-          key,
-          value: `${value} °C`,
-          arrow: trend === 'up' ? up : down,
-          trend
-        };
-      });
-
-      // Update previous data reference
-      previousDataRef.current = socketData;
-
-      // Sort the data after mapping
-      const sortedData = newData.sort((a, b) => {
-        if (sortBy === 'default') {
-          const aKey = parseKey(a.key);
-          const bKey = parseKey(b.key);
-          return aKey.main - bKey.main || aKey.sub - bKey.sub;
-        }
-        if (sortBy === 'max' || sortBy === 'min') {
-          const aValue = parseFloat(a.value.replace(' °C', ''));
-          const bValue = parseFloat(b.value.replace(' °C', ''));
-          return sortBy === 'max' ? bValue - aValue : aValue - bValue;
-        }
-        // For trend sorting
-        if (sortBy === 'trend-up') {
-          return b.trend.localeCompare(a.trend); // Up first
-        }
-        if (sortBy === 'trend-down') {
-          return a.trend.localeCompare(b.trend); // Down first
-        }
-        return 0;
-      });
+           const entries = Object.entries(socketData).sort((a, b) => {
+              const aKey = parseKey(a[0]);
+              const bKey = parseKey(b[0]);
+              return aKey.main - bKey.main || aKey.sub - bKey.sub;
+            });
+      
+            // Map the data to include value, trend and arrow
+            const newData = entries.map(([key, entry]) => ({
+              key,
+              value: `${entry.value} °C`,
+              trend: entry.trend,
+              arrow: entry.trend === 'up' ? up : down
+            }));
+      
+            // Update previous data reference
+            previousDataRef.current = socketData;
+      
+            // Sort the data after mapping
+            const sortedData = newData.sort((a, b) => {
+              if (sortBy === 'default') {
+                const aKey = parseKey(a.key);
+                const bKey = parseKey(b.key);
+                return aKey.main - bKey.main || aKey.sub - bKey.sub;
+              }
+              if (sortBy === 'max' || sortBy === 'min') {
+                const aValue = parseFloat(a.value.replace(' °C', ''));
+                const bValue = parseFloat(b.value.replace(' °C', ''));
+                return sortBy === 'max' ? bValue - aValue : aValue - bValue;
+              }
+              // For trend sorting
+              if (sortBy === 'trend-up') {
+                return b.trend.localeCompare(a.trend); // Up first
+              }
+              if (sortBy === 'trend-down') {
+                return a.trend.localeCompare(b.trend); // Down first
+              }
+              return 0;
+            });
+      
 
       // Group into pairs (B1/B2)
       const groupedData = [];
