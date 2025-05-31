@@ -21,12 +21,25 @@ export const createReport = async (req, res) => {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
+        // Get report user limit from Values collection
+        const value = await Values.findOne();
+        if (!value) {
+            return res.status(500).json({
+                message: "Failed to fetch user limit configuration"
+            });
+        }
+
         // Check current number of reports
         const currentReports = await Report.countDocuments();
+        console.log('Current reports count:', currentReports);
+        console.log('Report user limit:', value.reportuserlimit);
+
+        // Convert reportuserlimit to integer
+        const maxReports = parseInt(value.reportuserlimit, 10);
         
-        if (currentReports >= 5) {
+        if (currentReports >= maxReports) {
             return res.status(400).json({ 
-                message: 'Maximum number of users (5) has been reached. No more users can be added.' 
+                message: `Maximum number of users (${maxReports}) has been reached. No more users can be added.` 
             });
         }
 
@@ -154,13 +167,25 @@ export const createSetAlert = async (req, res) => {
     }
 
     try {
+        // Get alert user limit from Values collection
+        const value = await Values.findOne();
+        if (!value) {
+            return res.status(500).json({
+                message: "Failed to fetch user limit configuration"
+            });
+        }
+
         // Check current user count
         const userCount = await setAlert.countDocuments();
         console.log('Current user count:', userCount);
+        console.log('Alert user limit:', value.alertuserlimit);
 
-        if (userCount >= 5) {
+        // Convert alertuserlimit to integer
+        const maxUsers = parseInt(value.alertuserlimit, 10);
+        
+        if (userCount >= maxUsers) {
             return res.status(400).json({
-                message: "Maximum number of users (5) has been reached. Cannot create more users."
+                message: `Maximum number of users (${maxUsers}) has been reached. Cannot create more users.`
             });
         }
 
@@ -799,59 +824,62 @@ export const updateUser = async (req, res) => {
 
 export const updateDevice = async (req, res) => {
     try {
-        const { deviceId: newDeviceId } = req.body;
-        const { deviceId: existingDeviceId } = req.params;
+        const { newDeviceId } = req.body;
+        const { deviceId } = req.params;
         
         // Validate input
-        if (!newDeviceId || !existingDeviceId) {
+        if (!newDeviceId || !deviceId) {
             return res.status(400).json({ 
                 success: false,
-                message: 'Both new device ID and existing device ID are required'
+                message: 'Both current and new device IDs are required'
             });
         }
 
-        // Check if the new device ID already exists
-        const existingNewDevice = await DeviceId.findOne({ deviceId: newDeviceId });
-        if (existingNewDevice) {
+        // Check if new device ID already exists
+        const existingDevice = await DeviceId.findOne({ deviceId: newDeviceId });
+        if (existingDevice) {
             return res.status(409).json({
                 success: false,
-                message: 'New device ID already exists'
+                message: 'This device ID is already in use'
             });
         }
 
-        // Find the device to update
-        const deviceToUpdate = await DeviceId.findOne({ deviceId: existingDeviceId });
-        if (!deviceToUpdate) {
+        // Find and update the device
+        const updatedDevice = await DeviceId.findOneAndUpdate(
+            { deviceId: deviceId },
+            { 
+                deviceId: newDeviceId,
+                timestamp: new Date() 
+            },
+            { new: true }
+        );
+
+        if (!updatedDevice) {
             return res.status(404).json({
                 success: false,
                 message: 'Device not found'
             });
         }
 
-        // Update the device
-        deviceToUpdate.deviceId = newDeviceId;
-        deviceToUpdate.timestamp = new Date();
-        await deviceToUpdate.save();
-
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: 'Device ID updated successfully',
+            message: 'Device updated successfully',
             data: {
-                id: deviceToUpdate._id,
-                deviceId: deviceToUpdate.deviceId,
-                timestamp: deviceToUpdate.timestamp
+                id: updatedDevice._id,
+                deviceId: updatedDevice.deviceId,
+                timestamp: updatedDevice.timestamp
             }
         });
+
     } catch (error) {
         console.error('Error updating device:', error);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Internal server error',
             error: error.message
         });
     }
-}
-
+};
 
 //delete request
 export const deleteReport = async (req, res) => {
@@ -932,46 +960,41 @@ export const deleteUser = async (req, res) => {
 
 export const deleteDevice = async (req, res) => {
     try {
-        const { deviceId: newDeviceId } = req.body;
-        const { deviceId: existingDeviceId } = req.params;
-        
-        // Validate input
-        if (!newDeviceId || !existingDeviceId) {
+        const { deviceId } = req.params;
+
+        if (!deviceId) {
             return res.status(400).json({ 
                 success: false,
-                message: 'Both new device ID and existing device ID are required'
+                message: 'Device ID is required'
             });
         }
 
-        // Find the device to update
-        const deviceToUpdate = await DeviceId.deleteOne()({ deviceId: existingDeviceId });
-        if (!deviceToUpdate) {
+        const deletedDevice = await DeviceId.findOneAndDelete({ 
+            deviceId: deviceId 
+        });
+
+        if (!deletedDevice) {
             return res.status(404).json({
                 success: false,
                 message: 'Device not found'
             });
         }
 
-        // Update the device
-        deviceToUpdate.deviceId = newDeviceId;
-        deviceToUpdate.timestamp = new Date();
-        await deviceToUpdate.save();
-
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: 'Device ID updated successfully',
+            message: 'Device deleted successfully',
             data: {
-                id: deviceToUpdate._id,
-                deviceId: deviceToUpdate.deviceId,
-                timestamp: deviceToUpdate.timestamp
+                id: deletedDevice._id,
+                deviceId: deletedDevice.deviceId
             }
         });
+
     } catch (error) {
-        console.error('Error updating device:', error);
-        res.status(500).json({
+        console.error('Error deleting device:', error);
+        return res.status(500).json({
             success: false,
             message: 'Internal server error',
             error: error.message
         });
     }
-}
+};

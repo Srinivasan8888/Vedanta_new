@@ -296,17 +296,21 @@ const User = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    
     // If not in edit mode (i.e., creating new user), check user limit
     if (!isEditMode) {
       try {
         // First, fetch the current users to check the count of regular users
-        const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`);
-        const users = response.data?.data || [];
-        const userCount = users.filter(user => user.role === 'user').length;
+        const [usersResponse, limitsResponse] = await Promise.all([
+          API.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`),
+          API.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getLimitsValue`)
+        ]);
         
-        if (userCount >= 3 ) {
-          toast.error('You have reached the maximum limit of 3 users');
+        const users = usersResponse.data?.data || [];
+        const userCount = users.filter(user => user.role === 'user').length;
+        const userLimit = parseInt(limitsResponse.data?.adminuserlimit || '3', 10);
+        
+        if (userCount >= userLimit) {
+          toast.error(`You have reached the maximum limit of ${userLimit} users`);
           return;
         }
       } catch (error) {

@@ -2,7 +2,7 @@ import express from 'express';
 import {
     createReport, createAlert, SetColorRange, deleteReport,
     updateReport, getColorRangeModel, updateUser, deleteUser, getUserDetails,
-    updateAlert, deleteAlert, createSetAlert, getCombinedAlertAndFrequency,updateDevice,deleteDevice, createDevice, getAllDevices, getLimitsValue, createLimitsValue, getAlertsByDateRange, getUserLogs, getAllAlerts, getUserAlertRange, SaveAlertRange, SetAlertFrequency, getAlertFrequency, AlertfreqUsers, alertFrequency, reportUsers, getFrequency, getUsers
+    updateAlert, deleteAlert, createSetAlert, getCombinedAlertAndFrequency,updateDevice, deleteDevice, createDevice, getAllDevices, getLimitsValue, createLimitsValue, getAlertsByDateRange, getUserLogs, getAllAlerts, getUserAlertRange, SaveAlertRange, SetAlertFrequency, getAlertFrequency, AlertfreqUsers, alertFrequency, reportUsers, getFrequency, getUsers
 } from '../Controller/Admin.Controller.js';
 
 const router = express.Router();
@@ -44,6 +44,6 @@ router.put('/updateDevice/:deviceId', updateDevice);
 router.delete('/deleteReport/:email', deleteReport)
 router.delete('/deleteAlertUser/:email', deleteAlert)
 router.delete('/deleteUsers/:email', deleteUser)
-router.delete('/deleteDevice/:deviceId', updateDevice);
+router.delete('/deleteDevice/:deviceId', deleteDevice);
 
 export default router;      

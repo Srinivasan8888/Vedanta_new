@@ -52,48 +52,50 @@ const Values = () => {
         setEditDeviceValue(device.deviceId);
     };
 
-    const handleSaveEdit = async (deviceId) => {
-        if (!editDeviceValue.trim()) {
-            toast.error('Device ID cannot be empty');
-            return;
+const handleSaveEdit = async (deviceId) => {
+    const newDeviceId = editDeviceValue.trim();
+    
+    if (!newDeviceId) {
+        toast.error('Please enter a device ID');
+        return;
+    }
+
+    try {
+        setIsLoading(true);
+        
+        // Find the existing device
+        const existingDevice = devices.find(device => device.id === deviceId);
+        if (!existingDevice) {
+            throw new Error('Device not found');
         }
 
-        try {
-            setIsLoading(true);
-            console.log('Updating device:', { deviceId, newId: editDeviceValue.trim() });
-            
-            const response = await API.put(
-                `${process.env.REACT_APP_SERVER_URL}api/admin/updateDevice/${deviceId}`,
-                { 
-                    id: deviceId,  // Include the device ID in the request body
-                    deviceId: editDeviceValue.trim() 
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
+        // Call the update API
+        const response = await API.put(
+            `${process.env.REACT_APP_SERVER_URL}api/admin/updateDevice/${existingDevice.deviceId}`,
+            { newDeviceId },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
-            );
-
-            console.log('Update response:', response.data);
-
-            if (response.data && response.data.success) {
-                toast.success('Device updated successfully!');
-                setEditingDevice(null);
-                fetchDevices(); // Refresh the devices list
-            } else {
-                throw new Error(response.data?.message || 'Failed to update device');
             }
-        } catch (error) {
-            console.error('Error updating device:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Error updating device';
-            console.error('Error details:', error.response?.data);
-            toast.error(errorMessage);
-        } finally {
-            setIsLoading(false);
+        );
+
+        if (response.data?.success) {
+            toast.success('Device updated successfully!');
+            setEditingDevice(null);
+            fetchDevices(); // Refresh the device list
+        } else {
+            throw new Error(response.data?.message || 'Failed to update device');
         }
-    };
+    } catch (error) {
+        console.error('Error updating device:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Error updating device';
+        toast.error(errorMessage);
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     const handleCancelEdit = () => {
         setEditingDevice(null);
@@ -104,27 +106,36 @@ const Values = () => {
         if (!window.confirm('Are you sure you want to delete this device?')) {
             return;
         }
-
+    
         try {
             setIsLoading(true);
+            
+            // Find the device to get its deviceId
+            const deviceToDelete = devices.find(device => device.id === deviceId);
+            if (!deviceToDelete) {
+                throw new Error('Device not found');
+            }
+    
+            // Call the delete API
             const response = await API.delete(
-                `${process.env.REACT_APP_SERVER_URL}api/admin/deleteDevice/${deviceId}`,
+                `${process.env.REACT_APP_SERVER_URL}api/admin/deleteDevice/${deviceToDelete.deviceId}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 }
             );
-
-            if (response.data.success) {
+    
+            if (response.data?.success) {
                 toast.success('Device deleted successfully!');
-                fetchDevices(); // Refresh the devices list
+                fetchDevices(); // Refresh the device list
             } else {
-                throw new Error(response.data.message || 'Failed to delete device');
+                throw new Error(response.data?.message || 'Failed to delete device');
             }
         } catch (error) {
             console.error('Error deleting device:', error);
-            toast.error(error.response?.data?.message || error.message || 'Error deleting device');
+            const errorMessage = error.response?.data?.message || error.message || 'Error deleting device';
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
