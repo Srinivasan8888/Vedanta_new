@@ -172,14 +172,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryLow", "min", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryLow", "min", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -200,30 +194,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.veryLow.min}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("veryLow", "min", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("veryLow", "min", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryLow", "min", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryLow", "min", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -247,14 +226,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryLow", "max", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryLow", "max", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -275,30 +248,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.veryLow.max}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("veryLow", "max", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("veryLow", "max", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryLow", "max", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryLow", "max", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -333,14 +291,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("low", "min", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("low", "min", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -361,30 +313,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.low.min}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("low", "min", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("low", "min", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("low", "min", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("low", "min", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -408,14 +345,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("low", "max", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("low", "max", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -436,30 +367,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.low.max}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("low", "max", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("low", "max", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("low", "max", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("low", "max", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -494,14 +410,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("medium", "min", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("medium", "min", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -522,30 +432,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.medium.min}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("medium", "min", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("medium", "min", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("medium", "min", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("medium", "min", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -569,14 +464,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("medium", "max", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("medium", "max", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -597,30 +486,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.medium.max}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("medium", "max", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("medium", "max", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("medium", "max", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("medium", "max", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -655,14 +529,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("high", "min", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("high", "min", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -683,30 +551,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.high.min}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("high", "min", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("high", "min", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("high", "min", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("high", "min", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -730,14 +583,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("high", "max", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("high", "max", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -758,30 +605,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.high.max}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("high", "max", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("high", "max", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("high", "max", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("high", "max", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -816,14 +648,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryHigh", "min", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryHigh", "min", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -844,30 +670,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.veryHigh.min}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("veryHigh", "min", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("veryHigh", "min", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryHigh", "min", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryHigh", "min", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -891,14 +702,8 @@ const ColorRange = () => {
                       <div className="relative mx-auto flex w-full max-w-[8rem] items-center justify-center">
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryHigh", "max", -1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryHigh", "max", -1)}
+                          className="p-3 border h-11 rounded-s-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -919,30 +724,15 @@ const ColorRange = () => {
                         <input
                           type="text"
                           value={ranges.veryHigh.max}
-                          onChange={(e) =>
-                            localStorage.getItem('role') === 'superadmin' && 
-                            handleInputChange("veryHigh", "max", e.target.value)
-                          }
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
-                          }`}
+                          onChange={(e) => handleInputChange("veryHigh", "max", e.target.value)}
+                          className="block h-11 w-full border-x-0 border-gray-300 py-2.5 text-center text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                           placeholder="000"
                           required
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
                         />
                         <button
                           type="button"
-                          onClick={() => localStorage.getItem('role') === 'superadmin' && handleChange("veryHigh", "max", 1)}
-                          disabled={localStorage.getItem('role') !== 'superadmin'}
-                          className={`p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 ${
-                            localStorage.getItem('role') === 'superadmin' 
-                              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer' 
-                              : 'bg-gray-200 dark:bg-gray-800 cursor-not-allowed opacity-50'
-                          }`}
-                          title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can modify' : ''}
+                          onClick={() => handleChange("veryHigh", "max", 1)}
+                          className="p-3 border h-11 rounded-e-lg focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -970,13 +760,8 @@ const ColorRange = () => {
               <button
                 type="button"
                 onClick={handleSaveColorRange}
-                disabled={loading || localStorage.getItem('role') !== 'superadmin'}
-                className={`mt-4 inline-flex h-10 w-28 items-center justify-center rounded-2xl px-5 py-2.5 text-center text-sm backdrop-blur-sm md:mt-0 md:h-16 md:w-56 md:font-medium ${
-                  localStorage.getItem('role') === 'superadmin'
-                    ? 'bg-white text-black hover:bg-gray-100 disabled:opacity-50'
-                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                }`}
-                title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can save' : ''}
+                disabled={loading}
+                className="mt-4 inline-flex h-10 w-28 items-center justify-center rounded-2xl bg-white px-5 py-2.5 text-center text-sm text-black backdrop-blur-sm hover:bg-gray-100 disabled:opacity-50 md:mt-0 md:h-16 md:w-56 md:font-medium"
               >
                 {loading ? "Saving..." : "Set Value"}
               </button>

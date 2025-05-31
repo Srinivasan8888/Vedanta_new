@@ -120,7 +120,7 @@ const Settings = () => {
     />}</>
       
       <div className="flex flex-row w-full h-full">
-        <div className="w-auto h-full overflow-hidden">
+        <div className=" h-full ">
           {isAdminUser ? <Adminsidebar /> : ""}
         </div>
 

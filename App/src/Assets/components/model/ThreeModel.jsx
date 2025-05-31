@@ -10,6 +10,7 @@ import * as THREE from "three";
 import down from "../../images/red-arrow.png";
 import up from "../../images/green-arrow.png";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 
 const Model = ({ socketData }) => {
@@ -278,6 +279,41 @@ const ThreeModel = ({ socketData, lastButtonClicked }) => {
   const controlsRef = useRef();
   const [potId, setPotId] = useState('');
   const [latestTimestamp, setLatestTimestamp] = useState('');
+  const [devices, setDevices] = useState([]);
+  const [deviceStats, setDeviceStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0
+  });
+
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await axios.get('http://34.100.168.176:4000/api/admin/getAllDevices');
+        if (response.data && response.data.success) {
+          const devicesData = response.data.data || [];
+          setDevices(devicesData);
+          
+          // Calculate active/inactive counts
+          const now = new Date().getTime();
+          const activeCount = devicesData.filter(device => 
+            device.sensorCreatedAt && 
+            (now - new Date(device.sensorCreatedAt).getTime() <= 5 * 60 * 1000)
+          ).length;
+          
+          setDeviceStats({
+            total: devicesData.length,
+            active: activeCount,
+            inactive: devicesData.length - activeCount
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+      }
+    }, 5000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const fetchLatestTimestamp = async () => {
@@ -291,14 +327,17 @@ const ThreeModel = ({ socketData, lastButtonClicked }) => {
       }
     };
 
-    const interval = setInterval(() => {
+    const updateData = () => {
       const id = localStorage.getItem('id');
       setPotId(id || '');
-      fetchLatestTimestamp(); // Fetch timestamp periodically
-    }, 5000); // Update every 5 seconds
+      fetchLatestTimestamp();
+    };
 
     // Initial fetch
-    fetchLatestTimestamp();
+    updateData();
+    
+    // Set up interval for updates
+    const interval = setInterval(updateData, 5000); // Update every 5 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -315,13 +354,13 @@ const ThreeModel = ({ socketData, lastButtonClicked }) => {
           {/* Status */}
           <div className="flex items-center gap-6">
             <p className="font-bold text-white">
-              Active: <span className="text-green-500">1</span>
+              Active: <span className="text-green-500">{deviceStats.active}</span>
             </p>
             <p className="font-bold text-white">
-              Inactive: <span className="text-red-600">11</span>
+              Inactive: <span className="text-red-600">{deviceStats.inactive}</span>
             </p>
             <p className="font-bold text-white">
-              Total Pots: <span className="text-[rgba(0,119,228)]">12</span>
+              Total Pots: <span className="text-[rgba(0,119,228)]">{deviceStats.total}</span>
             </p>
           </div>
         </div>

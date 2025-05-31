@@ -41,16 +41,42 @@ const Table = ({
   // Render empty state
   if (!data || data.length === 0) {
     return (
-      <div className="p-4 text-center">
-        {emptyMessage}
+      <div className={`rounded-2xl ${className}`} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="scrollbar-customd overflow-y-auto flex-1">
+          <div className="min-w-[30px] h-full">
+            <table className="w-full text-white">
+              <thead className={`sticky top-0 ${headerClassName} text-base backdrop-blur-sm`}>
+                <tr>
+                  {headers.map((header, index) => (
+                    <th key={index} scope="col" className={headerCellClassName}>
+                      {header.label || header}
+                    </th>
+                  ))}
+                  {showActionColumn && actions.length > 0 && (
+                    <th scope="col" className={headerCellClassName}>
+                      {actionLabel}
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colSpan={headers.length + (showActionColumn && actions.length > 0 ? 1 : 0)} className="text-center py-8">
+                    {emptyMessage}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`scrollbar-customd rounded-2xl overflow-y-auto ${className}`}>
-      <div className="min-w-[30px] rounded-2xl">
-        <div>
+    <div className={`rounded-2xl ${className}`} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="scrollbar-customd overflow-y-auto flex-1">
+        <div className="min-w-[30px] h-full">
           <table className="w-full text-white">
           <thead className={`sticky top-0 ${headerClassName} text-base backdrop-blur-sm`}>
             <tr>
@@ -93,14 +119,9 @@ const Table = ({
                             <button
                               key={index}
                               type="button"
-                              onClick={(e) => {
-                                if (localStorage.getItem('role') === 'superadmin' && action.onClick) {
-                                  action.onClick(row);
-                                }
-                              }}
-                              className={`p-2 rounded-full ${localStorage.getItem('role') === 'superadmin' ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}`}
-                              title={localStorage.getItem('role') === 'superadmin' ? (action.label || '') : 'Only superadmin can perform this action'}
-                              disabled={localStorage.getItem('role') !== 'superadmin'}
+                              onClick={() => action.onClick?.(row)}
+                              className="p-2 rounded-full hover:bg-gray-700"
+                              title={action.label || ''}
                             >
                               {action.icon}
                             </button>
@@ -110,14 +131,8 @@ const Table = ({
                         actionIcon && (
                           <button
                             type="button"
-                            onClick={(e) => {
-                              if (localStorage.getItem('role') === 'superadmin' && onActionClick) {
-                                onActionClick(row);
-                              }
-                            }}
-                            className={`p-2 rounded-full ${localStorage.getItem('role') === 'superadmin' ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}`}
-                            title={localStorage.getItem('role') === 'superadmin' ? '' : 'Only superadmin can perform this action'}
-                            disabled={localStorage.getItem('role') !== 'superadmin'}
+                            onClick={() => onActionClick?.(row)}
+                            className="p-2 rounded-full hover:bg-gray-700"
                           >
                             {actionIcon}
                           </button>

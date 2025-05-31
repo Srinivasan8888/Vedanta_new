@@ -9,14 +9,27 @@ import AlertModel from '../Models/AlertModel.js';
 import bcrypt from 'bcrypt';
 import SetAlertModel from '../Models/SetAlertModel.js';
 import UserLog from '../Models/UserLogs.js';
+import Values from '../Models/ValueModel.js';
+import DeviceId from '../Models/Deviceid.js';
+import sensorModel1 from '../Models/sensorModel1.js';
 
 
+//post request's
 export const createReport = async (req, res) => {
     const { name, email, employeeNo } = req.body;
     if (!name || !email || !employeeNo) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
+        // Check current number of reports
+        const currentReports = await Report.countDocuments();
+        
+        if (currentReports >= 5) {
+            return res.status(400).json({ 
+                message: 'Maximum number of users (5) has been reached. No more users can be added.' 
+            });
+        }
+
         const report = await Report.create({ name, email, employeeNo });
         res.status(201).json({
             message: "Sensor data created successfully.",
@@ -139,13 +152,23 @@ export const createSetAlert = async (req, res) => {
         console.log('Missing required fields:', { name, email, employeeNo, phoneNo });
         return res.status(400).json({ message: 'All fields are required' });
     }
-    
+
     try {
+        // Check current user count
+        const userCount = await setAlert.countDocuments();
+        console.log('Current user count:', userCount);
+
+        if (userCount >= 5) {
+            return res.status(400).json({
+                message: "Maximum number of users (5) has been reached. Cannot create more users."
+            });
+        }
+
         console.log('Attempting to create alert user with data:', { name, email, employeeNo, phoneNo });
         const datas = await setAlert.create({ name, email, employeeNo, phoneNo });
         console.log('Successfully created alert user:', datas);
         res.status(201).json({
-            message: "Sensor data created successfully.",
+            message: "User created successfully.",
             data: datas,
         });
     } catch (error) {
@@ -200,6 +223,111 @@ export const SetAlertFrequency = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+export const createLimitsValue = async (req, res) => {
+    try {
+        const { reportuserlimit, alertuserlimit, adminuserlimit } = req.body;
+        
+        // Validate input
+        if (!reportuserlimit || !alertuserlimit || !adminuserlimit) {
+            return res.status(400).json({ 
+                message: 'All fields are required',
+                fields: ['reportuserlimit', 'alertuserlimit', 'adminuserlimit']
+            });
+        }
+
+        // Convert values to numbers and validate
+        const reportLimit = Number(reportuserlimit);
+        const alertLimit = Number(alertuserlimit);
+        const adminLimit = Number(adminuserlimit);
+
+        if (isNaN(reportLimit) || isNaN(alertLimit) || isNaN(adminLimit)) {
+            return res.status(400).json({ 
+                message: 'All limit values must be valid numbers'
+            });
+        }
+
+        // Create the value limit
+        const valuelimit = await Values.create({ 
+            reportuserlimit: String(reportLimit),
+            alertuserlimit: String(alertLimit),
+            adminuserlimit: String(adminLimit),
+            timestamp: new Date()
+        });
+
+        res.status(201).json({
+            message: "User limits created successfully.",
+            data: valuelimit,
+        });
+    } catch (error) {
+        console.error('Error creating user limits:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Validation error',
+                details: error.message
+            });
+        }
+        res.status(500).json({ 
+            message: 'Internal server error',
+            error: error.message 
+        });
+    }
+}
+
+export const createDevice = async (req, res) => {
+    try {
+        const { deviceId } = req.body;
+        
+        // Validate input
+        if (!deviceId) {
+            return res.status(400).json({ 
+                message: 'Device ID is required'
+            });
+        }
+
+        // Check if device ID already exists
+        const existingDevice = await DeviceId.findOne({ deviceId });
+        if (existingDevice) {
+            return res.status(409).json({
+                success: false,
+                message: 'Device ID already exists'
+            });
+        }
+
+        // Create new device
+        const device = await DeviceId.create({
+            deviceId: deviceId,
+            timestamp: new Date()
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Device registered successfully',
+            data: {
+                id: device._id,
+                deviceId: device.deviceId,
+                timestamp: device.timestamp
+            }
+        });
+    } catch (error) {
+        console.error('Error registering device:', error);
+        
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(409).json({
+                success: false,
+                message: 'This device ID is already registered'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
 
 
 //get request's
@@ -448,6 +576,97 @@ export const getUserLogs = async (req, res) => {
     }
 }
 
+export const getLimitsValue = async (req, res) => {
+    try {
+        // Get the latest limits value
+        const latestLimits = await Values.findOne()
+            .sort({ timestamp: -1 })
+            .select('reportuserlimit alertuserlimit adminuserlimit timestamp');
+
+        if (!latestLimits) {
+            return res.status(404).json({
+                message: 'No limit values found'
+            });
+        }
+
+        // Convert string values back to numbers for the response
+        const responseLimits = {
+            reportuserlimit: Number(latestLimits.reportuserlimit),
+            alertuserlimit: Number(latestLimits.alertuserlimit),
+            adminuserlimit: Number(latestLimits.adminuserlimit),
+            timestamp: latestLimits.timestamp
+        };
+
+        res.status(200).json({
+            message: "Current user limits retrieved successfully",
+            data: responseLimits
+        });
+    } catch (error) {
+        console.error('Error getting user limits:', error);
+        res.status(500).json({ 
+            message: 'Internal server error',
+            error: error.message 
+        });
+    }
+}
+
+export const getAllDevices = async (req, res) => {
+    try {
+        // Fetch all devices, sorted by timestamp (newest first)
+        const devices = await DeviceId.find()
+            .sort({ timestamp: -1 })
+            .select('deviceId timestamp');
+
+        if (!devices || devices.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'No devices found',
+                data: []
+            });
+        }
+
+        // Get latest timestamp from SensorModel1 for each device
+        const deviceIds = devices.map(device => device.deviceId);
+        const latestSensorData = await sensorModel1.aggregate([
+            { $match: { id: { $in: deviceIds } } },
+            { $sort: { _id: -1 } },
+            { $group: {
+                _id: "$id",
+                latestTimestamp: { $first: "$timestamp" },
+                createdAt: { $first: "$createdAt" }
+            }}
+        ]);
+
+        // Create mapping of deviceId to latest timestamp
+        const latestTimestamps = new Map(latestSensorData.map(item => [item._id, item.latestTimestamp]));
+
+        // Create mapping of deviceId to timestamps
+        const timestampMapping = new Map(latestSensorData.map(item => [
+            item._id,
+            {
+                latestTimestamp: item.latestTimestamp,
+                createdAt: item.createdAt
+            }
+        ]));
+
+        res.status(200).json({
+            success: true,
+            message: 'Devices retrieved successfully',
+            data: devices.map(device => ({
+                id: device._id,
+                deviceId: device.deviceId,
+                sensorCreatedAt: timestampMapping.get(device.deviceId)?.createdAt || null
+            }))
+        });
+    } catch (error) {
+        console.error('Error fetching devices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
 
 
 //update request
@@ -578,6 +797,62 @@ export const updateUser = async (req, res) => {
     }
 };
 
+export const updateDevice = async (req, res) => {
+    try {
+        const { deviceId: newDeviceId } = req.body;
+        const { deviceId: existingDeviceId } = req.params;
+        
+        // Validate input
+        if (!newDeviceId || !existingDeviceId) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Both new device ID and existing device ID are required'
+            });
+        }
+
+        // Check if the new device ID already exists
+        const existingNewDevice = await DeviceId.findOne({ deviceId: newDeviceId });
+        if (existingNewDevice) {
+            return res.status(409).json({
+                success: false,
+                message: 'New device ID already exists'
+            });
+        }
+
+        // Find the device to update
+        const deviceToUpdate = await DeviceId.findOne({ deviceId: existingDeviceId });
+        if (!deviceToUpdate) {
+            return res.status(404).json({
+                success: false,
+                message: 'Device not found'
+            });
+        }
+
+        // Update the device
+        deviceToUpdate.deviceId = newDeviceId;
+        deviceToUpdate.timestamp = new Date();
+        await deviceToUpdate.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Device ID updated successfully',
+            data: {
+                id: deviceToUpdate._id,
+                deviceId: deviceToUpdate.deviceId,
+                timestamp: deviceToUpdate.timestamp
+            }
+        });
+    } catch (error) {
+        console.error('Error updating device:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+
 //delete request
 export const deleteReport = async (req, res) => {
     const { email } = req.params;
@@ -629,8 +904,6 @@ export const deleteAlert = async (req, res) => {
     }
 };
 
-
-
 export const deleteUser = async (req, res) => {
     try {
         const { email } = req.params;
@@ -656,3 +929,49 @@ export const deleteUser = async (req, res) => {
         });
     }
 };
+
+export const deleteDevice = async (req, res) => {
+    try {
+        const { deviceId: newDeviceId } = req.body;
+        const { deviceId: existingDeviceId } = req.params;
+        
+        // Validate input
+        if (!newDeviceId || !existingDeviceId) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Both new device ID and existing device ID are required'
+            });
+        }
+
+        // Find the device to update
+        const deviceToUpdate = await DeviceId.deleteOne()({ deviceId: existingDeviceId });
+        if (!deviceToUpdate) {
+            return res.status(404).json({
+                success: false,
+                message: 'Device not found'
+            });
+        }
+
+        // Update the device
+        deviceToUpdate.deviceId = newDeviceId;
+        deviceToUpdate.timestamp = new Date();
+        await deviceToUpdate.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Device ID updated successfully',
+            data: {
+                id: deviceToUpdate._id,
+                deviceId: deviceToUpdate.deviceId,
+                timestamp: deviceToUpdate.timestamp
+            }
+        });
+    } catch (error) {
+        console.error('Error updating device:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}

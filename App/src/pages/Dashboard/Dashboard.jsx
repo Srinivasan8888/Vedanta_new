@@ -259,24 +259,25 @@ const Dashboard = () => {
       />
       <>
         <div className="w-full gap-5 lg:w-full xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
-          <ThreeScene
-            socketData={fetchedData?.Model}
-            // ModelTempData={ModelTempData}
-            lastButtonClicked={lastButtonClicked}
-            latesttimestamp={latesttimestamp}
-          />
+        <ThreeScene
+  socketData={fetchedData?.Model || []}
+  lastButtonClicked={lastButtonClicked}
+  latesttimestamp={latesttimestamp}
+/>
 
           {/* <Notifications /> */}
-          <Aside socketData={fetchedData?.Aside} />
+          <Aside socketData={fetchedData?.Aside || []} />
         </div>
 
         {/* Bottom Section: Chart and B Side */}
         <div className="w-full gap-5 lg:w-full xl:flex xl:h-[45%] xl:w-full 2xl:w-full">
-          <DashboardChart
-            socketData={fetchedData?.Average}
-            onChartClick={handleChartClick}
-          />
-          <Bside socketData={fetchedData?.Bside} />
+          
+<DashboardChart
+  socketData={fetchedData?.Average || []}
+  onChartClick={handleChartClick}
+/>
+
+<Bside socketData={fetchedData?.Bside || []} />
         </div>
       </>
 

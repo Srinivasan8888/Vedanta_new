@@ -36,10 +36,17 @@ const User = () => {
 
     try {
       const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`);
+      const currentUserRole = localStorage.getItem('role');
 
       if (response.data && response.data.data) {
+        // Filter out superadmin users if current user is admin
+        let filteredUsers = response.data.data;
+        if (currentUserRole === 'admin') {
+          filteredUsers = filteredUsers.filter(user => user.role !== 'superadmin');
+        }
+
         // Transform the API data to match our table structure
-        const transformedData = response.data.data.map((user, index) => ({
+        const transformedData = filteredUsers.map((user, index) => ({
           sno: index + 1, // Increment serial number starting from 1
           name: user.name || 'N/A',
           email: user.email || 'N/A',
@@ -116,8 +123,10 @@ const User = () => {
       const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUserLogs`);
 
       if (response.data && response.data.data) {
+        // Create a copy of the array and reverse it to show most recent first
+        const reversedData = [...response.data.data].reverse();
         // Transform the API data to match our table structure
-        const transformedData = response.data.data.map((log, index) => {
+        const transformedData = reversedData.map((log, index) => {
           let methodDisplay;
           const methodName = log.method ? log.method.toLowerCase() : '';
 
@@ -287,6 +296,25 @@ const User = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    
+    // If not in edit mode (i.e., creating new user), check user limit
+    if (!isEditMode) {
+      try {
+        // First, fetch the current users to check the count of regular users
+        const response = await API.get(`${process.env.REACT_APP_SERVER_URL}api/admin/getUsers`);
+        const users = response.data?.data || [];
+        const userCount = users.filter(user => user.role === 'user').length;
+        
+        if (userCount >= 3 ) {
+          toast.error('You have reached the maximum limit of 3 users');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking user limit:', error);
+        toast.error('Failed to check user limit. Please try again.');
+        return;
+      }
+    }
     // If in edit mode, update the user
     if (isEditMode) {
       try {
@@ -370,8 +398,8 @@ const User = () => {
       <Toaster position="top-right" richColors />
       <div className="flex flex-col justify-between md:flex-row">
         <div className="flex items-start justify-start gap-5 p-4">
-          <Switcher onSwitch={handleSwitch} />
-          <button className="flex h-16 w-44 items-center justify-center gap-2 rounded-lg bg-[#101010]/90 outline outline-1 outline-offset-[-0.50px] outline-white backdrop-blur-sm">
+          {localStorage.getItem('role') === 'superadmin' && <Switcher onSwitch={handleSwitch} />}
+          {/* <button className="flex h-16 w-44 items-center justify-center gap-2 rounded-lg bg-[#101010]/90 outline outline-1 outline-offset-[-0.50px] outline-white backdrop-blur-sm">
             <div className="font-['Poppins'] text-lg font-medium text-white">
               Sort By
             </div>
@@ -390,26 +418,18 @@ const User = () => {
                 />
               </g>
             </svg>
-          </button>
+          </button> */}
         </div>
         <div className="flex items-center justify-center p-4 md:items-end md:justify-end">
           <button
             type="button"
             onClick={() => {
-              if (localStorage.getItem('role') === 'superadmin') {
-                resetForm();
-                setIsModalOpen(true);
-              }
+              resetForm();
+              setIsModalOpen(true);
             }}
-            disabled={localStorage.getItem('role') !== 'superadmin'}
-            className={`mb-2 me-2 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium ${
-              localStorage.getItem('role') === 'superadmin'
-                ? 'bg-[#050708] text-white hover:bg-[#050708]/90 focus:ring-4 focus:ring-[#050708]/50 dark:hover:bg-[#050708]/30 dark:focus:ring-[#050708]/50 cursor-pointer'
-                : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-70'
-            } md:h-16 md:w-44`}
-            title={localStorage.getItem('role') !== 'superadmin' ? 'Only superadmin can add users' : 'Add new user'}
+            className="mb-2 me-2 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium bg-[#050708] text-white hover:bg-[#050708]/90 focus:ring-4 focus:ring-[#050708]/50 dark:hover:bg-[#050708]/30 dark:focus:ring-[#050708]/50 cursor-pointer md:h-16 md:w-44"
           >
-            <img src={adduser} alt="adduser" className={`w-5 h-5 -ms-1 me-2 ${localStorage.getItem('role') !== 'superadmin' ? 'opacity-50' : ''}`} />
+            <img src={adduser} alt="adduser" className="w-5 h-5 -ms-1 me-2" />
             Add User
           </button>
         </div>
@@ -586,9 +606,15 @@ const User = () => {
                   }}
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-primary-600 focus:ring-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                  <option value="superadmin">Super-Admin</option>
+                  {localStorage.getItem('role') === 'superadmin' ? (
+                    <>
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                      <option value="superadmin">Super-Admin</option>
+                    </>
+                  ) : (
+                    <option value="user">User</option>
+                  )}
                 </select>
               </div>
 

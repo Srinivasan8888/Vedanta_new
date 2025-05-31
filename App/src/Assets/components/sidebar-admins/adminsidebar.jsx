@@ -1,4 +1,4 @@
-import { ChevronFirst, ChevronLast, MoreVertical, FileText, Bell, Palette, Users, LogOut, Gauge, CircleAlert, CircleUserRound } from "lucide-react"
+import { ChevronFirst, ChevronLast, MoreVertical, FileText, Bell, Palette, Users, LogOut, Gauge, CircleAlert, CircleUserRound, ShieldUser } from "lucide-react"
 import logo from "../../images/Xyma-Logo.png"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { createContext, useContext, useState, useEffect } from "react"
@@ -126,6 +126,12 @@ const AdminSidebar = ({ children, onToggle }) => {
                                 text="User" 
                                 active={activeItem === "user"} 
                                 to="/admin/user" 
+                            />
+                            <SidebarItem 
+                                icon={<ShieldUser size={20} />} 
+                                text="Values" 
+                                active={activeItem === "values"} 
+                                to="/admin/values" 
                             />
                              <SidebarItem 
                                 icon={<CircleUserRound size={20} />} 

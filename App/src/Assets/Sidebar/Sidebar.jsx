@@ -43,7 +43,7 @@ const SearchInput = ({ iddropdown, searchText, handleSearchChange, filteredData,
             </option>
           ))}
         </select>
-        <div className="absolute right-3 pointer-events-none">
+        <div className="absolute pointer-events-none right-3">
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -120,22 +120,24 @@ const Sidebar = (props) => {
   const refreshUniqueIds = async () => {
     try {
       const response = await API.get(
-        `${process.env.REACT_APP_SERVER_URL}api/v2/getuniqueids`,
+         `${process.env.REACT_APP_SERVER_URL}api/admin/getAllDevices`,
       );
-      const ids = response.data.ids;
-      setIddropdown(ids);
-      setFilteredData(ids);
-      localStorage.setItem("cachedIds", JSON.stringify(ids));
+      const ids = response.data.data.map(device => device.deviceId);
+      const reversedIds = ids.slice().reverse();
+      setIddropdown(reversedIds);
+      setFilteredData(reversedIds);
+      localStorage.setItem("cachedIds", JSON.stringify(reversedIds));
 
-      if (ids.length > 0 && !localStorage.getItem("id")) {
-        localStorage.setItem("id", ids[0]);
-        setSearchText(ids[0]);
+      if (reversedIds.length > 0 && !localStorage.getItem("id")) {
+        localStorage.setItem("id", reversedIds[0]);
+        setSearchText(reversedIds[0]);
       }
     } catch (error) {
       console.error("Error fetching unique IDs:", error);
       const cachedIds = JSON.parse(localStorage.getItem("cachedIds") || "[]");
-      setIddropdown(cachedIds);
-      setFilteredData(cachedIds);
+      const reversedCachedIds = cachedIds.slice().reverse();
+      setIddropdown(reversedCachedIds);
+      setFilteredData(reversedCachedIds);
     }
   };
 

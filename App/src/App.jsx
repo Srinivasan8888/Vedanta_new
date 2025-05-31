@@ -13,13 +13,13 @@ import ProtectedAdminRoute from "./Assets/components/ProtectedRouter/ProtectedAd
 import Heatmap from "./pages/Heatmap/Heatmap";
 import Test from "./pages/Test";
 import CollectorBar from "./pages/CollectorBar/CollectorBar";
-import Admin from "./pages/Admin_Dashboard/Admin";
 import AdminSidebar from "./Assets/components/sidebar-admins/adminsidebar";
 import Generatereport from "./Assets/components/sidebar-admins/components/Generatereport";
 import Alert from "./Assets/components/sidebar-admins/components/Alert";
 import ColorRange from "./Assets/components/sidebar-admins/components/ColorRange";
 import User from "./Assets/components/sidebar-admins/components/User";
 import Alertslogs from "./Assets/components/sidebar-admins/components/Alertslogs";
+import Values from "./Assets/components/sidebar-admins/components/Values";
 import bg from './Assets/images/bg.png'
 // import helmet from "helmet";
 // App.use(helmet());
@@ -43,6 +43,7 @@ function App() {
                     <Route path="generate-report" element={<Generatereport />} />
                     <Route path="set-alert" element={<Alert />} />
                     <Route path="color-range" element={<ColorRange />} />
+                    <Route path="values" element={<Values />} />
                     <Route path="user" element={<User />} />
                     <Route path="alerts-logs" element={<Alertslogs />} />
                     <Route path="*" element={<Navigate to="Settings" replace />} />
