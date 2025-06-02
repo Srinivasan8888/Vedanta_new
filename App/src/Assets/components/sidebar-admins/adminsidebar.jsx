@@ -127,12 +127,14 @@ const AdminSidebar = ({ children, onToggle }) => {
                                 active={activeItem === "user"} 
                                 to="/admin/user" 
                             />
+                            {localStorage.getItem('role') === 'superadmin' && (
                             <SidebarItem 
                                 icon={<ShieldUser size={20} />} 
                                 text="Values" 
                                 active={activeItem === "values"} 
                                 to="/admin/values" 
                             />
+                        )}
                              <SidebarItem 
                                 icon={<CircleUserRound size={20} />} 
                                 text="Profile" 
